@@ -41,7 +41,7 @@ class Telemetry(private val MaxSpeed: Double) {
     private val fieldTypePub: StringPublisher = table.getStringTopic(".type").publish()
 
     /* Mechanisms to represent the swerve module states */
-    private val m_moduleMechanisms = arrayOf(
+    private val moduleMechanisms = arrayOf(
         Mechanism2d(1.0, 1.0),
         Mechanism2d(1.0, 1.0),
         Mechanism2d(1.0, 1.0),
@@ -49,32 +49,32 @@ class Telemetry(private val MaxSpeed: Double) {
     )
 
     /* A direction and length changing ligament for speed representation */
-    private val m_moduleSpeeds = arrayOf(
-        m_moduleMechanisms[0].getRoot("RootSpeed", 0.5, 0.5)
+    private val moduleSpeeds = arrayOf(
+        moduleMechanisms[0].getRoot("RootSpeed", 0.5, 0.5)
             .append(MechanismLigament2d("Speed", 0.5, 0.0)),
-        m_moduleMechanisms[1].getRoot("RootSpeed", 0.5, 0.5)
+        moduleMechanisms[1].getRoot("RootSpeed", 0.5, 0.5)
             .append(MechanismLigament2d("Speed", 0.5, 0.0)),
-        m_moduleMechanisms[2].getRoot("RootSpeed", 0.5, 0.5)
+        moduleMechanisms[2].getRoot("RootSpeed", 0.5, 0.5)
             .append(MechanismLigament2d("Speed", 0.5, 0.0)),
-        m_moduleMechanisms[3].getRoot("RootSpeed", 0.5, 0.5)
+        moduleMechanisms[3].getRoot("RootSpeed", 0.5, 0.5)
             .append(MechanismLigament2d("Speed", 0.5, 0.0)),
     )
 
     /* A direction changing and length constant ligament for module direction */
-    private val m_moduleDirections = arrayOf(
-        m_moduleMechanisms[0].getRoot("RootDirection", 0.5, 0.5)
+    private val moduleDirections = arrayOf(
+        moduleMechanisms[0].getRoot("RootDirection", 0.5, 0.5)
             .append(MechanismLigament2d("Direction", 0.1, 0.0, 0.0, Color8Bit(Color.kWhite))),
-        m_moduleMechanisms[1].getRoot("RootDirection", 0.5, 0.5)
+        moduleMechanisms[1].getRoot("RootDirection", 0.5, 0.5)
             .append(MechanismLigament2d("Direction", 0.1, 0.0, 0.0, Color8Bit(Color.kWhite))),
-        m_moduleMechanisms[2].getRoot("RootDirection", 0.5, 0.5)
+        moduleMechanisms[2].getRoot("RootDirection", 0.5, 0.5)
             .append(MechanismLigament2d("Direction", 0.1, 0.0, 0.0, Color8Bit(Color.kWhite))),
-        m_moduleMechanisms[3].getRoot("RootDirection", 0.5, 0.5)
+        moduleMechanisms[3].getRoot("RootDirection", 0.5, 0.5)
             .append(MechanismLigament2d("Direction", 0.1, 0.0, 0.0, Color8Bit(Color.kWhite))),
     )
 
-    private val m_poseArray = DoubleArray(3)
-    private val m_moduleStatesArray = DoubleArray(8)
-    private val m_moduleTargetsArray = DoubleArray(8)
+    private val poseArray = DoubleArray(3)
+    private val moduleStatesArray = DoubleArray(8)
+    private val moduleTargetsArray = DoubleArray(8)
 
     /**
      * Construct a telemetry object, with the specified max speed of the robot
@@ -97,33 +97,33 @@ class Telemetry(private val MaxSpeed: Double) {
         driveOdometryFrequency.set(1.0 / state.OdometryPeriod)
 
         /* Also write to log file */
-        m_poseArray[0] = state.Pose.x
-        m_poseArray[1] = state.Pose.y
-        m_poseArray[2] = state.Pose.rotation.degrees
+        poseArray[0] = state.Pose.x
+        poseArray[1] = state.Pose.y
+        poseArray[2] = state.Pose.rotation.degrees
         for (i in 0..3) {
-            m_moduleStatesArray[i * 2 + 0] = state.ModuleStates[i].angle.radians
-            m_moduleStatesArray[i * 2 + 1] = state.ModuleStates[i].speedMetersPerSecond
-            m_moduleTargetsArray[i * 2 + 0] = state.ModuleTargets[i].angle.radians
-            m_moduleTargetsArray[i * 2 + 1] = state.ModuleTargets[i].speedMetersPerSecond
+            moduleStatesArray[i * 2 + 0] = state.ModuleStates[i].angle.radians
+            moduleStatesArray[i * 2 + 1] = state.ModuleStates[i].speedMetersPerSecond
+            moduleTargetsArray[i * 2 + 0] = state.ModuleTargets[i].angle.radians
+            moduleTargetsArray[i * 2 + 1] = state.ModuleTargets[i].speedMetersPerSecond
         }
 
-        SignalLogger.writeDoubleArray("DriveState/Pose", m_poseArray)
-        SignalLogger.writeDoubleArray("DriveState/ModuleStates", m_moduleStatesArray)
-        SignalLogger.writeDoubleArray("DriveState/ModuleTargets", m_moduleTargetsArray)
+        SignalLogger.writeDoubleArray("DriveState/Pose", poseArray)
+        SignalLogger.writeDoubleArray("DriveState/ModuleStates", moduleStatesArray)
+        SignalLogger.writeDoubleArray("DriveState/ModuleTargets", moduleTargetsArray)
         SignalLogger.writeDouble("DriveState/OdometryPeriod", state.OdometryPeriod, "seconds")
 
         /* Telemeterize the pose to a Field2d */
         fieldTypePub.set("Field2d")
-        fieldPub.set(m_poseArray)
+        fieldPub.set(poseArray)
 
         /* Telemeterize the module states to a Mechanism2d */
         for (i in 0..3) {
-            m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle)
-            m_moduleDirections[i].setAngle(state.ModuleStates[i].angle)
-            m_moduleSpeeds[i].length =
+            moduleSpeeds[i].setAngle(state.ModuleStates[i].angle)
+            moduleDirections[i].setAngle(state.ModuleStates[i].angle)
+            moduleSpeeds[i].length =
                 state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed)
 
-            SmartDashboard.putData("Module $i", m_moduleMechanisms[i])
+            SmartDashboard.putData("Module $i", moduleMechanisms[i])
         }
     }
 }

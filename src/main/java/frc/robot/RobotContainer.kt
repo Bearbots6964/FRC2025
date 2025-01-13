@@ -10,10 +10,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.OperatorConstants
 import frc.robot.commands.Autos
-import frc.robot.commands.ExampleCommand
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.CommandSwerveDrivetrain
-import frc.robot.subsystems.ExampleSubsystem
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -29,7 +27,7 @@ import frc.robot.subsystems.ExampleSubsystem
 object RobotContainer
 {
     private val MaxSpeed =
-        TunerConstants.kSpeedAt12Volts.`in`(Units.MetersPerSecond) // kSpeedAt12Volts desired top speed
+        TunerConstants.speedAt12Volts.`in`(Units.MetersPerSecond) // kSpeedAt12Volts desired top speed
     private val MaxAngularRate = Units.RotationsPerSecond.of(0.75)
         .`in`(Units.RadiansPerSecond) // 3/4 of a rotation per second max angular velocity
 
