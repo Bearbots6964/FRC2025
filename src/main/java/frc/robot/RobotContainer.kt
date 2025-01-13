@@ -1,10 +1,18 @@
 package frc.robot
 
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState
+import com.ctre.phoenix6.swerve.SwerveModule
+import com.ctre.phoenix6.swerve.SwerveRequest
+import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.OperatorConstants
 import frc.robot.commands.Autos
 import frc.robot.commands.ExampleCommand
+import frc.robot.generated.TunerConstants
+import frc.robot.subsystems.CommandSwerveDrivetrain
 import frc.robot.subsystems.ExampleSubsystem
 
 /**
@@ -20,8 +28,24 @@ import frc.robot.subsystems.ExampleSubsystem
  */
 object RobotContainer
 {
-    // Replace with CommandPS4Controller or CommandJoystick if needed
-    private val driverController = CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT)
+    private val MaxSpeed =
+        TunerConstants.kSpeedAt12Volts.`in`(Units.MetersPerSecond) // kSpeedAt12Volts desired top speed
+    private val MaxAngularRate = Units.RotationsPerSecond.of(0.75)
+        .`in`(Units.RadiansPerSecond) // 3/4 of a rotation per second max angular velocity
+
+    /* Setting up bindings for necessary control of the swerve drive platform */
+    private val drive: SwerveRequest.FieldCentric = SwerveRequest.FieldCentric()
+        .withDeadband(MaxSpeed * 0.1)
+        .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+        .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage) // Use open-loop control for drive motors
+    private val brake = SwerveRequest.SwerveDriveBrake()
+    private val point = SwerveRequest.PointWheelsAt()
+
+    private val logger = Telemetry(MaxSpeed)
+
+    private val joystick = CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT)
+
+    val drivetrain: CommandSwerveDrivetrain = TunerConstants.createDrivetrain()
         
     init
     {
@@ -39,11 +63,39 @@ object RobotContainer
      */
     private fun configureBindings()
     {
-        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-        Trigger { ExampleSubsystem.exampleCondition() }.onTrue(ExampleCommand())
+        // Note that X is defined as forward according to WPILib convention,
+        // and Y is defined as to the left according to WPILib convention.
+        drivetrain.defaultCommand = drivetrain.applyRequest {
+            drive.withVelocityX(-joystick.leftY * MaxSpeed) // Drive forward with negative Y (forward)
+                .withVelocityY(-joystick.leftX * MaxSpeed) // Drive left with negative X (left)
+                .withRotationalRate(-joystick.rightX * MaxAngularRate)
+        } // Drive counterclockwise with negative X (left)
 
-        // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-        // cancelling on release.
-        driverController.b().whileTrue(ExampleSubsystem.exampleMethodCommand())
+
+        joystick.a().whileTrue(drivetrain.applyRequest { brake })
+        joystick.b().whileTrue(drivetrain.applyRequest {
+            point.withModuleDirection(
+                Rotation2d(
+                    -joystick.leftY,
+                    -joystick.leftX
+                )
+            )
+        })
+
+        // Run SysId routines when holding back/start and X/Y.
+        // Note that each routine should be run exactly once in a single log.
+        joystick.back().and(joystick.y())
+            .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward))
+        joystick.back().and(joystick.x())
+            .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse))
+        joystick.start().and(joystick.y())
+            .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
+        joystick.start().and(joystick.x())
+            .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
+
+        // reset the field-centric heading on left bumper press
+        joystick.leftBumper().onTrue(drivetrain.runOnce { drivetrain.seedFieldCentric() })
+
+        drivetrain.registerTelemetry { state: SwerveDriveState -> logger.telemeterize(state) }
     }
 }
