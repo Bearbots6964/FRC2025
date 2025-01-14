@@ -12,6 +12,9 @@ object Constants
     object OperatorConstants
     {
         const val DRIVER_CONTROLLER_PORT = 0
+
+
+        const val ELEVATOR_MOTOR_ID = 77
     }
 }
 
