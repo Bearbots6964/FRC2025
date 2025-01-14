@@ -13,6 +13,12 @@ object Constants
     {
         const val DRIVER_CONTROLLER_PORT = 0
     }
+
+    object ClimberConstants
+    {
+        const val EXTENDED_POS = 0 // TODO: Set max extended motor position
+        const val LOWERED_POS = 0 // TODO: Set home motor position
+    }
 }
 
 
