@@ -25,16 +25,14 @@ object TunerConstants {
     // Both sets of gains need to be tuned to your individual robot.
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-    private val steerGains: Slot0Configs = Slot0Configs()
-        .withKP(100.0).withKI(0.0).withKD(0.5)
-        .withKS(0.1).withKV(2.66).withKA(0.0)
-        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+    private val steerGains: Slot0Configs =
+        Slot0Configs().withKP(100.0).withKI(0.0).withKD(0.5).withKS(0.1).withKV(2.66).withKA(0.0)
+            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
 
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-    private val driveGains: Slot0Configs = Slot0Configs()
-        .withKP(0.1).withKI(0.0).withKD(0.0)
-        .withKS(0.0).withKV(0.124)
+    private val driveGains: Slot0Configs =
+        Slot0Configs().withKP(0.1).withKI(0.0).withKD(0.0).withKS(0.0).withKV(0.124)
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -61,13 +59,12 @@ object TunerConstants {
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
     private val driveInitialConfigs = TalonFXConfiguration()
-    private val steerInitialConfigs: TalonFXConfiguration = TalonFXConfiguration()
-        .withCurrentLimits(
-            CurrentLimitsConfigs() // Swerve azimuth does not require much torque output, so we can set a relatively low
-                // stator current limit to help avoid brownouts without impacting performance.
-                .withStatorCurrentLimit(Units.Amps.of(60.0))
-                .withStatorCurrentLimitEnable(true)
-        )
+    private val steerInitialConfigs: TalonFXConfiguration =
+        TalonFXConfiguration().withCurrentLimits(
+                CurrentLimitsConfigs() // Swerve azimuth does not require much torque output, so we can set a relatively low
+                    // stator current limit to help avoid brownouts without impacting performance.
+                    .withStatorCurrentLimit(Units.Amps.of(60.0)).withStatorCurrentLimitEnable(true)
+            )
     private val encoderInitialConfigs = CANcoderConfiguration()
 
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
@@ -79,7 +76,7 @@ object TunerConstants {
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    val speedAt12Volts: LinearVelocity = Units.FeetPerSecond.of(12.5)
+    val speedAt12Volts: LinearVelocity = Units.FeetPerSecond.of(15.5)
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
@@ -102,32 +99,23 @@ object TunerConstants {
     private val steerFrictionVoltage: Voltage = Units.Volts.of(0.2)
     private val driveFrictionVoltage: Voltage = Units.Volts.of(0.2)
 
-    private val DrivetrainConstants: SwerveDrivetrainConstants = SwerveDrivetrainConstants()
-        .withCANBusName(canBus.name)
-        .withPigeon2Id(pigeonId)
-        .withPigeon2Configs(pigeonConfigs)
+    private val DrivetrainConstants: SwerveDrivetrainConstants =
+        SwerveDrivetrainConstants().withCANBusName(canBus.name).withPigeon2Id(pigeonId)
+            .withPigeon2Configs(pigeonConfigs)
 
     private val ConstantCreator: SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
-        SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
-            .withDriveMotorGearRatio(driveGearRatio)
-            .withSteerMotorGearRatio(steerGearRatio)
-            .withCouplingGearRatio(coupleRatio)
-            .withWheelRadius(kWheelRadius)
-            .withSteerMotorGains(steerGains)
-            .withDriveMotorGains(driveGains)
-            .withSteerMotorClosedLoopOutput(steerClosedLoopOutput)
-            .withDriveMotorClosedLoopOutput(driveClosedLoopOutput)
-            .withSlipCurrent(slipCurrent)
-            .withSpeedAt12Volts(speedAt12Volts)
-            .withDriveMotorType(driveMotorType)
-            .withSteerMotorType(steerMotorType)
-            .withFeedbackSource(steerFeedbackType)
+        SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>().withDriveMotorGearRatio(
+                driveGearRatio
+            ).withSteerMotorGearRatio(steerGearRatio).withCouplingGearRatio(coupleRatio)
+            .withWheelRadius(kWheelRadius).withSteerMotorGains(steerGains)
+            .withDriveMotorGains(driveGains).withSteerMotorClosedLoopOutput(steerClosedLoopOutput)
+            .withDriveMotorClosedLoopOutput(driveClosedLoopOutput).withSlipCurrent(slipCurrent)
+            .withSpeedAt12Volts(speedAt12Volts).withDriveMotorType(driveMotorType)
+            .withSteerMotorType(steerMotorType).withFeedbackSource(steerFeedbackType)
             .withDriveMotorInitialConfigs(driveInitialConfigs)
             .withSteerMotorInitialConfigs(steerInitialConfigs)
-            .withEncoderInitialConfigs(encoderInitialConfigs)
-            .withSteerInertia(steerInertia)
-            .withDriveInertia(driveInertia)
-            .withSteerFrictionVoltage(steerFrictionVoltage)
+            .withEncoderInitialConfigs(encoderInitialConfigs).withSteerInertia(steerInertia)
+            .withDriveInertia(driveInertia).withSteerFrictionVoltage(steerFrictionVoltage)
             .withDriveFrictionVoltage(driveFrictionVoltage)
 
 
@@ -256,24 +244,18 @@ object TunerConstants {
             vararg modules: SwerveModuleConstants<*, *, *>?
         ) : super(
             DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
-                TalonFX(
-                    deviceId,
-                    canbus
-                )
-            },
-            DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
-                TalonFX(
-                    deviceId,
-                    canbus
-                )
-            },
-            DeviceConstructor<CANcoder?> { deviceId: Int, canbus: String? ->
-                CANcoder(
-                    deviceId,
-                    canbus
-                )
-            },
-            drivetrainConstants, *modules
+            TalonFX(
+                deviceId, canbus
+            )
+        }, DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
+            TalonFX(
+                deviceId, canbus
+            )
+        }, DeviceConstructor<CANcoder?> { deviceId: Int, canbus: String? ->
+            CANcoder(
+                deviceId, canbus
+            )
+        }, drivetrainConstants, *modules
         )
 
         /**
@@ -296,24 +278,18 @@ object TunerConstants {
             vararg modules: SwerveModuleConstants<*, *, *>?
         ) : super(
             DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
-                TalonFX(
-                    deviceId,
-                    canbus
-                )
-            },
-            DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
-                TalonFX(
-                    deviceId,
-                    canbus
-                )
-            },
-            DeviceConstructor<CANcoder?> { deviceId: Int, canbus: String? ->
-                CANcoder(
-                    deviceId,
-                    canbus
-                )
-            },
-            drivetrainConstants, odometryUpdateFrequency, *modules
+            TalonFX(
+                deviceId, canbus
+            )
+        }, DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
+            TalonFX(
+                deviceId, canbus
+            )
+        }, DeviceConstructor<CANcoder?> { deviceId: Int, canbus: String? ->
+            CANcoder(
+                deviceId, canbus
+            )
+        }, drivetrainConstants, odometryUpdateFrequency, *modules
         )
 
         /**
@@ -344,25 +320,25 @@ object TunerConstants {
             vararg modules: SwerveModuleConstants<*, *, *>?
         ) : super(
             DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
-                TalonFX(
-                    deviceId,
-                    canbus
-                )
-            },
+            TalonFX(
+                deviceId, canbus
+            )
+        },
             DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
                 TalonFX(
-                    deviceId,
-                    canbus
+                    deviceId, canbus
                 )
             },
             DeviceConstructor<CANcoder?> { deviceId: Int, canbus: String? ->
                 CANcoder(
-                    deviceId,
-                    canbus
+                    deviceId, canbus
                 )
             },
-            drivetrainConstants, odometryUpdateFrequency,
-            odometryStandardDeviation, visionStandardDeviation, *modules
+            drivetrainConstants,
+            odometryUpdateFrequency,
+            odometryStandardDeviation,
+            visionStandardDeviation,
+            *modules
         )
     }
 }

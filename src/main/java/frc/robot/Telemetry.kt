@@ -86,8 +86,7 @@ class Telemetry(private val MaxSpeed: Double) {
     }
 
     /** Accept the swerve drive state and telemeterize it to SmartDashboard and SignalLogger.  */
-    fun telemeterize(state: SwerveDriveState) {
-        /* Telemeterize the swerve drive state */
+    fun telemeterize(state: SwerveDriveState) {/* Telemeterize the swerve drive state */
         drivePose.set(state.Pose)
         driveSpeeds.set(state.Speeds)
         driveModuleStates.set(state.ModuleStates)
@@ -120,8 +119,7 @@ class Telemetry(private val MaxSpeed: Double) {
         for (i in 0..3) {
             moduleSpeeds[i].setAngle(state.ModuleStates[i].angle)
             moduleDirections[i].setAngle(state.ModuleStates[i].angle)
-            moduleSpeeds[i].length =
-                state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed)
+            moduleSpeeds[i].length = state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed)
 
             SmartDashboard.putData("Module $i", moduleMechanisms[i])
         }
