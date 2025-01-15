@@ -5,8 +5,15 @@ import com.ctre.phoenix6.Utils
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveRequest
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds
+import com.pathplanner.lib.auto.AutoBuilder
+import com.pathplanner.lib.config.PIDConstants
+import com.pathplanner.lib.controllers.PPHolonomicDriveController
+import com.pathplanner.lib.util.DriveFeedforwards
 import edu.wpi.first.math.Matrix
+import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.units.Units
@@ -20,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
+import frc.robot.Constants
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain
 import java.util.function.Supplier
 
@@ -33,6 +41,9 @@ class CommandSwerveDrivetrain : TunerSwerveDrivetrain, Subsystem {
 
     /* Keep track if we've ever applied the operator perspective before or not */
     private var hasAppliedOperatorPerspective = false
+
+    /** Swerve request to apply during robot-centric path following  */
+    private val pathApplyRobotSpeeds = ApplyRobotSpeeds()
 
     /* Swerve requests to apply during SysId characterization */
     private val translationCharacterization = SwerveRequest.SysIdSwerveTranslation()
@@ -49,11 +60,9 @@ class CommandSwerveDrivetrain : TunerSwerveDrivetrain, Subsystem {
         // Log state with SignalLogger class
         { state: SysIdRoutineLog.State ->
             SignalLogger.writeString(
-                "SysIdTranslation_State",
-                state.toString()
+                "SysIdTranslation_State", state.toString()
             )
-        },
-        Mechanism(
+        }, Mechanism(
             { output: Voltage? -> setControl(translationCharacterization.withVolts(output)) },
             null,
             this
@@ -70,14 +79,10 @@ class CommandSwerveDrivetrain : TunerSwerveDrivetrain, Subsystem {
         // Log state with SignalLogger class
         { state: SysIdRoutineLog.State ->
             SignalLogger.writeString(
-                "SysIdSteer_State",
-                state.toString()
+                "SysIdSteer_State", state.toString()
             )
-        },
-        Mechanism(
-            { volts: Voltage? -> setControl(steerCharacterization.withVolts(volts)) },
-            null,
-            this
+        }, Mechanism(
+            { volts: Voltage? -> setControl(steerCharacterization.withVolts(volts)) }, null, this
         )
     )
 
@@ -90,28 +95,21 @@ class CommandSwerveDrivetrain : TunerSwerveDrivetrain, Subsystem {
         SysIdRoutine.Config( /* This is in radians per second², but SysId only supports "volts per second" */
             Units.Volts.of(Math.PI / 6)
                 .per(Units.Second),  /* This is in radians per second, but SysId only supports "volts" */
-            Units.Volts.of(Math.PI),
-            null
+            Units.Volts.of(Math.PI), null
         )  // Use default timeout (10 s)
         // Log state with SignalLogger class
         { state: SysIdRoutineLog.State ->
             SignalLogger.writeString(
-                "SysIdRotation_State",
-                state.toString()
+                "SysIdRotation_State", state.toString()
             )
-        },
-        Mechanism(
+        }, Mechanism(
             { output: Voltage ->
                 /* output is actually radians per second, but SysId only supports "volts" */
-                setControl(rotationCharacterization.withRotationalRate(output.`in`(Units.Volts)))
-                /* also log the requested output for SysId */
+                setControl(rotationCharacterization.withRotationalRate(output.`in`(Units.Volts)))/* also log the requested output for SysId */
                 SignalLogger.writeDouble(
-                    "Rotational_Rate",
-                    output.`in`(Units.Volts)
+                    "Rotational_Rate", output.`in`(Units.Volts)
                 )
-            },
-            null,
-            this
+            }, null, this
         )
     )
 
@@ -136,6 +134,7 @@ class CommandSwerveDrivetrain : TunerSwerveDrivetrain, Subsystem {
         if (Utils.isSimulation()) {
             startSimThread()
         }
+        configureAutoBuilder()
     }
 
     /**
@@ -160,6 +159,7 @@ class CommandSwerveDrivetrain : TunerSwerveDrivetrain, Subsystem {
         if (Utils.isSimulation()) {
             startSimThread()
         }
+        configureAutoBuilder()
     }
 
     /**
@@ -198,12 +198,48 @@ class CommandSwerveDrivetrain : TunerSwerveDrivetrain, Subsystem {
         if (Utils.isSimulation()) {
             startSimThread()
         }
+        configureAutoBuilder()
+    }
+
+    /**
+     * Method to configure PathPlanner settings.
+     */
+    private fun configureAutoBuilder() {
+        try {
+            val config = Constants.PhysicalProperties.activeBase.robotConfig
+            AutoBuilder.configure(
+                { state.Pose },  // Supplier of current robot pose
+                { pose: Pose2d? -> this.resetPose(pose) },  // Consumer for seeding pose against auto
+                { state.Speeds },  // Supplier of current robot speeds
+                // Consumer of ChassisSpeeds and feedforwards to drive the robot
+                { speeds: ChassisSpeeds?, feedforwards: DriveFeedforwards ->
+                    setControl(
+                        pathApplyRobotSpeeds.withSpeeds(speeds)
+                            .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                            .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                    )
+                },
+                PPHolonomicDriveController( // TODO tune
+                    PIDConstants(10.0, 0.0, 0.0), // PID constants for translation
+                    PIDConstants(7.0, 0.0, 0.0)  // PID constants for rotation
+                ),
+                config,
+                {
+                    DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+                },  // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+                this, // Subsystem for requirements
+            )
+        } catch (ex: Exception) {
+            DriverStation.reportError(
+                "Failed to load PathPlanner config and configure AutoBuilder", ex.stackTrace
+            )
+        }
     }
 
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
      *
-     * @param request Function returning the request to apply
+     * @param requestSupplier Function returning the request to apply
      * @return Command to run
      */
     fun applyRequest(requestSupplier: Supplier<SwerveRequest?>): Command {
@@ -243,10 +279,8 @@ class CommandSwerveDrivetrain : TunerSwerveDrivetrain, Subsystem {
         if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent { allianceColor: Alliance ->
                 setOperatorPerspectiveForward(
-                    if (allianceColor == Alliance.Red)
-                        kRedAlliancePerspectiveRotation
-                    else
-                        kBlueAlliancePerspectiveRotation
+                    if (allianceColor == Alliance.Red) kRedAlliancePerspectiveRotation
+                    else kBlueAlliancePerspectiveRotation
                 )
                 hasAppliedOperatorPerspective = true
             }

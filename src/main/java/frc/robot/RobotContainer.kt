@@ -3,13 +3,16 @@ package frc.robot
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState
 import com.ctre.phoenix6.swerve.SwerveModule
 import com.ctre.phoenix6.swerve.SwerveRequest
+import com.pathplanner.lib.auto.AutoBuilder
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Units
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.OperatorConstants
-import frc.robot.commands.Autos
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.CommandSwerveDrivetrain
 
@@ -24,18 +27,17 @@ import frc.robot.subsystems.CommandSwerveDrivetrain
  * to the various subsystems in this container to pass into to commands. The commands can just
  * directly reference the (single instance of the) object.
  */
-object RobotContainer
-{
+object RobotContainer {
     private val MaxSpeed =
         TunerConstants.speedAt12Volts.`in`(Units.MetersPerSecond) // kSpeedAt12Volts desired top speed
     private val MaxAngularRate = Units.RotationsPerSecond.of(0.75)
         .`in`(Units.RadiansPerSecond) // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
-    private val drive: SwerveRequest.FieldCentric = SwerveRequest.FieldCentric()
-        .withDeadband(MaxSpeed * 0.1)
-        .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-        .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage) // Use open-loop control for drive motors
+    private val drive: SwerveRequest.FieldCentric =
+        SwerveRequest.FieldCentric().withDeadband(MaxSpeed * 0.1)
+            .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage) // Use open-loop control for drive motors
     private val brake = SwerveRequest.SwerveDriveBrake()
     private val point = SwerveRequest.PointWheelsAt()
 
@@ -44,12 +46,15 @@ object RobotContainer
     private val joystick = CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT)
 
     val drivetrain: CommandSwerveDrivetrain = TunerConstants.createDrivetrain()
-        
-    init
-    {
+
+    /* Path follower */
+    private val autoChooser: SendableChooser<Command> =
+        AutoBuilder.buildAutoChooser("Tests") // TODO add autos
+
+    init {
+        SmartDashboard.putData("Auto Mode", autoChooser)
+
         configureBindings()
-        // Reference the Autos object so that it is initialized, placing the chooser on the dashboard
-        Autos
     }
 
     /**
@@ -59,8 +64,7 @@ object RobotContainer
      * subclasses such for [Xbox][CommandXboxController]/[PS4][edu.wpi.first.wpilibj2.command.button.CommandPS4Controller]
      * controllers or [Flight joysticks][edu.wpi.first.wpilibj2.command.button.CommandJoystick].
      */
-    private fun configureBindings()
-    {
+    private fun configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.defaultCommand = drivetrain.applyRequest {
@@ -74,8 +78,7 @@ object RobotContainer
         joystick.b().whileTrue(drivetrain.applyRequest {
             point.withModuleDirection(
                 Rotation2d(
-                    -joystick.leftY,
-                    -joystick.leftX
+                    -joystick.leftY, -joystick.leftX
                 )
             )
         })
@@ -96,4 +99,8 @@ object RobotContainer
 
         drivetrain.registerTelemetry { state: SwerveDriveState -> logger.telemeterize(state) }
     }
+
+    val autonomousCommand: Command
+        get() =/* Run the path selected from the auto chooser */
+            autoChooser.getSelected()
 }
