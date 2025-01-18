@@ -12,14 +12,10 @@ object ArmSubsystem: SubsystemBase() {
     private val armAxisMotor: TalonFX = TalonFX(0)
 
     var currentPosition: Angle
-        get() = getPosition()
-        set(value) = goToPosition(value)
-
-    private fun getPosition(): Angle {
-        return armAxisMotor.position.value
-    }
-
-    private fun goToPosition(value: Angle): Unit {
-        //TODO: Move motor to position
-    }
+        get() {
+            return armAxisMotor.position.value
+        }
+        set(value) {
+            //TODO: Move motor to position
+        }
 }
