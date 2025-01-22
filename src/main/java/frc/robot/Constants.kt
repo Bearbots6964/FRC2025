@@ -2,7 +2,16 @@ package frc.robot
 
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.RobotConfig
+import edu.wpi.first.apriltag.AprilTagFieldLayout
+import edu.wpi.first.apriltag.AprilTagFields
+import edu.wpi.first.math.Matrix
+import edu.wpi.first.math.VecBuilder
+import edu.wpi.first.math.geometry.Rotation3d
+import edu.wpi.first.math.geometry.Transform3d
 import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.math.geometry.Translation3d
+import edu.wpi.first.math.numbers.N1
+import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.*
@@ -70,6 +79,23 @@ object Constants {
         }
 
         val activeBase = ProgrammingBase
+    }
+
+    object Vision {
+        const val kCameraName: String = "YOUR CAMERA NAME"
+
+        // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+        val kRobotToCam: Transform3d =
+            Transform3d(Translation3d(0.5, 0.0, 0.5), Rotation3d(0.0, 0.0, 0.0))
+
+        // The layout of the AprilTags on the field
+        val kTagLayout: AprilTagFieldLayout =
+            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
+
+        // The standard deviations of our vision estimated poses, which affect correction rate
+        // (Fake values. Experiment and determine estimation noise on an actual robot.)
+        val kSingleTagStdDevs: Matrix<N3, N1> = VecBuilder.fill(4.0, 4.0, 8.0)
+        val kMultiTagStdDevs: Matrix<N3, N1> = VecBuilder.fill(0.5, 0.5, 1.0)
     }
 }
 
