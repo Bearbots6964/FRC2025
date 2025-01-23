@@ -16,8 +16,8 @@ object Constants
 
     object ClimberConstants
     {
-        const val EXTENDED_POS = 0 // TODO: Set max extended motor position
-        const val LOWERED_POS = 0 // TODO: Set home motor position
+        const val EXTENDED_POS = 0.0 // TODO: Set max extended motor position
+        const val LOWERED_POS = 0.0 // TODO: Set home motor position
     }
 }
 
