@@ -29,6 +29,7 @@ object Constants {
         object ProgrammingBase {
             @JvmStatic
             val mass: Mass = Units.Pounds.of(60.0)
+
             @JvmStatic
             val momentOfInteria: MomentOfInertia =
                 Units.KilogramSquareMeters.of(2.0) // TODO
@@ -135,6 +136,7 @@ object Constants {
 
 
     val simMode: Mode = Mode.SIM
+
     @JvmStatic
     val currentMode: Mode = if (RobotBase.isReal()) Mode.REAL else simMode
 
@@ -160,6 +162,7 @@ object Constants {
         REEF_KL,
         NONE
     }
+
     fun zoneToString(z: Zone): String {
         return when (z) {
             Zone.LOWER_CORAL_STATION -> "Lower Coral Station"
@@ -209,14 +212,19 @@ object Constants {
 
         // 176.75, 196
         val reefPoint1 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(196.0))
+
         // 209.5, 177.5
         val reefPoint2 = Translation2d(Units.Inches.of(209.5), Units.Inches.of(177.5))
+
         // 209.5, 139.5
         val reefPoint3 = Translation2d(Units.Inches.of(209.5), Units.Inches.of(139.5))
+
         // 176.75, 120.5
         val reefPoint4 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(120.5))
+
         // 144, 139.5
         val reefPoint5 = Translation2d(Units.Inches.of(144.0), Units.Inches.of(139.5))
+
         // 144, 177.5
         val reefPoint6 = Translation2d(Units.Inches.of(144.0), Units.Inches.of(177.5))
 
@@ -224,14 +232,19 @@ object Constants {
 
         // 176.75, 279.5
         val outerReefPoint1 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(279.5))
+
         // 281.5, 219
         val outerReefPoint2 = Translation2d(Units.Inches.of(281.5), Units.Inches.of(219.0))
+
         // 281.5, 98
         val outerReefPoint3 = Translation2d(Units.Inches.of(281.5), Units.Inches.of(98.0))
+
         // 176.75, 37.5
         val outerReefPoint4 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(37.5))
+
         // 72, 98
         val outerReefPoint5 = Translation2d(Units.Inches.of(72.0), Units.Inches.of(98.0))
+
         // 72, 219
         val outerReefPoint6 = Translation2d(Units.Inches.of(72.0), Units.Inches.of(219.0))
 
@@ -287,6 +300,9 @@ object Constants {
             } else {
                 return Zone.NONE
             }
+        }
+    }
+}
 
 
 
