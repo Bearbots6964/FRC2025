@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.Constants
+import org.littletonrobotics.junction.Logger
 import org.photonvision.EstimatedRobotPose
 import org.photonvision.PhotonCamera
 import org.photonvision.PhotonPoseEstimator
@@ -85,6 +86,8 @@ object VisionSubsystem : SubsystemBase() {
 
             cameraSim!!.enableDrawWireframe(true)
         }
+
+        Logger.recordOutput("Estimated Global Pose", estimatedGlobalPose.get().estimatedPose)
     }
 
     val estimatedGlobalPose: Optional<EstimatedRobotPose>
@@ -118,6 +121,7 @@ object VisionSubsystem : SubsystemBase() {
             }
             return visionEst
         }
+
 
     /**
      * Calculates new standard deviations This algorithm is a heuristic that creates dynamic standard
