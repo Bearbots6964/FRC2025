@@ -10,24 +10,18 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-package frc.robot
+package frc.robot.util
 
-import edu.wpi.first.wpilibj.RobotBase
+import com.ctre.phoenix6.StatusCode
+import java.util.function.Supplier
 
-/**
- * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
- * you are doing, do not modify this file except to change the parameter class to the startRobot
- * call.
- */
-object Main {
-    /**
-     * Main initialization function. Do not perform any initialization here.
-     *
-     *
-     * If you change your main robot class, change the parameter type.
-     */
+object PhoenixUtil {
+    /** Attempts to run the command until no error is produced.  */
     @JvmStatic
-    fun main(args: Array<String>) {
-        RobotBase.startRobot { Robot() }
+    fun tryUntilOk(maxAttempts: Int, command: Supplier<StatusCode>) {
+        for (i in 0..<maxAttempts) {
+            val error = command.get()
+            if (error.isOK) break
+        }
     }
 }

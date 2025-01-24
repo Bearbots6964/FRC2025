@@ -15,6 +15,7 @@ import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.*
+import edu.wpi.first.wpilibj.RobotBase
 
 /*
  * The Constants file provides a convenient place for teams to hold robot-wide
@@ -97,7 +98,20 @@ object Constants {
         val kSingleTagStdDevs: Matrix<N3, N1> = VecBuilder.fill(4.0, 4.0, 8.0)
         val kMultiTagStdDevs: Matrix<N3, N1> = VecBuilder.fill(0.5, 0.5, 1.0)
     }
+
+
+    val simMode: Mode = Mode.SIM
+    @JvmStatic
+    val currentMode: Mode = if (RobotBase.isReal()) Mode.REAL else simMode
+
+    enum class Mode {
+        /** Running on a real robot.  */
+        REAL,
+
+        /** Running a physics simulator.  */
+        SIM,
+
+        /** Replaying from a log file.  */
+        REPLAY
+    }
 }
-
-
-
