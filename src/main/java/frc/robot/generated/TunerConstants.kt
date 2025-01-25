@@ -44,7 +44,7 @@ object TunerConstants {
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
-    private val steerClosedLoopOutput = SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC
+    private val steerClosedLoopOutput = SwerveModuleConstants.ClosedLoopOutputType.Voltage
 
     // The closed-loop output type to use for the drive motors;
     // This affects the PID/FF gains for the drive motors
