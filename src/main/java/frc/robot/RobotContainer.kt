@@ -24,6 +24,9 @@ import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.vision.*
 import frc.robot.subsystems.vision.VisionConstants.*
+import org.ironmaple.simulation.SimulatedArena
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
+import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
 
 
@@ -35,66 +38,77 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
  */
 class RobotContainer {
     // Subsystems
-    private var drive: Drive = when (Constants.currentMode) {
-        Constants.Mode.REAL ->         // Real robot, instantiate hardware IO implementations
-            Drive(
-                GyroIOPigeon2(),
-                ModuleIOTalonFX(TunerConstants.FrontLeft),
-                ModuleIOTalonFX(TunerConstants.FrontRight),
-                ModuleIOTalonFX(TunerConstants.BackLeft),
-                ModuleIOTalonFX(TunerConstants.BackRight)
-            )
+    private var drive: Drive
+    private var vision: Vision
 
-        Constants.Mode.SIM ->         // Sim robot, instantiate physics sim IO implementations
-            Drive(
-                object : GyroIO {},
-                ModuleIOSim(TunerConstants.FrontLeft),
-                ModuleIOSim(TunerConstants.FrontRight),
-                ModuleIOSim(TunerConstants.BackLeft),
-                ModuleIOSim(TunerConstants.BackRight)
-            )
-
-        else ->         // Replayed robot, disable IO implementations
-            Drive(
-                object : GyroIO {},
-                object : ModuleIO {},
-                object : ModuleIO {},
-                object : ModuleIO {},
-                object : ModuleIO {})
-    }
-
-    private var vision: Vision = when (Constants.currentMode) {
-        Constants.Mode.REAL ->         // Real robot, instantiate hardware IO implementations
-            Vision(
-                drive::addVisionMeasurement,
-                VisionIOPhotonVision(camera0Name, robotToCamera0),
-                VisionIOPhotonVision(camera1Name, robotToCamera1)
-            )
-
-        Constants.Mode.SIM ->
-            // Sim robot, instantiate physics sim IO implementations
-            Vision(
-                drive::addVisionMeasurement,
-                VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
-                VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose)
-            );
-
-        else ->
-            // Replayed robot, disable IO implementations
-            // (Use same number of dummy implementations as the real robot)
-            Vision(drive::addVisionMeasurement, object : VisionIO {}, object : VisionIO {});
-    }
+    private var driveSimulation: SwerveDriveSimulation? = null
 
     // Controller
-    private val controller =
-        CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT)
+    private val controller = CommandXboxController(0)
 
     // Dashboard inputs
     private val autoChooser: LoggedDashboardChooser<Command>
 
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
+        when (Constants.currentMode) {
+            Constants.Mode.REAL -> {
+                // Real robot, instantiate hardware IO implementations
+                drive = Drive(
+                    GyroIOPigeon2(),
+                    ModuleIOTalonFXReal(TunerConstants.FrontLeft),
+                    ModuleIOTalonFXReal(TunerConstants.FrontRight),
+                    ModuleIOTalonFXReal(TunerConstants.BackLeft),
+                    ModuleIOTalonFXReal(TunerConstants.BackRight)
+                ) { _: Pose2d? -> }
+                this.vision = Vision(
+                    drive,
+                    VisionIOLimelight(camera0Name) { drive.rotation },
+                    VisionIOLimelight(camera1Name) { drive.rotation })
+            }
 
+            Constants.Mode.SIM -> {
+                // Sim robot, instantiate physics sim IO implementations
+                driveSimulation =
+                    SwerveDriveSimulation(Drive.mapleSimConfig, Pose2d(3.0, 3.0, Rotation2d()))
+                SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation)
+                drive = Drive(
+                    GyroIOSim(driveSimulation!!.gyroSimulation),
+                    ModuleIOTalonFXSim(
+                        TunerConstants.FrontLeft, driveSimulation!!.modules[0]
+                    ),
+                    ModuleIOTalonFXSim(
+                        TunerConstants.FrontRight, driveSimulation!!.modules[1]
+                    ),
+                    ModuleIOTalonFXSim(
+                        TunerConstants.BackLeft, driveSimulation!!.modules[2]
+                    ),
+                    ModuleIOTalonFXSim(
+                        TunerConstants.BackRight, driveSimulation!!.modules[3]
+                    )
+                ) { robotPose: Pose2d? -> driveSimulation!!.setSimulationWorldPose(robotPose) }
+                vision = Vision(
+                    drive,
+                    VisionIOPhotonVisionSim(
+                        camera0Name, robotToCamera0
+                    ) { driveSimulation!!.simulatedDriveTrainPose },
+                    VisionIOPhotonVisionSim(
+                        camera1Name, robotToCamera1
+                    ) { driveSimulation!!.simulatedDriveTrainPose })
+            }
+
+            else -> {
+                // Replayed robot, disable IO implementations
+                drive = Drive(
+                    object : GyroIO {},
+                    object : ModuleIO {},
+                    object : ModuleIO {},
+                    object : ModuleIO {},
+                    object : ModuleIO {}
+                ) { _: Pose2d? -> }
+                vision = Vision(drive, object : VisionIO {}, object : VisionIO {})
+            }
+        }
         // Set up auto routines
         autoChooser = LoggedDashboardChooser("Auto Choices", AutoBuilder.buildAutoChooser())
 
@@ -148,12 +162,15 @@ class RobotContainer {
         // Switch to X pattern when X button is pressed
         controller.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
 
-        // Reset gyro to 0° when B button is pressed
-        controller.b().onTrue(
-                Commands.runOnce(
-                    { drive.pose = Pose2d(drive.pose!!.translation, Rotation2d()) }, drive
-                ).ignoringDisable(true)
-            )
+        // Reset gyro / odometry
+        val resetGyro = if (Constants.currentMode == Constants.Mode.SIM)
+            Runnable {
+                drive.pose = driveSimulation!!
+                    .simulatedDriveTrainPose
+            } // reset odometry to actual robot pose during simulation
+        else
+            Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
+        controller.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
     }
 
     val autonomousCommand: Command
@@ -163,4 +180,26 @@ class RobotContainer {
          * @return the command to run in autonomous
          */
         get() = autoChooser.get()
+
+    fun resetSimulationField() {
+        if (Constants.currentMode != Constants.Mode.SIM) return
+
+        driveSimulation!!.setSimulationWorldPose(Pose2d(3.0, 3.0, Rotation2d()))
+        SimulatedArena.getInstance().resetFieldForAuto()
+    }
+
+    fun displaySimFieldToAdvantageScope() {
+        if (Constants.currentMode != Constants.Mode.SIM) return
+
+        Logger.recordOutput(
+            "FieldSimulation/RobotPosition",
+            driveSimulation!!.simulatedDriveTrainPose
+        )
+        Logger.recordOutput(
+            "FieldSimulation/Coral", *SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
+        )
+        Logger.recordOutput(
+            "FieldSimulation/Algae", *SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
+        )
+    }
 }
