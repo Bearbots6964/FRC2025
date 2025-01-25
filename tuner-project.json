@@ -372,7 +372,7 @@
     }
   ],
   "SwerveOptions": {
-    "kSpeedAt12Volts": 4.731460295787658,
+    "speedAt12Volts": 4.731460295787658,
     "Gyro": {
       "Id": 14,
       "Name": "Pigeon 2",

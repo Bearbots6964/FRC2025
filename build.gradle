@@ -2,11 +2,13 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.2.1"
     id "com.peterabeles.gversion" version "1.10"
-    id "com.diffplug.spotless" version "6.12.0"
+    id("com.diffplug.spotless") version "7.0.0.BETA4"
     id 'org.jetbrains.kotlin.jvm'
 }
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_20
+    targetCompatibility = JavaVersion.VERSION_20
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -28,17 +30,16 @@ deploy {
                 // getTargetTypeClass is a shortcut to get the class type using a string
 
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
+                    // https://www.chiefdelphi.com/t/2024-wpilib-feedback/464322/141
+                    final MAX_JAVA_HEAP_SIZE_MB = 100;
                     jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
+
+                    // Set the minimum heap size to the maximum heap size to avoid resizing
+                    jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
                     jvmArgs.add("-XX:GCTimeRatio=5")
                     jvmArgs.add("-XX:+UseSerialGC")
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
-
-                    // The options below may improve performance, but should only be enabled on the RIO 2
-                    //
-                    final MAX_JAVA_HEAP_SIZE_MB = 100;
-                    jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    jvmArgs.add("-XX:+AlwaysPreTouch")
                 }
 
                 // Static files artifact
@@ -63,6 +64,10 @@ wpi.java.debugJni = false
 def includeDesktopSupport = true
 
 // Configuration for AdvantageKit
+repositories {
+    mavenLocal()
+}
+
 task(replayWatch, type: JavaExec) {
     mainClass = "org.littletonrobotics.junction.ReplayWatch"
     classpath = sourceSets.main.runtimeClasspath
@@ -97,7 +102,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 compileKotlin {
-
 }
 
 test {
@@ -111,14 +115,18 @@ test {
 // AdvantageKit log replay from the command line. Set the
 // value to "true" to enable the sim GUI by default (this
 // is the standard WPILib behavior).
-wpi.sim.addGui().defaultEnabled = false
-wpi.sim.addDriverstation()
+wpi.sim.addGui().defaultEnabled = true
+// wpi.sim.addDriverstation()
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     from sourceSets.main.allSource
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -134,10 +142,8 @@ tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
-
 // Create version file
 project.compileJava.dependsOn(createVersionFile)
-project.compileKotlin.dependsOn(createVersionFile)
 gversion {
     srcDir       = "src/main/java/"
     classPackage = "frc.robot"
@@ -182,27 +188,17 @@ createVersionFile.dependsOn(eventDeploy)
 
 // Spotless formatting
 project.compileJava.dependsOn(spotlessApply)
-project.compileKotlin.dependsOn(spotlessApply)
 spotless {
     java {
-        target fileTree(".") {
-            include "**/*.java"
-            exclude "**/build/**", "**/build-*/**"
+        target fileTree('.') {
+            include '**/*.java'
+            exclude '**/build/**', '**/build-*/**'
         }
         toggleOffOn()
-        googleJavaFormat()
+        palantirJavaFormat('2.39.0').formatJavadoc(true)
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
-    }
-    kotlin {
-        target fileTree(".") {
-            include "**/*.kt"
-            exclude "**/build/**", "**/build-*/**"
-            toggleOffOn()
-            trimTrailingWhitespace()
-            endWithNewline()
-        }
     }
     groovyGradle {
         target fileTree(".") {
@@ -230,10 +226,4 @@ spotless {
         indentWithSpaces(2)
         endWithNewline()
     }
-}
-repositories {
-    mavenCentral()
-}
-kotlin {
-    jvmToolchain(17)
 }
