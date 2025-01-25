@@ -4,6 +4,7 @@ plugins {
     id "com.peterabeles.gversion" version "1.10"
     id("com.diffplug.spotless") version "7.0.0.BETA4"
     id 'org.jetbrains.kotlin.jvm'
+    id 'idea'
 }
 
 java {
@@ -54,7 +55,7 @@ deploy {
                     directory = '/home/lvuser/deploy'
                     // Change to true to delete files on roboRIO that no
                     // longer exist in deploy directory on roboRIO
-                    deleteOldFiles = false
+                    deleteOldFiles = true
                 }
             }
         }
