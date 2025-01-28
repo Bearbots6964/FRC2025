@@ -87,7 +87,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             .withGyro(COTS.ofPigeon2())
             .withSwerveModule(new SwerveModuleSimulationConfig(
                     DCMotor.getKrakenX60(1),
-                    DCMotor.getFalcon500(1),
+                    DCMotor.getKrakenX60(1),
                     TunerConstants.getFrontLeft().DriveMotorGearRatio,
                     TunerConstants.getFrontLeft().SteerMotorGearRatio,
                     Volts.of(TunerConstants.getFrontLeft().DriveFrictionVoltage),
@@ -102,7 +102,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                     TunerConstants.getFrontLeft().WheelRadius,
                     TunerConstants.getSpeedAt12Volts().in(MetersPerSecond),
                     WHEEL_COF,
-                    DCMotor.getKrakenX60Foc(1).withReduction(TunerConstants.getFrontLeft().DriveMotorGearRatio),
+                    DCMotor.getKrakenX60(1).withReduction(TunerConstants.getFrontLeft().DriveMotorGearRatio),
                     TunerConstants.getFrontLeft().SlipCurrent,
                     1),
             getModuleTranslations());
