@@ -14,14 +14,12 @@
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -52,6 +50,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.Constants.PhysicalProperties;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
@@ -77,12 +76,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     static final double ODOMETRY_FREQUENCY =
             new CANBus(TunerConstants.getDrivetrainConstants().CANBusName).isNetworkFD() ? 250.0 : 100.0;
     static final Lock odometryLock = new ReentrantLock();
-    // PathPlanner config constants
-    private static final double ROBOT_MASS_KG = 74.088;
-    private static final double ROBOT_MOI = 6.883;
-    private static final double WHEEL_COF = 1.2;
     public static final DriveTrainSimulationConfig mapleSimConfig = DriveTrainSimulationConfig.Default()
-            .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
+            .withRobotMass(PhysicalProperties.getActiveBase().getMass())
             .withCustomModuleTranslations(getModuleTranslations())
             .withGyro(COTS.ofPigeon2())
             .withSwerveModule(new SwerveModuleSimulationConfig(
@@ -94,18 +89,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                     Volts.of(TunerConstants.getFrontLeft().SteerFrictionVoltage),
                     Meters.of(TunerConstants.getFrontLeft().WheelRadius),
                     KilogramSquareMeters.of(TunerConstants.getFrontLeft().SteerInertia),
-                    WHEEL_COF));
-    private static final RobotConfig PP_CONFIG = new RobotConfig(
-            ROBOT_MASS_KG,
-            ROBOT_MOI,
-            new ModuleConfig(
-                    TunerConstants.getFrontLeft().WheelRadius,
-                    TunerConstants.getSpeedAt12Volts().in(MetersPerSecond),
-                    WHEEL_COF,
-                    DCMotor.getKrakenX60(1).withReduction(TunerConstants.getFrontLeft().DriveMotorGearRatio),
-                    TunerConstants.getFrontLeft().SlipCurrent,
-                    1),
-            getModuleTranslations());
+                    PhysicalProperties.getActiveBase().getCoefficentOfFriction()));
+    private static final RobotConfig PP_CONFIG =
+            PhysicalProperties.getActiveBase().getRobotConfig();
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
     private final Module[] modules = new Module[4]; // FL, FR, BL, BR
