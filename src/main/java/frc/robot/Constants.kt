@@ -4,14 +4,9 @@ import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.RobotConfig
 import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.apriltag.AprilTagFields
-import edu.wpi.first.math.Matrix
-import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Transform3d
 import edu.wpi.first.math.geometry.Translation2d
-import edu.wpi.first.math.geometry.Translation3d
-import edu.wpi.first.math.numbers.N1
-import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.*
@@ -31,20 +26,26 @@ object Constants {
 
     object PhysicalProperties {
         object ProgrammingBase {
-            private val mass: Mass = Units.Pounds.of(45.0)
-            private val momentOfInteria: MomentOfInertia =
+            @JvmStatic
+            val mass: Mass = Units.Pounds.of(60.0)
+            @JvmStatic
+            val momentOfInteria: MomentOfInertia =
                 Units.KilogramSquareMeters.of(2.0) // TODO
 
+            @JvmStatic
+            val wheelRadius: Distance = Units.Inches.of(2.0)
+
+            // We are using Kraken X60's. 15.5 ft/s without field-oriented control,
+            // and 15.0 ft/s without.
+            @JvmStatic
+            val maxVelocity: LinearVelocity = Units.FeetPerSecond.of(15.5)
+
+            @JvmStatic
+            val coefficentOfFriction = 1.1 // this will need to be changed.
+
+            // just a ballpark estimate for now.
+            // very much depends on whether we're on carpet or concrete.
             object Config {
-                private val wheelRadius: Distance = Units.Inches.of(2.0)
-
-                // We are using Kraken X60's. 15.5 ft/s without field-oriented control,
-                // and 15.0 ft/s without.
-                private val maxVelocity: LinearVelocity = Units.FeetPerSecond.of(15.5)
-
-                private const val coefficentOfFriction = 1.1 // this will need to be changed.
-                // just a ballpark estimate for now.
-                // very much depends on whether we're on carpet or concrete.
 
                 private val motor: DCMotor =
                     DCMotor.getKrakenX60(1).withReduction(6.75) // per module
@@ -79,24 +80,56 @@ object Constants {
             val robotConfig = RobotConfig(mass, momentOfInteria, Config.config, *moduleOffsets)
         }
 
+        @JvmStatic
         val activeBase = ProgrammingBase
     }
 
-    object Vision {
-        const val kCameraName: String = "YOUR CAMERA NAME"
-
-        // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-        val kRobotToCam: Transform3d =
-            Transform3d(Translation3d(0.5, 0.0, 0.5), Rotation3d(0.0, 0.0, 0.0))
-
-        // The layout of the AprilTags on the field
-        val kTagLayout: AprilTagFieldLayout =
+    object VisionConstants {
+        // AprilTag layout
+        @JvmStatic
+        var aprilTagLayout: AprilTagFieldLayout =
             AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
-        // The standard deviations of our vision estimated poses, which affect correction rate
-        // (Fake values. Experiment and determine estimation noise on an actual robot.)
-        val kSingleTagStdDevs: Matrix<N3, N1> = VecBuilder.fill(4.0, 4.0, 8.0)
-        val kMultiTagStdDevs: Matrix<N3, N1> = VecBuilder.fill(0.5, 0.5, 1.0)
+        // Camera names, must match names configured on coprocessor
+        var camera0Name: String = "Front_Camera"
+        var camera1Name: String = "Left_Camera"
+
+        // Robot to camera transforms
+        // (Not used by Limelight, configure in web UI instead)
+        var robotToCamera0: Transform3d = Transform3d(
+            Units.Inches.of((29.5 / 2) - (1.0 + 1.0 / 8)),
+            Units.Inches.of(-0.5),
+            Units.Inches.of(5.0 + 1.0 / 2),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-10.0), Units.Degrees.of(0.0))
+        )
+        var robotToCamera1: Transform3d = Transform3d(
+            Units.Inches.of(-0.5),
+            Units.Inches.of((29.5 / 2) - (1.0 + 1.0 / 8)),
+            Units.Inches.of(5.0 + 1.0 / 2),
+            Rotation3d(Units.Degrees.of(10.0), Units.Degrees.of(0.0), Units.Degrees.of(90.0))
+        )
+
+        // Basic filtering thresholds
+        var maxAmbiguity: Double = 0.3
+        var maxZError: Double = 0.75
+
+        // Standard deviation baselines, for 1 meter distance and 1 tag
+        // (Adjusted automatically based on distance and # of tags)
+        var linearStdDevBaseline: Double = 0.02 // Meters
+        var angularStdDevBaseline: Double = 0.06 // Radians
+
+        // Standard deviation multipliers for each camera
+        // (Adjust to trust some cameras more than others)
+        @JvmStatic
+        var cameraStdDevFactors: DoubleArray = doubleArrayOf(
+            1.0,  // Camera 0
+            1.0 // Camera 1
+        )
+
+        // Multipliers to apply for MegaTag 2 observations
+        var linearStdDevMegatag2Factor: Double = 0.5 // More stable than full 3D solve
+        var angularStdDevMegatag2Factor: Double =
+            Double.POSITIVE_INFINITY // No rotation data available
     }
 
 
