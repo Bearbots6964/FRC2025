@@ -63,8 +63,8 @@ class RobotContainer {
                 ) { _: Pose2d? -> }
                 this.vision = Vision(
                     drive,
-                    VisionIOLimelight(camera0Name) { drive.rotation },
-                    VisionIOLimelight(camera1Name) { drive.rotation })
+                    VisionIOPhotonVision(camera0Name, VisionConstants.robotToCamera0),
+                    VisionIOPhotonVision(camera1Name, robotToCamera1))
             }
 
             Constants.Mode.SIM -> {
