@@ -53,7 +53,12 @@ public class Module {
         int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
         odometryPositions = new SwerveModulePosition[sampleCount];
         for (int i = 0; i < sampleCount; i++) {
-            double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius;
+            // TODO: Shit is absolutely fucked. The 7.0 was determined to work.
+            // If we want to,
+            // we can do some further browsing
+            // and figure out *why* dividing by 7 fixes everything,
+            // but in the interim, this works perfectly and fixes all our odometry problems.
+            double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius / 7.0;
             Rotation2d angle = inputs.odometryTurnPositions[i];
             odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
         }
