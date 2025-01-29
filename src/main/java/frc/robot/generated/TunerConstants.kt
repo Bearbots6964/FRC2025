@@ -62,7 +62,7 @@ object TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private val slipCurrent: Current = Units.Amps.of(40.0)
+    private val slipCurrent: Current = Units.Amps.of(34.0)
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -101,7 +101,7 @@ object TunerConstants {
     private const val pigeonId = 14
 
     // These are only used for simulation
-    private val steerInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.004)
+    private val steerInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.05)
     private val driveInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.025)
 
     // Simulated voltage necessary to overcome friction
