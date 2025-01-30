@@ -23,6 +23,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -46,6 +47,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -155,6 +157,26 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                 new SysIdRoutine.Config(
                         null, null, null, (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+    }
+
+    public Command pathfindToLowerCoralStation() {
+        try {
+            var path = PathPlannerPath.fromPathFile("Pathfinding to Lower Coral Station");
+            return AutoBuilder.pathfindThenFollowPath(path, path.getGlobalConstraints());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Commands.none();
+        }
+    }
+
+    public Command pathfindToUpperCoralStation() {
+        try {
+            var path = PathPlannerPath.fromPathFile("Pathfinding to Upper Coral Station");
+            return AutoBuilder.pathfindThenFollowPath(path, path.getGlobalConstraints());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Commands.none();
+        }
     }
 
     /** Returns an array of module translations. */
