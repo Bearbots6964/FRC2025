@@ -137,7 +137,7 @@ object TunerConstants {
     private const val frontLeftDriveMotorId = 4
     private const val frontLeftSteerMotorId = 6
     private const val frontLeftEncoderId = 5
-    private val frontLeftEncoderOffset: Angle = Units.Rotations.of(-0.353759765625)
+    private val frontLeftEncoderOffset: Angle = Units.Rotations.of(-0.360595703125)
     private const val frontLeftSteerMotorInverted = true
     private const val frontLeftEncoderInverted = false
 
@@ -148,7 +148,7 @@ object TunerConstants {
     private const val frontRightDriveMotorId = 1
     private const val frontRightSteerMotorId = 3
     private const val frontRightEncoderId = 2
-    private val frontRightEncoderOffset: Angle = Units.Rotations.of(-0.21240234375)
+    private val frontRightEncoderOffset: Angle = Units.Rotations.of(0.4658203125)
     private const val frontRightSteerMotorInverted = true
     private const val frontRightEncoderInverted = false
 
