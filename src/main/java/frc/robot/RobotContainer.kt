@@ -15,6 +15,8 @@ package frc.robot
 import com.pathplanner.lib.auto.AutoBuilder
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.units.Units
+import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
@@ -177,6 +179,10 @@ class RobotContainer {
         else
             Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
         controller.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
+
+        controller.b().and { drive.currentZone == Constants.Zone.LOWER_CORAL_STATION }
+            .onTrue(Commands.run({DriveCommands.joystickDriveAtAngle(drive, { -controller.leftY }, { -controller.leftX }, { Rotation2d(
+                Angle.ofRelativeUnits(30.0, Units.Degrees)) })}, drive))
     }
 
     val autonomousCommand: Command

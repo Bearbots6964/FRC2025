@@ -46,13 +46,16 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PhysicalProperties;
+import frc.robot.Constants.Zone;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
@@ -74,10 +77,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             Math.max(
                     Math.hypot(TunerConstants.getBackLeft().LocationX, TunerConstants.getBackLeft().LocationY),
                     Math.hypot(TunerConstants.getBackRight().LocationX, TunerConstants.getBackRight().LocationY)));
-    // TunerConstants doesn't include these constants, so they are declared locally
-    static final double ODOMETRY_FREQUENCY =
-            new CANBus(TunerConstants.getDrivetrainConstants().CANBusName).isNetworkFD() ? 250.0 : 100.0;
-    static final Lock odometryLock = new ReentrantLock();
     public static final DriveTrainSimulationConfig mapleSimConfig = DriveTrainSimulationConfig.Default()
             .withRobotMass(PhysicalProperties.getActiveBase().getMass())
             .withCustomModuleTranslations(getModuleTranslations())
@@ -92,6 +91,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                     Meters.of(TunerConstants.getFrontLeft().WheelRadius),
                     KilogramSquareMeters.of(TunerConstants.getFrontLeft().SteerInertia),
                     PhysicalProperties.getActiveBase().getCoefficentOfFriction()));
+    // TunerConstants doesn't include these constants, so they are declared locally
+    static final double ODOMETRY_FREQUENCY =
+            new CANBus(TunerConstants.getDrivetrainConstants().CANBusName).isNetworkFD() ? 250.0 : 100.0;
+    static final Lock odometryLock = new ReentrantLock();
     private static final RobotConfig PP_CONFIG =
             PhysicalProperties.getActiveBase().getRobotConfig();
     private final GyroIO gyroIO;
@@ -113,6 +116,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     private Rotation2d rawGyroRotation = new Rotation2d();
     private final SwerveDrivePoseEstimator poseEstimator =
             new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+
+    private Zone currentZone = Zone.NONE;
 
     public Drive(
             GyroIO gyroIO,
@@ -157,6 +162,25 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                 new SysIdRoutine.Config(
                         null, null, null, (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+        Notifier zoneNotifier = new Notifier(
+                () -> currentZone = FieldConstants.INSTANCE.getZone(getPose().getTranslation()));
+        zoneNotifier.startPeriodic(0.5); // this really doesn't need to execute that often.
+        // it's also a pretty resource-intensive operation, so we have to be careful with it
+    }
+
+    /** Returns an array of module translations. */
+    public static Translation2d[] getModuleTranslations() {
+        return new Translation2d[] {
+            new Translation2d(TunerConstants.getFrontLeft().LocationX, TunerConstants.getFrontLeft().LocationY),
+            new Translation2d(TunerConstants.getFrontRight().LocationX, TunerConstants.getFrontRight().LocationY),
+            new Translation2d(TunerConstants.getBackLeft().LocationX, TunerConstants.getBackLeft().LocationY),
+            new Translation2d(TunerConstants.getBackRight().LocationX, TunerConstants.getBackRight().LocationY)
+        };
+    }
+
+    public Zone getCurrentZone() {
+        return currentZone;
     }
 
     public Command pathfindToLowerCoralStation() {
@@ -177,16 +201,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             e.printStackTrace();
             return Commands.none();
         }
-    }
-
-    /** Returns an array of module translations. */
-    public static Translation2d[] getModuleTranslations() {
-        return new Translation2d[] {
-            new Translation2d(TunerConstants.getFrontLeft().LocationX, TunerConstants.getFrontLeft().LocationY),
-            new Translation2d(TunerConstants.getFrontRight().LocationX, TunerConstants.getFrontRight().LocationY),
-            new Translation2d(TunerConstants.getBackLeft().LocationX, TunerConstants.getBackLeft().LocationY),
-            new Translation2d(TunerConstants.getBackRight().LocationX, TunerConstants.getBackRight().LocationY)
-        };
     }
 
     @Override
@@ -243,6 +257,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getCurrentMode() != Mode.SIM);
+
+        Logger.recordOutput("Odometry/Zone", Constants.INSTANCE.zoneToString(currentZone));
     }
 
     /**

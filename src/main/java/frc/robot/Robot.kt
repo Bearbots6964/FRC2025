@@ -16,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement
 import com.pathplanner.lib.commands.PathfindingCommand
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Threads
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -97,6 +98,8 @@ class Robot : LoggedRobot() {
         robotContainer = RobotContainer()
 
         PathfindingCommand.warmupCommand().schedule()
+
+        DriverStation.silenceJoystickConnectionWarning(true)
     }
 
     /** This function is called periodically during all modes.  */
