@@ -1,99 +1,205 @@
+// Copyright 2021-2025 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// version 3 as published by the Free Software Foundation or
+// available in the root directory of this project.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 package frc.robot
 
-import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState
-import com.ctre.phoenix6.swerve.SwerveModule
-import com.ctre.phoenix6.swerve.SwerveRequest
+import com.pathplanner.lib.auto.AutoBuilder
+import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.units.Units
+import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
-import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.robot.Constants.OperatorConstants
-import frc.robot.commands.Autos
+import frc.robot.commands.DriveCommands
 import frc.robot.generated.TunerConstants
-import frc.robot.subsystems.CommandSwerveDrivetrain
+import frc.robot.subsystems.drive.*
+import frc.robot.subsystems.vision.*
+import frc.robot.subsystems.vision.VisionConstants.*
+import org.ironmaple.simulation.SimulatedArena
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
+import org.littletonrobotics.junction.Logger
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the [Robot]
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- *
- * In Kotlin, it is recommended that all your Subsystems are Kotlin objects. As such, there
- * can only ever be a single instance. This eliminates the need to create reference variables
- * to the various subsystems in this container to pass into to commands. The commands can just
- * directly reference the (single instance of the) object.
+ * subsystems, commands, and button mappings) should be declared here.
  */
-object RobotContainer
-{
-    private val MaxSpeed =
-        TunerConstants.speedAt12Volts.`in`(Units.MetersPerSecond) // kSpeedAt12Volts desired top speed
-    private val MaxAngularRate = Units.RotationsPerSecond.of(0.75)
-        .`in`(Units.RadiansPerSecond) // 3/4 of a rotation per second max angular velocity
+class RobotContainer {
+    // Subsystems
+    private var drive: Drive
+    private var vision: Vision
 
-    /* Setting up bindings for necessary control of the swerve drive platform */
-    private val drive: SwerveRequest.FieldCentric = SwerveRequest.FieldCentric()
-        .withDeadband(MaxSpeed * 0.1)
-        .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-        .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage) // Use open-loop control for drive motors
-    private val brake = SwerveRequest.SwerveDriveBrake()
-    private val point = SwerveRequest.PointWheelsAt()
+    private var driveSimulation: SwerveDriveSimulation? = null
 
-    private val logger = Telemetry(MaxSpeed)
+    // Controller
+    private val controller = CommandXboxController(0)
 
-    private val joystick = CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT)
+    // Dashboard inputs
+    private val autoChooser: LoggedDashboardChooser<Command>
 
-    val drivetrain: CommandSwerveDrivetrain = TunerConstants.createDrivetrain()
-        
-    init
-    {
-        configureBindings()
-        // Reference the Autos object so that it is initialized, placing the chooser on the dashboard
-        Autos
+    /** The container for the robot. Contains subsystems, OI devices, and commands.  */
+    init {
+        when (Constants.currentMode) {
+            Constants.Mode.REAL -> {
+                // Real robot, instantiate hardware IO implementations
+                drive = Drive(
+                    GyroIOPigeon2(),
+                    ModuleIOTalonFXReal(TunerConstants.FrontLeft),
+                    ModuleIOTalonFXReal(TunerConstants.FrontRight),
+                    ModuleIOTalonFXReal(TunerConstants.BackLeft),
+                    ModuleIOTalonFXReal(TunerConstants.BackRight)
+                ) { _: Pose2d? -> }
+                this.vision = Vision(
+                    drive,
+                    VisionIOPhotonVision(camera0Name, VisionConstants.robotToCamera0),
+                    VisionIOPhotonVision(camera1Name, robotToCamera1))
+            }
+
+            Constants.Mode.SIM -> {
+                // Sim robot, instantiate physics sim IO implementations
+                driveSimulation =
+                    SwerveDriveSimulation(Drive.mapleSimConfig, Pose2d(3.0, 3.0, Rotation2d()))
+                SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation)
+                drive = Drive(
+                    GyroIOSim(driveSimulation!!.gyroSimulation),
+                    ModuleIOTalonFXSim(
+                        TunerConstants.FrontLeft, driveSimulation!!.modules[0]
+                    ),
+                    ModuleIOTalonFXSim(
+                        TunerConstants.FrontRight, driveSimulation!!.modules[1]
+                    ),
+                    ModuleIOTalonFXSim(
+                        TunerConstants.BackLeft, driveSimulation!!.modules[2]
+                    ),
+                    ModuleIOTalonFXSim(
+                        TunerConstants.BackRight, driveSimulation!!.modules[3]
+                    )
+                ) { robotPose: Pose2d? -> driveSimulation!!.setSimulationWorldPose(robotPose) }
+                vision = Vision(
+                    drive,
+                    VisionIOPhotonVisionSim(
+                        camera0Name, robotToCamera0
+                    ) { driveSimulation!!.simulatedDriveTrainPose },
+                    VisionIOPhotonVisionSim(
+                        camera1Name, robotToCamera1
+                    ) { driveSimulation!!.simulatedDriveTrainPose })
+            }
+
+            else -> {
+                // Replayed robot, disable IO implementations
+                drive = Drive(
+                    object : GyroIO {},
+                    object : ModuleIO {},
+                    object : ModuleIO {},
+                    object : ModuleIO {},
+                    object : ModuleIO {}
+                ) { _: Pose2d? -> }
+                vision = Vision(drive, object : VisionIO {}, object : VisionIO {})
+            }
+        }
+        // Set up auto routines
+        autoChooser = LoggedDashboardChooser("Auto Choices", AutoBuilder.buildAutoChooser())
+
+        // Set up SysId routines
+        autoChooser.addOption(
+            "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive)
+        )
+        autoChooser.addOption(
+            "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive)
+        )
+        autoChooser.addOption(
+            "Drive SysId (Quasistatic Forward)",
+            drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Drive SysId (Quasistatic Reverse)",
+            drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        )
+        autoChooser.addOption(
+            "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        )
+
+        // Configure the button bindings
+        configureButtonBindings()
     }
 
     /**
-     * Use this method to define your `trigger->command` mappings. Triggers can be created via the
-     * [Trigger] constructor that takes a [BooleanSupplier][java.util.function.BooleanSupplier]
-     * with an arbitrary predicate, or via the named factories in [GenericHID][edu.wpi.first.wpilibj2.command.button.CommandGenericHID]
-     * subclasses such for [Xbox][CommandXboxController]/[PS4][edu.wpi.first.wpilibj2.command.button.CommandPS4Controller]
-     * controllers or [Flight joysticks][edu.wpi.first.wpilibj2.command.button.CommandJoystick].
+     * Use this method to define your button->command mappings. Buttons can be created by
+     * instantiating a [GenericHID] or one of its subclasses ([ ] or [XboxController]), and then passing it to a [ ].
      */
-    private fun configureBindings()
-    {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        drivetrain.defaultCommand = drivetrain.applyRequest {
-            drive.withVelocityX(-joystick.leftY * MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(-joystick.leftX * MaxSpeed) // Drive left with negative X (left)
-                .withRotationalRate(-joystick.rightX * MaxAngularRate)
-        } // Drive counterclockwise with negative X (left)
+    private fun configureButtonBindings() {
+        // Default command, normal field-relative drive
+        drive.defaultCommand = DriveCommands.joystickDrive(
+            drive,
+            { -controller.leftY },
+            { -controller.leftX },
+            { -controller.rightX })
 
-
-        joystick.a().whileTrue(drivetrain.applyRequest { brake })
-        joystick.b().whileTrue(drivetrain.applyRequest {
-            point.withModuleDirection(
-                Rotation2d(
-                    -joystick.leftY,
-                    -joystick.leftX
-                )
+        // Lock to 0° when A button is held
+        controller.a().whileTrue(
+                DriveCommands.joystickDriveAtAngle(
+                    drive,
+                    { -controller.leftY },
+                    { -controller.leftX },
+                    { Rotation2d() })
             )
-        })
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y())
-            .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward))
-        joystick.back().and(joystick.x())
-            .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse))
-        joystick.start().and(joystick.y())
-            .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
-        joystick.start().and(joystick.x())
-            .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
+        // Switch to X pattern when X button is pressed
+        controller.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
 
-        // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce { drivetrain.seedFieldCentric() })
+        // Reset gyro / odometry
+        val resetGyro = if (Constants.currentMode == Constants.Mode.SIM)
+            Runnable {
+                drive.pose = driveSimulation!!
+                    .simulatedDriveTrainPose
+            } // reset odometry to actual robot pose during simulation
+        else
+            Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
+        controller.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
+    }
 
-        drivetrain.registerTelemetry { state: SwerveDriveState -> logger.telemeterize(state) }
+    val autonomousCommand: Command
+        /**
+         * Use this to pass the autonomous command to the main [Robot] class.
+         *
+         * @return the command to run in autonomous
+         */
+        get() = autoChooser.get()
+
+    fun resetSimulationField() {
+        if (Constants.currentMode != Constants.Mode.SIM) return
+
+        driveSimulation!!.setSimulationWorldPose(Pose2d(3.0, 3.0, Rotation2d()))
+        SimulatedArena.getInstance().resetFieldForAuto()
+    }
+
+    fun displaySimFieldToAdvantageScope() {
+        if (Constants.currentMode != Constants.Mode.SIM) return
+
+        Logger.recordOutput(
+            "FieldSimulation/RobotPosition",
+            driveSimulation!!.simulatedDriveTrainPose
+        )
+        Logger.recordOutput(
+            "FieldSimulation/Coral", *SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
+        )
+        Logger.recordOutput(
+            "FieldSimulation/Algae", *SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
+        )
     }
 }

@@ -24,6 +24,12 @@ pluginManagement {
             url frcHomeMaven
         }
     }
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version '2.1.10'
+    }
+}
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
 }
 
 Properties props = System.getProperties();
