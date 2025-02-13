@@ -84,6 +84,14 @@ object Constants {
         val activeBase = ProgrammingBase
     }
 
+    object ArmConstants {
+        //TODO: Get motor IDs
+        @JvmStatic
+        public val armAxisMotorID;
+        @JvmStatic
+        public val armFlyWheelMotorID;
+    }
+
     object VisionConstants {
         // AprilTag layout
         @JvmStatic
