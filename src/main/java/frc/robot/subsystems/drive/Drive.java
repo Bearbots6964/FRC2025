@@ -77,6 +77,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             Math.max(
                     Math.hypot(TunerConstants.getBackLeft().LocationX, TunerConstants.getBackLeft().LocationY),
                     Math.hypot(TunerConstants.getBackRight().LocationX, TunerConstants.getBackRight().LocationY)));
+    // TunerConstants doesn't include these constants, so they are declared locally
+    static final double ODOMETRY_FREQUENCY =
+            new CANBus(TunerConstants.getDrivetrainConstants().CANBusName).isNetworkFD() ? 250.0 : 100.0;
+    static final Lock odometryLock = new ReentrantLock();
     public static final DriveTrainSimulationConfig mapleSimConfig = DriveTrainSimulationConfig.Default()
             .withRobotMass(PhysicalProperties.getActiveBase().getMass())
             .withCustomModuleTranslations(getModuleTranslations())
@@ -91,10 +95,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                     Meters.of(TunerConstants.getFrontLeft().WheelRadius),
                     KilogramSquareMeters.of(TunerConstants.getFrontLeft().SteerInertia),
                     PhysicalProperties.getActiveBase().getCoefficentOfFriction()));
-    // TunerConstants doesn't include these constants, so they are declared locally
-    static final double ODOMETRY_FREQUENCY =
-            new CANBus(TunerConstants.getDrivetrainConstants().CANBusName).isNetworkFD() ? 250.0 : 100.0;
-    static final Lock odometryLock = new ReentrantLock();
     private static final RobotConfig PP_CONFIG =
             PhysicalProperties.getActiveBase().getRobotConfig();
     private final GyroIO gyroIO;

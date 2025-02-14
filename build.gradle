@@ -1,7 +1,8 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.2.1"
-    id "com.peterabeles.gversion" version "1.10"
+    id "com.peterabeles.gversion" version "1.10.3"
+    id("com.diffplug.spotless") version "7.0.2"
     id 'org.jetbrains.kotlin.jvm'
     id 'idea'
 }
@@ -100,12 +101,14 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+compileKotlin {
 }
 
 test {
@@ -149,12 +152,12 @@ tasks.withType(JavaCompile) {
 // Create version file
 project.compileJava.dependsOn(createVersionFile)
 gversion {
-    srcDir = "src/main/java/"
+    srcDir       = "src/main/java/"
     classPackage = "frc.robot"
-    className = "BuildConstants"
-    dateFormat = "yyyy-MM-dd HH:mm:ss z"
-    timeZone = "America/New_York"
-    indent = "  "
+    className    = "BuildConstants"
+    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
+    timeZone     = "America/New_York"
+    indent       = "  "
 }
 
 // Create commit with working changes on event branches
@@ -189,3 +192,45 @@ task(eventDeploy) {
     }
 }
 createVersionFile.dependsOn(eventDeploy)
+
+// Spotless formatting
+project.compileJava.dependsOn(spotlessApply)
+spotless {
+    java {
+        target fileTree('.') {
+            include '**/*.java'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        toggleOffOn()
+        palantirJavaFormat('2.39.0').formatJavadoc(true)
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovyGradle {
+        target fileTree(".") {
+            include "**/*.gradle"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    json {
+        target fileTree(".") {
+            include "**/*.json"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        gson().indentWithSpaces(2)
+    }
+    format "misc", {
+        target fileTree(".") {
+            include "**/*.md", "**/.gitignore"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+    }
+}
