@@ -167,6 +167,7 @@ class Robot : LoggedRobot() {
     override fun simulationInit() {
         SimulatedArena.getInstance().resetFieldForAuto()
     }
+
     /** This function is called periodically whilst in simulation.  */
     override fun simulationPeriodic() {
         SimulatedArena.getInstance().simulationPeriodic()

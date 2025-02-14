@@ -136,7 +136,6 @@ object Constants {
 
 
     val simMode: Mode = Mode.SIM
-
     @JvmStatic
     val currentMode: Mode = if (RobotBase.isReal()) Mode.REAL else simMode
 
@@ -162,7 +161,6 @@ object Constants {
         REEF_KL,
         NONE
     }
-
     fun zoneToString(z: Zone): String {
         return when (z) {
             Zone.LOWER_CORAL_STATION -> "Lower Coral Station"
@@ -300,8 +298,9 @@ object Constants {
             } else {
                 return Zone.NONE
             }
+
         }
+
+
     }
-
-
 }
