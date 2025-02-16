@@ -23,6 +23,10 @@ object Constants {
     object OperatorConstants {
         const val DRIVER_CONTROLLER_PORT = 0
     }
+    object ElevatorConstants {
+        const val LEFT_MOTOR_CAN_ID = 0
+        const val RIGHT_MOTOR_CAN_ID = 1
+    }
 
     object PhysicalProperties {
         object ProgrammingBase {
