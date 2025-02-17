@@ -63,8 +63,8 @@ public class Arm extends SubsystemBase {
         io.setArmFlywheelOpenLoop(output);
     }
 
-    //TODO: SysID routines
+    // TODO: SysID routines
 
-    //TODO: Command Factories?
+    // TODO: Command Factories?
 
 }
