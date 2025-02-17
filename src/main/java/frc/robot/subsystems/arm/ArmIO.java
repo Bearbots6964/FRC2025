@@ -11,25 +11,28 @@ public interface ArmIO {
     @AutoLog
     class ArmIOInputs {
         public boolean armAxisConnected = false;
-        public Angle armAngleRad = Units.Degree.of(0.0);
-        public AngularVelocity armAngularVelocity = Units.RadiansPerSecond.of(0.0);
+        public boolean armFlywheelConnected = false;
+        public Angle armAxisAngle = Units.Degree.of(0.0);
+        public AngularVelocity armFlywheelAngularVelocity = Units.RadiansPerSecond.of(0.0);
         public Voltage armAppliedVolts = Units.Volts.of(0.0);
         public Current armAppliedCurrent = Units.Amps.of(0.0);
     }
 
     default void updateInputs(ArmIOInputs inputs) {}
 
-    default void setArmAxisOpenLoop(double output) {}
-
     default void setArmFlywheelOpenLoop(double output) {}
 
-    default void setArmAxisAngle(Angle angle) {}
+    default void setArmAxisAngleDegrees(Angle angle) {}
 
-    default Angle getArmAxisAngle() {}
+    default Angle getArmAxisAngleDegrees() {
+        return Units.Degrees.of(0.0);
+    }
 
-    default void setArmFlywheelVelocity(AngularVelocity velocity) {}
+    default void setArmFlywheelAngularVelocity(AngularVelocity velocity) {}
 
-    default AngularVelocity getArmFlywheelVelocity() {}
+    default AngularVelocity getArmFlywheelAngularVelocity() {
+        return Units.DegreesPerSecond.of(0.0);
+    }
 
     default void stopArmAxis() {}
 
