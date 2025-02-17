@@ -105,6 +105,7 @@ object TunerConstants {
     private val kSteerFrictionVoltage: Voltage = Units.Volts.of(0.2)
     private val kDriveFrictionVoltage: Voltage = Units.Volts.of(0.2)
 
+    @JvmStatic
     val DrivetrainConstants: SwerveDrivetrainConstants = SwerveDrivetrainConstants()
         .withCANBusName(kCANBus.getName())
         .withPigeon2Id(kPigeonId)
@@ -178,12 +179,13 @@ object TunerConstants {
     private val kBackRightXPos: Distance = Units.Inches.of(-12.125)
     private val kBackRightYPos: Distance = Units.Inches.of(-12.125)
 
-
+    @JvmStatic
     val FrontLeft: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
         ConstantCreator.createModuleConstants(
             kFrontLeftSteerMotorId, kFrontLeftDriveMotorId, kFrontLeftEncoderId, kFrontLeftEncoderOffset,
             kFrontLeftXPos, kFrontLeftYPos, kInvertLeftSide, kFrontLeftSteerMotorInverted, kFrontLeftEncoderInverted
         )
+    @JvmStatic
     val FrontRight: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
         ConstantCreator.createModuleConstants(
             kFrontRightSteerMotorId,
@@ -196,11 +198,13 @@ object TunerConstants {
             kFrontRightSteerMotorInverted,
             kFrontRightEncoderInverted
         )
+    @JvmStatic
     val BackLeft: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
         ConstantCreator.createModuleConstants(
             kBackLeftSteerMotorId, kBackLeftDriveMotorId, kBackLeftEncoderId, kBackLeftEncoderOffset,
             kBackLeftXPos, kBackLeftYPos, kInvertLeftSide, kBackLeftSteerMotorInverted, kBackLeftEncoderInverted
         )
+    @JvmStatic
     val BackRight: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
         ConstantCreator.createModuleConstants(
             kBackRightSteerMotorId,
@@ -213,6 +217,11 @@ object TunerConstants {
             kBackRightSteerMotorInverted,
             kBackRightEncoderInverted
         )
+
+    @JvmStatic
+    fun getSpeedAt12Volts(): LinearVelocity {
+        return kSpeedAt12Volts
+    }
 
     /**
      * Creates a CommandSwerveDrivetrain instance.
