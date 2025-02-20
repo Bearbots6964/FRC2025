@@ -28,10 +28,10 @@ object Constants {
 
     object ClimberConstants
     {
-        private const val EXTENDED_POS = 0.0 // TODO: Determine & Set max extended motor position
-        private const val LOWERED_POS = 0.0 // TODO: Determine & Set home motor position
-        private const val climberId = 2
-        private val config: TalonFXConfiguration = TalonFXConfiguration()
+        val EXTENDED_POS: Angle = Units.Degrees.of(0.0) // TODO: Determine & Set max extended motor position
+        val LOWERED_POS: Angle = Units.Degrees.of(0.0) // TODO: Determine & Set home motor position
+        const val climberMotorID = 2
+        val config: TalonFXConfiguration = TalonFXConfiguration()
         init {
             config.MotorOutput.NeutralMode = NeutralModeValue.Brake
         }

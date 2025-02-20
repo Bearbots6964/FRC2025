@@ -70,7 +70,7 @@ The project is organized into several key directories and files:
 > [!NOTE]
 > Other integrated development environments such as Visual Studio Code,
 > Emacs, Neovim, and Helix *should* work, but have not been tested with this codebase.
-> 
+>
 (Visual Studio Code, or at least the WPILib distribution of it,
 is the only officially supported IDE. We use IntelliJ IDEA for development because it's better.)
 
