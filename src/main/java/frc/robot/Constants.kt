@@ -1,5 +1,7 @@
 package frc.robot
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.signals.NeutralModeValue
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.RobotConfig
 import edu.wpi.first.apriltag.AprilTagFieldLayout
@@ -22,6 +24,20 @@ import edu.wpi.first.wpilibj.RobotBase
 object Constants {
     object OperatorConstants {
         const val DRIVER_CONTROLLER_PORT = 0
+    }
+
+    object ClimberConstants
+    {
+        val EXTENDED_POS: Angle = Units.Degrees.of(0.0) // TODO: Determine & Set max extended motor position
+        val LOWERED_POS: Angle = Units.Degrees.of(0.0) // TODO: Determine & Set home motor position
+        const val climberMotorID = 2
+        val config: TalonFXConfiguration = TalonFXConfiguration()
+        init {
+            config.MotorOutput.NeutralMode = NeutralModeValue.Brake
+        }
+
+
+
     }
 
     object PhysicalProperties {
