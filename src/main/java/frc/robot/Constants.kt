@@ -90,9 +90,14 @@ object Constants {
         var aprilTagLayout: AprilTagFieldLayout =
             AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
-        // Camera names, must match names configured on coprocessor
-        var camera0Name: String = "Front_Camera"
-        var camera1Name: String = "Left_Camera"
+        /**
+         * Camera for Pi `10.69.64.11`.
+         */
+        var camera0Name: String = "right"
+        /**
+         * Camera for Pi `10.69.64.12`.
+         */
+        var camera1Name: String = "left"
 
         // Robot to camera transforms
         // (Not used by Limelight, configure in web UI instead)
