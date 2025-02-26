@@ -12,15 +12,22 @@
 // GNU General Public License for more details.
 package frc.robot
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.pathplanner.lib.auto.AutoBuilder
+import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.commands.DriveCommands
 import frc.robot.generated.TunerConstants
+import frc.robot.subsystems.arm.Arm
+import frc.robot.subsystems.arm.ArmIO
+import frc.robot.subsystems.arm.ArmIOTalonFX
+import frc.robot.subsystems.arm.ArmIOTalonFXSim
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.vision.*
 import frc.robot.subsystems.vision.VisionConstants.*
@@ -40,6 +47,7 @@ class RobotContainer {
     // Subsystems
     private var drive: Drive
     private var vision: Vision
+    private var arm: Arm
 
     private var driveSimulation: SwerveDriveSimulation? = null
 
@@ -65,6 +73,13 @@ class RobotContainer {
                     drive,
                     VisionIOPhotonVision(camera0Name, VisionConstants.robotToCamera0),
                     VisionIOPhotonVision(camera1Name, robotToCamera1))
+                arm = Arm(
+                    ArmIOTalonFX(
+                        //TalonFXConfiguration(),
+                        SparkMaxConfig(),
+                        TalonFXConfiguration()
+                    )
+                )
             }
 
             Constants.Mode.SIM -> {
@@ -95,6 +110,10 @@ class RobotContainer {
                     VisionIOPhotonVisionSim(
                         camera1Name, robotToCamera1
                     ) { driveSimulation!!.simulatedDriveTrainPose })
+                arm = Arm(
+                    ArmIOTalonFXSim(
+
+                    ))
             }
 
             else -> {
@@ -107,6 +126,7 @@ class RobotContainer {
                     object : ModuleIO {}
                 ) { _: Pose2d? -> }
                 vision = Vision(drive, object : VisionIO {}, object : VisionIO {})
+                arm = Arm(object : ArmIO {})
             }
         }
         // Set up auto routines
@@ -171,6 +191,11 @@ class RobotContainer {
         else
             Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
         controller.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
+
+        // Arm controls
+        controller.rightTrigger().onTrue(
+            Commands.runOnce({ arm.setArmAxisAngleDegrees(Units.Degrees.of(90.0)) })
+        )
     }
 
     val autonomousCommand: Command
