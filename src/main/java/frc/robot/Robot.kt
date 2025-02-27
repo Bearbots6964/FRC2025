@@ -15,6 +15,10 @@ package frc.robot
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement
+import com.pathplanner.lib.commands.PathfindingCommand
+import edu.wpi.first.hal.FRCNetComm
+import edu.wpi.first.hal.HAL
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Threads
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -81,6 +85,7 @@ class Robot : LoggedRobot() {
                 TunerConstants.BackLeft,
                 TunerConstants.BackRight
             )
+        HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
         for (constants in modules) {
             if (constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated
                 || constants.SteerMotorType != SteerMotorArrangement.TalonFX_Integrated
@@ -94,6 +99,10 @@ class Robot : LoggedRobot() {
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
+
+        PathfindingCommand.warmupCommand().schedule()
+
+        DriverStation.silenceJoystickConnectionWarning(true)
     }
 
     /** This function is called periodically during all modes.  */
@@ -155,7 +164,9 @@ class Robot : LoggedRobot() {
     override fun testPeriodic() {}
 
     /** This function is called once when the robot is first started up.  */
-    override fun simulationInit() {}
+    override fun simulationInit() {
+        SimulatedArena.getInstance().resetFieldForAuto()
+    }
 
     /** This function is called periodically whilst in simulation.  */
     override fun simulationPeriodic() {
