@@ -15,6 +15,7 @@ package frc.robot
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Threads
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -94,22 +95,17 @@ class Robot : LoggedRobot() {
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
+        DriverStation.silenceJoystickConnectionWarning(true)
     }
 
     /** This function is called periodically during all modes.  */
     override fun robotPeriodic() {
-        // Switch thread to high priority to improve loop timing
-        Threads.setCurrentThreadPriority(true, 99)
-
         // Runs the Scheduler. This is responsible for polling buttons, adding
         // newly-scheduled commands, running already-scheduled commands, removing
         // finished or interrupted commands, and running subsystem periodic() methods.
         // This must be called from the robot's periodic block in order for anything in
         // the Command-based framework to work.
         CommandScheduler.getInstance().run()
-
-        // Return to normal thread priority
-        Threads.setCurrentThreadPriority(false, 10)
     }
 
     /** This function is called once when the robot is disabled.  */
