@@ -8,6 +8,7 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue
 import com.ctre.phoenix6.swerve.SwerveDrivetrain
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
+import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory
 import edu.wpi.first.math.Matrix
@@ -24,204 +25,207 @@ object TunerConstants {
     // Both sets of gains need to be tuned to your individual robot.
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
+    @JvmStatic
     private val steerGains: Slot0Configs = Slot0Configs()
         .withKP(100.0).withKI(0.0).withKD(0.5)
-        .withKS(0.1).withKV(2.66).withKA(0.0)
+        .withKS(0.34282).withKV(0.31622).withKA(0.169)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
 
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
+    @JvmStatic
     private val driveGains: Slot0Configs = Slot0Configs()
-        .withKP(0.1).withKI(0.0).withKD(0.0)
-        .withKS(0.0).withKV(0.124)
+        .withKP(0.066996).withKI(0.0).withKD(0.0)
+        .withKS(0.19917).withKV(0.12538).withKA(0.086173)
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
-    private val kSteerClosedLoopOutput: SwerveModuleConstants.ClosedLoopOutputType =
-        SwerveModuleConstants.ClosedLoopOutputType.Voltage
+    private val steerClosedLoopOutput = SwerveModuleConstants.ClosedLoopOutputType.Voltage
 
     // The closed-loop output type to use for the drive motors;
     // This affects the PID/FF gains for the drive motors
-    private val kDriveClosedLoopOutput: SwerveModuleConstants.ClosedLoopOutputType =
-        SwerveModuleConstants.ClosedLoopOutputType.Voltage
+    private val driveClosedLoopOutput = SwerveModuleConstants.ClosedLoopOutputType.Voltage
 
     // The type of motor used for the drive motor
-    private val kDriveMotorType: SwerveModuleConstants.DriveMotorArrangement =
-        SwerveModuleConstants.DriveMotorArrangement.TalonFX_Integrated
+    private val driveMotorType = DriveMotorArrangement.TalonFX_Integrated
 
     // The type of motor used for the drive motor
-    private val kSteerMotorType: SteerMotorArrangement = SteerMotorArrangement.TalonFX_Integrated
+    private val steerMotorType = SteerMotorArrangement.TalonFX_Integrated
 
     // The remote sensor feedback type to use for the steer motors;
-    // When not Pro-licensed, Fused*/Sync* automatically fall back to Remote*
-    private val kSteerFeedbackType: SwerveModuleConstants.SteerFeedbackType =
-        SwerveModuleConstants.SteerFeedbackType.FusedCANcoder
+    // When not Pro-licensed, FusedCANcoder/SyncCANcoder automatically fall back to RemoteCANcoder
+    private val steerFeedbackType = SwerveModuleConstants.SteerFeedbackType.FusedCANcoder
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private val kSlipCurrent: Current = Units.Amps.of(120.0)
+    private val slipCurrent: Current = Units.Amps.of(40.0)
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-    private val driveInitialConfigs: TalonFXConfiguration = TalonFXConfiguration()
-    private val steerInitialConfigs: TalonFXConfiguration = TalonFXConfiguration()
-        .withCurrentLimits(
+    private val driveInitialConfigs = TalonFXConfiguration()
+    private val steerInitialConfigs: TalonFXConfiguration =
+        TalonFXConfiguration().withCurrentLimits(
             CurrentLimitsConfigs() // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
                 .withStatorCurrentLimit(Units.Amps.of(60.0))
                 .withStatorCurrentLimitEnable(true)
         )
-    private val encoderInitialConfigs: CANcoderConfiguration = CANcoderConfiguration()
+    private val encoderInitialConfigs = CANcoderConfiguration()
 
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
     private val pigeonConfigs: Pigeon2Configuration? = null
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
-    val kCANBus: CANBus = CANBus("Drivebase", "./logs/example.hoot")
+    val canBus: CANBus = CANBus("Drivebase", "./logs/example.hoot")
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    val kSpeedAt12Volts: LinearVelocity = Units.MetersPerSecond.of(4.73)
+    @JvmStatic
+    val speedAt12Volts: LinearVelocity = Units.FeetPerSecond.of(15.5)
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
-    private const val kCoupleRatio = 3.5714285714285716
+    private const val coupleRatio = 3.5714285714285716
 
-    private const val kDriveGearRatio = 6.746031746031747
-    private const val kSteerGearRatio = 21.428571428571427
-    private val kWheelRadius: Distance = Units.Inches.of(2.0)
+    private const val driveGearRatio = 6.746031746031747
+    private const val steerGearRatio = 21.428571428571427
+    private val kWheelRadius: Distance = Units.Inches.of(1.913)
 
-    private const val kInvertLeftSide = false
-    private const val kInvertRightSide = true
+    private const val invertLeftSide = false
+    private const val invertRightSide = true
 
-    private const val kPigeonId = 13
+    private const val pigeonId = 13
 
     // These are only used for simulation
-    private val kSteerInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.01)
-    private val kDriveInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.01)
+    private val steerInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.05)
+    private val driveInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.025)
 
     // Simulated voltage necessary to overcome friction
-    private val kSteerFrictionVoltage: Voltage = Units.Volts.of(0.2)
-    private val kDriveFrictionVoltage: Voltage = Units.Volts.of(0.2)
+    private val steerFrictionVoltage: Voltage = Units.Volts.of(0.2)
+    private val driveFrictionVoltage: Voltage = Units.Volts.of(0.2)
 
     @JvmStatic
-    val DrivetrainConstants: SwerveDrivetrainConstants = SwerveDrivetrainConstants()
-        .withCANBusName(kCANBus.getName())
-        .withPigeon2Id(kPigeonId)
+    val DrivetrainConstants: SwerveDrivetrainConstants =
+        SwerveDrivetrainConstants().withCANBusName(canBus.name).withPigeon2Id(pigeonId)
         .withPigeon2Configs(pigeonConfigs)
+        get() {
+            field.withCANBusName(canBus.name).withPigeon2Id(pigeonId).withPigeon2Configs(pigeonConfigs)
+            return field
+        }
 
     private val ConstantCreator: SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
-        SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
-            .withDriveMotorGearRatio(kDriveGearRatio)
-            .withSteerMotorGearRatio(kSteerGearRatio)
-            .withCouplingGearRatio(kCoupleRatio)
-            .withWheelRadius(kWheelRadius)
-            .withSteerMotorGains(steerGains)
-            .withDriveMotorGains(driveGains)
-            .withSteerMotorClosedLoopOutput(kSteerClosedLoopOutput)
-            .withDriveMotorClosedLoopOutput(kDriveClosedLoopOutput)
-            .withSlipCurrent(kSlipCurrent)
-            .withSpeedAt12Volts(kSpeedAt12Volts)
-            .withDriveMotorType(kDriveMotorType)
-            .withSteerMotorType(kSteerMotorType)
-            .withFeedbackSource(kSteerFeedbackType)
+        SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>().withDriveMotorGearRatio(
+            driveGearRatio
+        ).withSteerMotorGearRatio(steerGearRatio).withCouplingGearRatio(coupleRatio)
+            .withWheelRadius(kWheelRadius).withSteerMotorGains(steerGains)
+            .withDriveMotorGains(driveGains).withSteerMotorClosedLoopOutput(steerClosedLoopOutput)
+            .withDriveMotorClosedLoopOutput(driveClosedLoopOutput).withSlipCurrent(slipCurrent)
+            .withSpeedAt12Volts(speedAt12Volts).withDriveMotorType(driveMotorType)
+            .withSteerMotorType(steerMotorType).withFeedbackSource(steerFeedbackType)
             .withDriveMotorInitialConfigs(driveInitialConfigs)
             .withSteerMotorInitialConfigs(steerInitialConfigs)
-            .withEncoderInitialConfigs(encoderInitialConfigs)
-            .withSteerInertia(kSteerInertia)
-            .withDriveInertia(kDriveInertia)
-            .withSteerFrictionVoltage(kSteerFrictionVoltage)
-            .withDriveFrictionVoltage(kDriveFrictionVoltage)
+            .withEncoderInitialConfigs(encoderInitialConfigs).withSteerInertia(steerInertia)
+            .withDriveInertia(driveInertia).withSteerFrictionVoltage(steerFrictionVoltage)
+            .withDriveFrictionVoltage(driveFrictionVoltage)
 
 
     // Front Left
-    private const val kFrontLeftDriveMotorId = 7
-    private const val kFrontLeftSteerMotorId = 9
-    private const val kFrontLeftEncoderId = 8
-    private val kFrontLeftEncoderOffset: Angle = Units.Rotations.of(-0.30615234375)
-    private const val kFrontLeftSteerMotorInverted = true
-    private const val kFrontLeftEncoderInverted = false
+    private const val frontLeftDriveMotorId = 7
+    private const val frontLeftSteerMotorId = 9
+    private const val frontLeftEncoderId = 8
+    private val frontLeftEncoderOffset: Angle = Units.Rotations.of(-0.30615234375)
+    private const val frontLeftSteerMotorInverted = true
+    private const val frontLeftEncoderInverted = false
 
-    private val kFrontLeftXPos: Distance = Units.Inches.of(12.125)
-    private val kFrontLeftYPos: Distance = Units.Inches.of(12.125)
+    private val frontLeftXPos: Distance = Units.Inches.of(12.125)
+    private val frontLeftYPos: Distance = Units.Inches.of(12.125)
 
     // Front Right
-    private const val kFrontRightDriveMotorId = 4
-    private const val kFrontRightSteerMotorId = 6
-    private const val kFrontRightEncoderId = 5
-    private val kFrontRightEncoderOffset: Angle = Units.Rotations.of(0.24072265625)
-    private const val kFrontRightSteerMotorInverted = true
-    private const val kFrontRightEncoderInverted = false
+    private const val frontRightDriveMotorId = 4
+    private const val frontRightSteerMotorId = 6
+    private const val frontRightEncoderId = 5
+    private val frontRightEncoderOffset: Angle = Units.Rotations.of(0.24072265625)
+    private const val frontRightSteerMotorInverted = true
+    private const val frontRightEncoderInverted = false
 
-    private val kFrontRightXPos: Distance = Units.Inches.of(12.125)
-    private val kFrontRightYPos: Distance = Units.Inches.of(-12.125)
+    private val frontRightXPos: Distance = Units.Inches.of(12.125)
+    private val frontRightYPos: Distance = Units.Inches.of(-12.125)
 
     // Back Left
-    private const val kBackLeftDriveMotorId = 10
-    private const val kBackLeftSteerMotorId = 12
-    private const val kBackLeftEncoderId = 11
-    private val kBackLeftEncoderOffset: Angle = Units.Rotations.of(0.19482421875)
-    private const val kBackLeftSteerMotorInverted = true
-    private const val kBackLeftEncoderInverted = false
+    private const val backLeftDriveMotorId = 10
+    private const val backLeftSteerMotorId = 12
+    private const val backLeftEncoderId = 11
+    private val backLeftEncoderOffset: Angle = Units.Rotations.of(0.19482421875)
+    private const val backLeftSteerMotorInverted = true
+    private const val backLeftEncoderInverted = false
 
-    private val kBackLeftXPos: Distance = Units.Inches.of(-12.125)
-    private val kBackLeftYPos: Distance = Units.Inches.of(12.125)
+    private val backLeftXPos: Distance = Units.Inches.of(-12.125)
+    private val backLeftYPos: Distance = Units.Inches.of(12.125)
 
     // Back Right
-    private const val kBackRightDriveMotorId = 1
-    private const val kBackRightSteerMotorId = 3
-    private const val kBackRightEncoderId = 2
-    private val kBackRightEncoderOffset: Angle = Units.Rotations.of(-0.13671875)
-    private const val kBackRightSteerMotorInverted = true
-    private const val kBackRightEncoderInverted = false
+    private const val backRightDriveMotorId = 1
+    private const val backRightSteerMotorId = 3
+    private const val backRightEncoderId = 2
+    private val backRightEncoderOffset: Angle = Units.Rotations.of(-0.13671875)
+    private const val backRightSteerMotorInverted = true
+    private const val backRightEncoderInverted = false
 
-    private val kBackRightXPos: Distance = Units.Inches.of(-12.125)
-    private val kBackRightYPos: Distance = Units.Inches.of(-12.125)
+    private val backRightXPos: Distance = Units.Inches.of(-12.125)
+    private val backRightYPos: Distance = Units.Inches.of(-12.125)
 
     @JvmStatic
     val FrontLeft: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
         ConstantCreator.createModuleConstants(
-            kFrontLeftSteerMotorId, kFrontLeftDriveMotorId, kFrontLeftEncoderId, kFrontLeftEncoderOffset,
-            kFrontLeftXPos, kFrontLeftYPos, kInvertLeftSide, kFrontLeftSteerMotorInverted, kFrontLeftEncoderInverted
+            frontLeftSteerMotorId,
+            frontLeftDriveMotorId,
+            frontLeftEncoderId,
+            frontLeftEncoderOffset,
+            frontLeftXPos,
+            frontLeftYPos,
+            invertLeftSide,
+            frontLeftSteerMotorInverted,
+            frontLeftEncoderInverted
         )
     @JvmStatic
     val FrontRight: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
         ConstantCreator.createModuleConstants(
-            kFrontRightSteerMotorId,
-            kFrontRightDriveMotorId,
-            kFrontRightEncoderId,
-            kFrontRightEncoderOffset,
-            kFrontRightXPos,
-            kFrontRightYPos,
-            kInvertRightSide,
-            kFrontRightSteerMotorInverted,
-            kFrontRightEncoderInverted
+            frontRightSteerMotorId,
+            frontRightDriveMotorId,
+            frontRightEncoderId,
+            frontRightEncoderOffset,
+            frontRightXPos,
+            frontRightYPos,
+            invertRightSide,
+            frontRightSteerMotorInverted,
+            frontRightEncoderInverted
         )
     @JvmStatic
     val BackLeft: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
         ConstantCreator.createModuleConstants(
-            kBackLeftSteerMotorId, kBackLeftDriveMotorId, kBackLeftEncoderId, kBackLeftEncoderOffset,
-            kBackLeftXPos, kBackLeftYPos, kInvertLeftSide, kBackLeftSteerMotorInverted, kBackLeftEncoderInverted
+            backLeftSteerMotorId,
+            backLeftDriveMotorId,
+            backLeftEncoderId,
+            backLeftEncoderOffset,
+            backLeftXPos,
+            backLeftYPos,
+            invertLeftSide,
+            backLeftSteerMotorInverted,
+            backLeftEncoderInverted
         )
     @JvmStatic
     val BackRight: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> =
         ConstantCreator.createModuleConstants(
-            kBackRightSteerMotorId,
-            kBackRightDriveMotorId,
-            kBackRightEncoderId,
-            kBackRightEncoderOffset,
-            kBackRightXPos,
-            kBackRightYPos,
-            kInvertRightSide,
-            kBackRightSteerMotorInverted,
-            kBackRightEncoderInverted
+            backRightSteerMotorId,
+            backRightDriveMotorId,
+            backRightEncoderId,
+            backRightEncoderOffset,
+            backRightXPos,
+            backRightYPos,
+            invertRightSide,
+            backRightSteerMotorInverted,
+            backRightEncoderInverted
         )
-
-    @JvmStatic
-    fun getSpeedAt12Volts(): LinearVelocity {
-        return kSpeedAt12Volts
-    }
 
     /**
      * Creates a CommandSwerveDrivetrain instance.
@@ -237,7 +241,7 @@ object TunerConstants {
     /**
      * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API with the selected device types.
      */
-    class TunerSwerveDrivetrain : SwerveDrivetrain<TalonFX?, TalonFX?, CANcoder?> {
+    open class TunerSwerveDrivetrain : SwerveDrivetrain<TalonFX?, TalonFX?, CANcoder?> {
         /**
          * Constructs a CTRE SwerveDrivetrain using the specified constants.
          *
@@ -253,10 +257,19 @@ object TunerConstants {
             drivetrainConstants: SwerveDrivetrainConstants,
             vararg modules: SwerveModuleConstants<*, *, *>?
         ) : super(
-            DeviceConstructor<TalonFX> { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-            DeviceConstructor<TalonFX> { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-            DeviceConstructor<CANcoder> { deviceId: Int, canbus: String? -> CANcoder(deviceId, canbus) },
-            drivetrainConstants, *modules
+            DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
+            TalonFX(
+                deviceId, canbus
+            )
+        }, DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
+            TalonFX(
+                deviceId, canbus
+            )
+        }, DeviceConstructor<CANcoder?> { deviceId: Int, canbus: String? ->
+            CANcoder(
+                deviceId, canbus
+            )
+        }, drivetrainConstants, *modules
         )
 
         /**
@@ -278,10 +291,19 @@ object TunerConstants {
             odometryUpdateFrequency: Double,
             vararg modules: SwerveModuleConstants<*, *, *>?
         ) : super(
-            DeviceConstructor<TalonFX> { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-            DeviceConstructor<TalonFX> { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-            DeviceConstructor<CANcoder> { deviceId: Int, canbus: String? -> CANcoder(deviceId, canbus) },
-            drivetrainConstants, odometryUpdateFrequency, *modules
+            DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
+            TalonFX(
+                deviceId, canbus
+            )
+        }, DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
+            TalonFX(
+                deviceId, canbus
+            )
+        }, DeviceConstructor<CANcoder?> { deviceId: Int, canbus: String? ->
+            CANcoder(
+                deviceId, canbus
+            )
+        }, drivetrainConstants, odometryUpdateFrequency, *modules
         )
 
         /**
@@ -311,9 +333,21 @@ object TunerConstants {
             visionStandardDeviation: Matrix<N3?, N1?>,
             vararg modules: SwerveModuleConstants<*, *, *>?
         ) : super(
-            DeviceConstructor<TalonFX> { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-            DeviceConstructor<TalonFX> { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-            DeviceConstructor<CANcoder> { deviceId: Int, canbus: String? -> CANcoder(deviceId, canbus) },
+            DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
+            TalonFX(
+                deviceId, canbus
+            )
+        },
+            DeviceConstructor<TalonFX?> { deviceId: Int, canbus: String? ->
+                TalonFX(
+                    deviceId, canbus
+                )
+            },
+            DeviceConstructor<CANcoder?> { deviceId: Int, canbus: String? ->
+                CANcoder(
+                    deviceId, canbus
+                )
+            },
             drivetrainConstants, odometryUpdateFrequency,
             odometryStandardDeviation, visionStandardDeviation, *modules
         )

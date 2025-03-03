@@ -13,7 +13,9 @@
 package frc.robot
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.pathplanner.lib.auto.AutoBuilder
+import com.revrobotics.spark.config.SparkMaxConfig
 import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
@@ -22,15 +24,19 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import frc.robot.Constants.VisionConstants.robotToCamera0
+import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.commands.DriveCommands
+import frc.robot.commands.DriveToNearestReefSideCommand
 import frc.robot.generated.TunerConstants
+import frc.robot.subsystems.arm.Arm
+import frc.robot.subsystems.arm.ArmIOTalonFX
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ArmIO
 import frc.robot.subsystems.arm.ArmIOTalonFX
 import frc.robot.subsystems.arm.ArmIOTalonFXSim
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.vision.*
-import frc.robot.subsystems.vision.VisionConstants.*
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
@@ -52,7 +58,8 @@ class RobotContainer {
     private var driveSimulation: SwerveDriveSimulation? = null
 
     // Controller
-    private val controller = CommandXboxController(0)
+    private val driveController = CommandXboxController(0)
+    private val operatorController = CommandXboxController(1)
 
     // Dashboard inputs
     private val autoChooser: LoggedDashboardChooser<Command>
@@ -71,13 +78,12 @@ class RobotContainer {
                 ) { _: Pose2d? -> }
                 this.vision = Vision(
                     drive,
-                    VisionIOPhotonVision(camera0Name, VisionConstants.robotToCamera0),
-                    VisionIOPhotonVision(camera1Name, robotToCamera1))
+                    VisionIOPhotonVision(Constants.VisionConstants.camera0Name, robotToCamera0),
+                    VisionIOPhotonVision(Constants.VisionConstants.camera1Name, robotToCamera1))
                 arm = Arm(
                     ArmIOTalonFX(
                         //TalonFXConfiguration(),
                         SparkMaxConfig(),
-                        TalonFXConfiguration()
                     )
                 )
             }
@@ -105,10 +111,10 @@ class RobotContainer {
                 vision = Vision(
                     drive,
                     VisionIOPhotonVisionSim(
-                        camera0Name, robotToCamera0
+                        Constants.VisionConstants.camera0Name, robotToCamera0
                     ) { driveSimulation!!.simulatedDriveTrainPose },
                     VisionIOPhotonVisionSim(
-                        camera1Name, robotToCamera1
+                        Constants.VisionConstants.camera1Name, robotToCamera1
                     ) { driveSimulation!!.simulatedDriveTrainPose })
                 arm = Arm(
                     ArmIOTalonFXSim(
@@ -166,21 +172,24 @@ class RobotContainer {
         // Default command, normal field-relative drive
         drive.defaultCommand = DriveCommands.joystickDrive(
             drive,
-            { -controller.leftY },
-            { -controller.leftX },
-            { -controller.rightX })
+            { -driveController.leftY },
+            { -driveController.leftX },
+            { -driveController.rightX })
 
         // Lock to 0° when A button is held
-        controller.a().whileTrue(
+        driveController.a().whileTrue(
                 DriveCommands.joystickDriveAtAngle(
                     drive,
-                    { -controller.leftY },
-                    { -controller.leftX },
+                    { -driveController.leftY },
+                    { -driveController.leftX },
                     { Rotation2d() })
             )
 
         // Switch to X pattern when X button is pressed
-        controller.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
+        driveController.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
+
+        driveController.y().and(driveController.leftBumper()).onTrue(DriveToNearestReefSideCommand(drive, true))
+        driveController.y().and(driveController.leftBumper().negate()).onTrue(DriveToNearestReefSideCommand(drive, false))
 
         // Reset gyro / odometry
         val resetGyro = if (Constants.currentMode == Constants.Mode.SIM)
@@ -190,10 +199,10 @@ class RobotContainer {
             } // reset odometry to actual robot pose during simulation
         else
             Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
-        controller.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
+        driveController.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
 
         // Arm controls
-        controller.rightTrigger().onTrue(
+        operatorController.rightTrigger().onTrue(
             Commands.runOnce({ arm.setArmAxisAngleDegrees(Units.Degrees.of(90.0)) })
         )
     }

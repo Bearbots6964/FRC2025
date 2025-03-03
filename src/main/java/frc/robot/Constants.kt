@@ -28,6 +28,7 @@ object Constants {
         object ProgrammingBase {
             @JvmStatic
             val mass: Mass = Units.Pounds.of(60.0)
+
             @JvmStatic
             val momentOfInteria: MomentOfInertia =
                 Units.KilogramSquareMeters.of(2.0) // TODO
@@ -100,23 +101,30 @@ object Constants {
         var aprilTagLayout: AprilTagFieldLayout =
             AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
-        // Camera names, must match names configured on coprocessor
-        var camera0Name: String = "Front_Camera"
-        var camera1Name: String = "Left_Camera"
+        /**
+         * Camera for Pi `10.69.64.11`.
+         */
+        var camera0Name: String = "right"
+        /**
+         * Camera for Pi `10.69.64.12`.
+         */
+        var camera1Name: String = "left"
 
         // Robot to camera transforms
         // (Not used by Limelight, configure in web UI instead)
         var robotToCamera0: Transform3d = Transform3d(
-            Units.Inches.of((29.5 / 2) - (1.0 + 1.0 / 8)),
-            Units.Inches.of(-0.5),
-            Units.Inches.of(5.0 + 1.0 / 2),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-10.0), Units.Degrees.of(0.0))
+            // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
+            // (frame side length / 2) - (distance from frame perimeter to camera)
+            Units.Inches.of((29.5 / 2) - 1.75),
+            Units.Inches.of(-((29.5 / 2) - 3.5)),
+            Units.Inches.of(8.25),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(30.0)),
         )
         var robotToCamera1: Transform3d = Transform3d(
-            Units.Inches.of(-0.5),
-            Units.Inches.of((29.5 / 2) - (1.0 + 1.0 / 8)),
-            Units.Inches.of(5.0 + 1.0 / 2),
-            Rotation3d(Units.Degrees.of(10.0), Units.Degrees.of(0.0), Units.Degrees.of(90.0))
+            Units.Inches.of((29.5 / 2) - 1.75),
+            Units.Inches.of((29.5 / 2) - 3.5),
+            Units.Inches.of(8.25),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-30.0)),
         )
 
         // Basic filtering thresholds
@@ -125,8 +133,8 @@ object Constants {
 
         // Standard deviation baselines, for 1 meter distance and 1 tag
         // (Adjusted automatically based on distance and # of tags)
-        var linearStdDevBaseline: Double = 0.02 // Meters
-        var angularStdDevBaseline: Double = 0.06 // Radians
+        var linearStdDevBaseline: Double = 0.2 // Meters
+        var angularStdDevBaseline: Double = 0.6 // Radians
 
         // Standard deviation multipliers for each camera
         // (Adjust to trust some cameras more than others)
@@ -144,6 +152,7 @@ object Constants {
 
 
     val simMode: Mode = Mode.SIM
+
     @JvmStatic
     val currentMode: Mode = if (RobotBase.isReal()) Mode.REAL else simMode
 
