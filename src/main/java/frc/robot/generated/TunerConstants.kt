@@ -62,7 +62,7 @@ object TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private val slipCurrent: Current = Units.Amps.of(34.0)
+    private val slipCurrent: Current = Units.Amps.of(40.0)
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -101,7 +101,7 @@ object TunerConstants {
     private const val pigeonId = 14
 
     // These are only used for simulation
-    private val steerInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.05)
+    private val steerInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.004)
     private val driveInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.025)
 
     // Simulated voltage necessary to overcome friction
@@ -137,7 +137,7 @@ object TunerConstants {
     private const val frontLeftDriveMotorId = 4
     private const val frontLeftSteerMotorId = 6
     private const val frontLeftEncoderId = 5
-    private val frontLeftEncoderOffset: Angle = Units.Rotations.of(-0.360595703125)
+    private val frontLeftEncoderOffset: Angle = Units.Rotations.of(-0.353759765625)
     private const val frontLeftSteerMotorInverted = true
     private const val frontLeftEncoderInverted = false
 
@@ -148,7 +148,7 @@ object TunerConstants {
     private const val frontRightDriveMotorId = 1
     private const val frontRightSteerMotorId = 3
     private const val frontRightEncoderId = 2
-    private val frontRightEncoderOffset: Angle = Units.Rotations.of(0.4658203125)
+    private val frontRightEncoderOffset: Angle = Units.Rotations.of(-0.21240234375)
     private const val frontRightSteerMotorInverted = true
     private const val frontRightEncoderInverted = false
 
