@@ -168,7 +168,7 @@ class RobotContainer {
      * instantiating a [GenericHID] or one of its subclasses ([ ] or [XboxController]), and then passing it to a [ ].
      */
     private fun configureButtonBindings() {
-        elevator.defaultCommand = elevator.velocityCommand { driveController.rightY }
+        elevator.defaultCommand = elevator.doNothing()
         // Default command, normal field-relative drive
         drive.defaultCommand = DriveCommands.joystickDrive(
             drive,
@@ -203,7 +203,6 @@ class RobotContainer {
         elevatorController.x().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L2))
         elevatorController.y().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L3))
         elevatorController.rightBumper().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L4))
-        elevator.defaultCommand = elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME)
     }
 
     val autonomousCommand: Command

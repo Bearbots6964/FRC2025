@@ -27,9 +27,9 @@ public class Elevator extends SubsystemBase {
         if (ElevatorConstants.SYSID_PROFILING_ENABLED) {
             SignalLogger.setPath("/U/sysidlogs/");
             SignalLogger.start();
-            sysIdRoutine = new SysIdRoutine(new Config(null, Volts.of(4), null,
-                                                       (state) -> SignalLogger.writeString("state", state.toString())),
-                                            new Mechanism(io::setVoltage, null, this));
+            sysIdRoutine = new SysIdRoutine(
+                    new Config(null, Volts.of(4), null, (state) -> SignalLogger.writeString("state", state.toString())),
+                    new Mechanism(io::setVoltage, null, this));
         }
     }
 
@@ -112,5 +112,9 @@ public class Elevator extends SubsystemBase {
         }
         double finalPosition = position;
         return run(() -> setRotations(finalPosition));
+    }
+
+    public Command doNothing() {
+        return run(io::stop);
     }
 }

@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
@@ -28,8 +29,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     protected final TalonFX rightMotor;
 
     protected final MotionMagicVoltage motionMagicPositionRequest = new MotionMagicVoltage(0.0);
-    protected final MotionMagicVelocityTorqueCurrentFOC motionMagicVelocityRequest = new MotionMagicVelocityTorqueCurrentFOC(
-        0.0);
+    protected final MotionMagicVelocityTorqueCurrentFOC motionMagicVelocityRequest =
+            new MotionMagicVelocityTorqueCurrentFOC(0.0);
     protected final VoltageOut voltageRequest = new VoltageOut(0.0);
 
     protected final StatusSignal<Angle> leftMotorPosition;
@@ -75,12 +76,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
-        var leftStatus = BaseStatusSignal.refreshAll(leftMotorPosition, leftMotorVelocity,
-                                                     leftMotorVoltage, leftMotorTemperature,
-                                                     leftMotorCurrent);
-        var rightStatus = BaseStatusSignal.refreshAll(rightMotorPosition, rightMotorVelocity,
-                                                      rightMotorVoltage, rightMotorTemperature,
-                                                      rightMotorCurrent);
+        var leftStatus = BaseStatusSignal.refreshAll(
+                leftMotorPosition, leftMotorVelocity, leftMotorVoltage, leftMotorTemperature, leftMotorCurrent);
+        var rightStatus = BaseStatusSignal.refreshAll(
+                rightMotorPosition, rightMotorVelocity, rightMotorVoltage, rightMotorTemperature, rightMotorCurrent);
 
         inputs.leftMotorConnected = leftMotorConnectedDebouncer.calculate(leftStatus.isOK());
         inputs.rightMotorConnected = rightMotorConnectedDebouncer.calculate(rightStatus.isOK());
@@ -125,7 +124,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     @Override
     public void stop() {
-        rightMotor.set(0.0);
+        rightMotor.setControl(new StaticBrake());
     }
 
     @Override
