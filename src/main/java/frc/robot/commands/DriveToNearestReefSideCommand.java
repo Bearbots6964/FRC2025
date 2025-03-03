@@ -4,32 +4,28 @@
 
 // Thank you (and sorry) to team 7414 for this code
 
+// This file was copied from another team's repository and modified to fit our needs
 package frc.robot.commands;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.AprilTagPositions;
+import frc.robot.subsystems.drive.Drive;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.AprilTagPositions;
-import frc.robot.subsystems.drive.Drive;
-
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveToNearestReefSideCommand extends Command {
+
     private Command fullPath;
-    private Drive drive;
+    private final Drive drive;
     private boolean isLeftBumper = false;
 
     /** Creates a new DriveToNearestReefSideCommand. */
@@ -46,21 +42,22 @@ public class DriveToNearestReefSideCommand extends Command {
     public void initialize() {
         Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
         Command pathfindPath = AutoBuilder.pathfindToPose(
-            translateCoord(closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
-            new PathConstraints(
-                3.0, 4.0,
-                Units.degreesToRadians(540), Units.degreesToRadians(720)));
+                translateCoord(
+                        closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
+                new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
 
         try {
             // Load the path you want to follow using its name in the GUI
             PathPlannerPath pathToFront = new PathPlannerPath(
-                PathPlannerPath.waypointsFromPoses(
-                    translateCoord(closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
-                    closestAprilTagPose),
-                new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI),
-                null,
-                new GoalEndState(0.0, closestAprilTagPose.getRotation())
-            );
+                    PathPlannerPath.waypointsFromPoses(
+                            translateCoord(
+                                    closestAprilTagPose,
+                                    closestAprilTagPose.getRotation().getDegrees(),
+                                    -0.5),
+                            closestAprilTagPose),
+                    new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI),
+                    null,
+                    new GoalEndState(0.0, closestAprilTagPose.getRotation()));
             pathToFront.preventFlipping = true;
             fullPath = pathfindPath.andThen(AutoBuilder.followPath(pathToFront));
             fullPath.schedule();
@@ -71,8 +68,7 @@ public class DriveToNearestReefSideCommand extends Command {
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
-    public void execute() {
-    }
+    public void execute() {}
 
     // Called once the command ends or is interrupted.
     @Override
@@ -112,21 +108,25 @@ public class DriveToNearestReefSideCommand extends Command {
             }
         }
 
-        Pose2d inFrontOfAprilTag = translateCoord(closestPose, closestPose.getRotation().getDegrees(),
-                                                  -Units.inchesToMeters(23.773));
+        Pose2d inFrontOfAprilTag =
+                translateCoord(closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(23.773));
 
         Pose2d leftOrRightOfAprilTag;
         if (isLeftBumper) {
-            leftOrRightOfAprilTag = translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
+            leftOrRightOfAprilTag =
+                    translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
         } else {
-            leftOrRightOfAprilTag = translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
+            leftOrRightOfAprilTag =
+                    translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
         }
 
         if (List.of(11, 10, 9, 22, 21, 20).contains(aprilTagNum)) {
             if (isLeftBumper) {
-                leftOrRightOfAprilTag = translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
+                leftOrRightOfAprilTag = translateCoord(
+                        inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
             } else {
-                leftOrRightOfAprilTag = translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
+                leftOrRightOfAprilTag = translateCoord(
+                        inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
             }
         }
 

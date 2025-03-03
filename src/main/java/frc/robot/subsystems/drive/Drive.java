@@ -53,6 +53,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PhysicalProperties;
+import frc.robot.Constants.PhysicalProperties.ProgrammingBase;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
@@ -78,20 +79,27 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     static final double ODOMETRY_FREQUENCY =
             new CANBus(TunerConstants.getDrivetrainConstants().CANBusName).isNetworkFD() ? 250.0 : 100.0;
     static final Lock odometryLock = new ReentrantLock();
-    public static final DriveTrainSimulationConfig mapleSimConfig = DriveTrainSimulationConfig.Default()
-            .withRobotMass(PhysicalProperties.getActiveBase().getMass())
-            .withCustomModuleTranslations(getModuleTranslations())
-            .withGyro(COTS.ofPigeon2())
-            .withSwerveModule(new SwerveModuleSimulationConfig(
-                    DCMotor.getKrakenX60(1),
-                    DCMotor.getKrakenX60(1),
-                    TunerConstants.getFrontLeft().DriveMotorGearRatio,
-                    TunerConstants.getFrontLeft().SteerMotorGearRatio,
-                    Volts.of(TunerConstants.getFrontLeft().DriveFrictionVoltage),
-                    Volts.of(TunerConstants.getFrontLeft().SteerFrictionVoltage),
-                    Meters.of(TunerConstants.getFrontLeft().WheelRadius),
-                    KilogramSquareMeters.of(TunerConstants.getFrontLeft().SteerInertia),
-                    PhysicalProperties.getActiveBase().getCoefficentOfFriction()));
+    public static final DriveTrainSimulationConfig mapleSimConfig;
+
+    static {
+        PhysicalProperties.getActiveBase();
+        PhysicalProperties.getActiveBase();
+        mapleSimConfig = DriveTrainSimulationConfig.Default()
+                .withRobotMass(ProgrammingBase.getMass())
+                .withCustomModuleTranslations(getModuleTranslations())
+                .withGyro(COTS.ofPigeon2())
+                .withSwerveModule(new SwerveModuleSimulationConfig(
+                        DCMotor.getKrakenX60(1),
+                        DCMotor.getKrakenX60(1),
+                        TunerConstants.getFrontLeft().DriveMotorGearRatio,
+                        TunerConstants.getFrontLeft().SteerMotorGearRatio,
+                        Volts.of(TunerConstants.getFrontLeft().DriveFrictionVoltage),
+                        Volts.of(TunerConstants.getFrontLeft().SteerFrictionVoltage),
+                        Meters.of(TunerConstants.getFrontLeft().WheelRadius),
+                        KilogramSquareMeters.of(TunerConstants.getFrontLeft().SteerInertia),
+                        ProgrammingBase.getCoefficentOfFriction()));
+    }
+
     private static final RobotConfig PP_CONFIG =
             PhysicalProperties.getActiveBase().getRobotConfig();
     private final GyroIO gyroIO;

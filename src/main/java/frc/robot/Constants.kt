@@ -103,8 +103,10 @@ object Constants {
         // Robot to camera transforms
         // (Not used by Limelight, configure in web UI instead)
         var robotToCamera0: Transform3d = Transform3d(
+            // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
+            // (frame side length / 2) - (distance from frame perimeter to camera)
             Units.Inches.of((29.5 / 2) - 1.75),
-            Units.Inches.of(-(((29.5 / 2) - 3.5))),
+            Units.Inches.of(-((29.5 / 2) - 3.5)),
             Units.Inches.of(8.25),
             Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(30.0)),
         )
