@@ -137,11 +137,7 @@ object Constants {
     object ArmConstants {
         //TODO: Get motor IDs
         @JvmStatic
-        val armAxisMotorID: Int = TODO();
-        @JvmStatic
-        val armFlywheelMotorID: Int = TODO();
-        @JvmStatic
-        val maxAngularVelocity: Double = 10.0;
+        val armAxisMotorID: Int = 6
     }
 
     object VisionConstants {

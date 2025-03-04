@@ -5,9 +5,12 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
@@ -34,37 +37,39 @@ public class Arm extends SubsystemBase {
         Logger.processInputs("Arm", inputs);
 
         if (DriverStation.isDisabled()) {
-            io.stopArmAxis();
-            io.stopArmFlywheel();
+            io.stopArm();
         }
-
-        armAxisDisconnectedAlert.set(!inputs.armAxisConnected && Constants.getCurrentMode() != Constants.Mode.SIM);
-        armFlywheelDisconnectedAlert.set(
-                !inputs.armFlywheelConnected && Constants.getCurrentMode() != Constants.Mode.SIM);
     }
 
     public void setArmFlywheelOpenLoop(double output) {
-        io.setArmFlywheelOpenLoop(output);
+        io.setArmOpenLoop(output);
     }
 
     public void setArmAxisAngleDegrees(Angle angle) {
-        io.setArmAxisAngleDegrees(angle);
+        io.setArmAngleDegrees(angle);
     }
 
     public Angle getArmAxisAngleDegrees() {
-        return io.getArmAxisAngleDegrees();
+        return io.getArmAngleDegrees();
     }
 
-    public void setArmFlywheelAngularVelocity(AngularVelocity velocity) {
-        io.setArmFlywheelAngularVelocity(velocity);
-    }
 
     private void runCharacterization(double output) {
-        io.setArmFlywheelOpenLoop(output);
+        io.setArmOpenLoop(output);
     }
 
     // TODO: SysID routines
+    public Command sysIdDynamic(Direction direction) {
+        return run (() -> sysId.dynamic(direction));
+    }
+    public Command sysIdQuasistatic(Direction direction) {
+        return run (() -> sysId.quasistatic(direction));
+    }
 
     // TODO: Command Factories?
+
+    public Command moveArm(DoubleSupplier output) {
+        return run(() -> io.setArmOpenLoop(output.getAsDouble()));
+    }
 
 }

@@ -13,9 +13,7 @@
 package frc.robot
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration
-import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.pathplanner.lib.auto.AutoBuilder
-import com.revrobotics.spark.config.SparkMaxConfig
 import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
@@ -29,8 +27,6 @@ import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.commands.DriveCommands
 import frc.robot.commands.DriveToNearestReefSideCommand
 import frc.robot.generated.TunerConstants
-import frc.robot.subsystems.arm.Arm
-import frc.robot.subsystems.arm.ArmIOTalonFX
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ArmIO
 import frc.robot.subsystems.arm.ArmIOTalonFX
@@ -168,6 +164,18 @@ class RobotContainer {
         autoChooser.addOption(
             "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
+        autoChooser.addOption(
+            "Arm SysId (Quasistatic Forward)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Quasistatic Reverse)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Dynamic Forward)", arm.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Dynamic Reverse)", arm.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        )
 
         autoChooser.addOption(
             "Elevator SysId (Quasistatic Forward)", elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
@@ -237,6 +245,8 @@ class RobotContainer {
         operatorController.rightTrigger().onTrue(
             Commands.runOnce({ arm.setArmAxisAngleDegrees(Units.Degrees.of(90.0)) })
         )
+
+        arm.defaultCommand = arm.moveArm({operatorController.leftX})
     }
 
     val autonomousCommand: Command
