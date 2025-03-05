@@ -10,7 +10,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface ElevatorIO {
     @AutoLog
-    public class ElevatorIOInputs {
+    class ElevatorIOInputs {
         public boolean leftMotorConnected = false;
         public Temperature leftMotorTemperature = Units.Celsius.of(0.0);
         public Angle leftMotorPosition = Units.Degrees.of(0.0);

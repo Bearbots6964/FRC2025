@@ -138,6 +138,23 @@ object Constants {
         //TODO: Get motor IDs
         @JvmStatic
         val armAxisMotorID: Int = 6
+
+        @JvmStatic
+        val kS = 0.58262
+        @JvmStatic
+        val kV = 3.4734
+        @JvmStatic
+        val kA = 0.494993
+        @JvmStatic
+        val kG = 0.38477
+        @JvmStatic
+        val kP = 0.8
+        @JvmStatic
+        val kI = 0.0
+        @JvmStatic
+        val kD = 0.0
+        @JvmStatic
+        val angleOffset = -0.49389
     }
 
     object VisionConstants {

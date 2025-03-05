@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Constants.ElevatorConstants;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
 
@@ -68,6 +70,7 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+        Logger.processInputs("Elevator", inputs);
     }
 
     public Command velocityCommand(DoubleSupplier joystick) {
@@ -112,6 +115,9 @@ public class Elevator extends SubsystemBase {
         }
         double finalPosition = position;
         return run(() -> setRotations(finalPosition));
+    }
+    public Command goToPosition(double position) {
+        return run(() -> setRotations(position)).until(() -> Math.abs(inputs.rightMotorPosition.in(Rotations) - position) < 1.0);
     }
 
     public Command doNothing() {
