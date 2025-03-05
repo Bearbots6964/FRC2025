@@ -59,11 +59,10 @@ public class ArmIOTalonFX implements ArmIO {
         armMotor,
         5,
         () ->
-          armMotor.configure(
-                  armConfiguration,
-                  SparkBase.ResetMode.kResetSafeParameters,
-                  SparkBase.PersistMode.kPersistParameters)
-    );
+            armMotor.configure(
+                armConfiguration,
+                SparkBase.ResetMode.kResetSafeParameters,
+                SparkBase.PersistMode.kPersistParameters));
   }
 
   @Override
