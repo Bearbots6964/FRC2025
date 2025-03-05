@@ -26,6 +26,7 @@ import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.commands.DriveCommands
 import frc.robot.commands.DriveToNearestReefSideCommand
 import frc.robot.generated.TunerConstants
+import frc.robot.motionInputs.MotionInputs
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ArmIO
 import frc.robot.subsystems.arm.ArmIOTalonFX
@@ -39,6 +40,7 @@ import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
+import java.util.*
 
 
 /**
@@ -59,6 +61,8 @@ class RobotContainer {
     // Controller
     private val driveController = CommandXboxController(0)
     private val operatorController = CommandXboxController(1)
+
+    private val motionInputs: MotionInputs
 
     // Dashboard inputs
     private val autoChooser: LoggedDashboardChooser<Command>
@@ -196,6 +200,8 @@ class RobotContainer {
             elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
 
+        motionInputs = MotionInputs(operatorController, arm, elevator)
+
         // Configure the button bindings
         configureButtonBindings()
     }
@@ -242,8 +248,8 @@ class RobotContainer {
 
         operatorController.b()
             .whileTrue(elevator.goToPosition(10.0).alongWith(arm.moveArmToAngle(150.0)))
-        operatorController.x()
-            .whileTrue(elevator.goToPosition(40.0).alongWith(arm.moveArmToAngle(150.0)))
+//        operatorController.x()
+//            .whileTrue(elevator.goToPosition(40.0).alongWith(arm.moveArmToAngle(150.0)))
         operatorController.y()
             .whileTrue(elevator.goToPosition(60.0).alongWith(arm.moveArmToAngle(170.0)))
         operatorController.rightTrigger().whileTrue(
@@ -260,6 +266,14 @@ class RobotContainer {
                     arm.moveArmToAngle(170.0)
                 )
             )
+        )
+
+        operatorController.leftBumper().whileTrue(
+            motionInputs.add().andThen(motionInputs.update())
+        )
+
+        operatorController.x().and(operatorController.leftBumper()).onTrue(
+            motionInputs.runCommand()
         )
 
         // Arm controls
