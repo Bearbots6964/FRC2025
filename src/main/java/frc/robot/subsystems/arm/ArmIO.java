@@ -29,4 +29,6 @@ public interface ArmIO {
   }
 
   default void stopArm() {}
+
+  default void holdArm() {}
 }

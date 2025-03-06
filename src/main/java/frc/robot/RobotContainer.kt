@@ -14,7 +14,6 @@ package frc.robot
 
 import com.pathplanner.lib.auto.AutoBuilder
 import com.revrobotics.spark.config.SparkMaxConfig
-import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj2.command.Command
@@ -236,6 +235,9 @@ class RobotContainer {
         else Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
         driveController.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
 
+        elevator.defaultCommand = elevator.stop()
+        arm.defaultCommand = arm.stop()
+
         operatorController.a()
             .whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME))
 
@@ -250,7 +252,7 @@ class RobotContainer {
             elevator.goToPosition(60.0).andThen(
                 arm.moveArmToAngle(10.0)
             ).andThen(
-                elevator.goToPosition(40.0)
+                elevator.goToPosition(30.0)
             ).andThen(
                 elevator.goToPosition(53.7)
             ).andThen(
@@ -261,15 +263,6 @@ class RobotContainer {
                 )
             )
         )
-
-        // Arm controls
-
-        arm.defaultCommand = arm.moveArm {
-            MathUtil.applyDeadband(
-                operatorController.rightY,
-                0.1
-            )
-        }
     }
 
     val autonomousCommand: Command
