@@ -60,9 +60,10 @@ public class Module {
       // we can do some further browsing
       // and figure out *why* dividing by 7 fixes everything,
       // but in the interim, this works perfectly and fixes all our odometry problems.
-            double positionMeters = inputs.odometryDrivePositionsRad[i]
-                    * constants.WheelRadius
-                    / ((Constants.getCurrentMode() == Mode.REAL) ? 7.0 : 1.0);
+      double positionMeters =
+          inputs.odometryDrivePositionsRad[i]
+              * constants.WheelRadius
+              / ((Constants.getCurrentMode() == Mode.REAL) ? 7.0 : 1.0);
       Rotation2d angle = inputs.odometryTurnPositions[i];
       odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
     }
