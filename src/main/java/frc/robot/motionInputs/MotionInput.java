@@ -12,7 +12,7 @@ public class MotionInput {
   public MotionInput(double x, double y) {
     if (x < 1e-6 && y < 1e-6) this.rotation = -1;
     else {
-      this.rotation = new Rotation2d(x,y).getDegrees();
+      this.rotation = new Rotation2d(x, y).getDegrees();
       if (rotation < 0) {
         rotation += 360;
       }

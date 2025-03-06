@@ -1,6 +1,5 @@
 package frc.robot.motionInputs;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.arm.Arm;
@@ -26,9 +25,8 @@ public class MotionInputs {
   public Command update(CommandXboxController controller) {
     return run(
         () -> {
-          buffer.add(
-                  new MotionInput(-controller.getLeftX(), -controller.getRightX()));
-          if(buffer.peek().getLife() <= 0) buffer.poll();
+          buffer.add(new MotionInput(-controller.getLeftX(), -controller.getRightX()));
+          if (buffer.peek().getLife() <= 0) buffer.poll();
           for (MotionInput input : buffer) {
             input.update();
           }
