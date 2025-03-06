@@ -19,14 +19,16 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import frc.robot.Constants.VisionConstants.robotToCamera0
+import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.commands.DriveCommands
+import frc.robot.commands.DriveToNearestReefSideCommand
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.elevator.ElevatorIO
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX
 import frc.robot.subsystems.vision.*
-import frc.robot.subsystems.vision.VisionConstants.*
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
@@ -68,8 +70,8 @@ class RobotContainer {
                 ) { _: Pose2d? -> }
                 this.vision = Vision(
                     drive,
-                    VisionIOPhotonVision(camera0Name, VisionConstants.robotToCamera0),
-                    VisionIOPhotonVision(camera1Name, robotToCamera1))
+                    VisionIOPhotonVision(Constants.VisionConstants.camera0Name, robotToCamera0),
+                    VisionIOPhotonVision(Constants.VisionConstants.camera1Name, robotToCamera1))
                 elevator = Elevator(ElevatorIOTalonFX(Constants.ElevatorConstants.leftMotorConfig, Constants.ElevatorConstants.rightMotorConfig))
             }
 
@@ -96,10 +98,10 @@ class RobotContainer {
                 vision = Vision(
                     drive,
                     VisionIOPhotonVisionSim(
-                        camera0Name, robotToCamera0
+                        Constants.VisionConstants.camera0Name, robotToCamera0
                     ) { driveSimulation!!.simulatedDriveTrainPose },
                     VisionIOPhotonVisionSim(
-                        camera1Name, robotToCamera1
+                        Constants.VisionConstants.camera1Name, robotToCamera1
                     ) { driveSimulation!!.simulatedDriveTrainPose })
                 elevator = Elevator(object : ElevatorIO {})
             }
@@ -187,6 +189,9 @@ class RobotContainer {
 
         // Switch to X pattern when X button is pressed
         driveController.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
+
+        driveController.y().and(driveController.leftBumper()).onTrue(DriveToNearestReefSideCommand(drive, true))
+        driveController.y().and(driveController.leftBumper().negate()).onTrue(DriveToNearestReefSideCommand(drive, false))
 
         // Reset gyro / odometry
         val resetGyro = if (Constants.currentMode == Constants.Mode.SIM)
