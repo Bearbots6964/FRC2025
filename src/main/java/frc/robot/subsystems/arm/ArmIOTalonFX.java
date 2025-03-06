@@ -105,7 +105,9 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void holdArm() {
-    armMotor.getClosedLoopController().setReference(0, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    armMotor
+        .getClosedLoopController()
+        .setReference(0, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 
   @Override

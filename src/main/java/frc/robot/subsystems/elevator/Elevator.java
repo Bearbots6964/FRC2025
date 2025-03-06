@@ -1,6 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -36,7 +35,6 @@ public class Elevator extends SubsystemBase {
               new Mechanism((v) -> io.setVoltage(v.in(Volts)), null, this));
     }
   }
-
 
   public void setRotations(double rotations) {
     io.setPosition(rotations);

@@ -18,12 +18,15 @@ public class Arm extends SubsystemBase {
   public Arm(ArmIO io) {
     this.io = io;
 
-    sysId = new SysIdRoutine(new SysIdRoutine.Config(null, null, null,
-                                                     (state) -> Logger.recordOutput(
-                                                         "Arm/SysIDState", state.toString())),
-                             new SysIdRoutine.Mechanism(
-                                 (voltage -> runCharacterization(voltage.in(Units.Volts))), null,
-                                 this));
+    sysId =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                (state) -> Logger.recordOutput("Arm/SysIDState", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage -> runCharacterization(voltage.in(Units.Volts))), null, this));
   }
 
   public void periodic() {
@@ -58,7 +61,7 @@ public class Arm extends SubsystemBase {
   }
 
   public Command moveArmToAngle(Double angle) {
-    return run(() -> io.setArmAngle(angle)).until(
-        () -> Math.abs(inputs.armAxisAngle - angle) < 1.0);
+    return run(() -> io.setArmAngle(angle))
+        .until(() -> Math.abs(inputs.armAxisAngle - angle) < 1.0);
   }
 }

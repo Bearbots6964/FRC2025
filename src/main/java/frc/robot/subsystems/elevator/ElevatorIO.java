@@ -1,11 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ElevatorIO {
@@ -40,5 +34,4 @@ public interface ElevatorIO {
   default void setVoltage(double voltage) {}
 
   default void stop() {}
-
 }
