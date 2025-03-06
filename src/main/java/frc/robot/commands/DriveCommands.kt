@@ -12,6 +12,8 @@
 // GNU General Public License for more details.
 package frc.robot.commands
 
+import com.pathplanner.lib.path.PathConstraints
+import com.pathplanner.lib.path.PathPlannerPath
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
@@ -299,6 +301,11 @@ object DriveCommands {
                         })
             )
         )
+    }
+
+
+    fun pathfindThenFollowPath(drive: Drive, path: PathPlannerPath): Command {
+        return drive.pathfindThenFollowPath(path)
     }
 
     private class WheelRadiusCharacterizationState {

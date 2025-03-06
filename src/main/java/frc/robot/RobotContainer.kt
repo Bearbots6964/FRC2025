@@ -19,11 +19,13 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import frc.robot.Constants.VisionConstants.robotToCamera0
+import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.commands.DriveCommands
+import frc.robot.commands.DriveToNearestReefSideCommand
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.vision.*
-import frc.robot.subsystems.vision.VisionConstants.*
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
@@ -44,7 +46,7 @@ class RobotContainer {
     private var driveSimulation: SwerveDriveSimulation? = null
 
     // Controller
-    private val controller = CommandXboxController(0)
+    private val driveController = CommandXboxController(0)
 
     // Dashboard inputs
     private val autoChooser: LoggedDashboardChooser<Command>
@@ -63,8 +65,8 @@ class RobotContainer {
                 ) { _: Pose2d? -> }
                 this.vision = Vision(
                     drive,
-                    VisionIOPhotonVision(camera0Name, VisionConstants.robotToCamera0),
-                    VisionIOPhotonVision(camera1Name, robotToCamera1))
+                    VisionIOPhotonVision(Constants.VisionConstants.camera0Name, robotToCamera0),
+                    VisionIOPhotonVision(Constants.VisionConstants.camera1Name, robotToCamera1))
             }
 
             Constants.Mode.SIM -> {
@@ -90,10 +92,10 @@ class RobotContainer {
                 vision = Vision(
                     drive,
                     VisionIOPhotonVisionSim(
-                        camera0Name, robotToCamera0
+                        Constants.VisionConstants.camera0Name, robotToCamera0
                     ) { driveSimulation!!.simulatedDriveTrainPose },
                     VisionIOPhotonVisionSim(
-                        camera1Name, robotToCamera1
+                        Constants.VisionConstants.camera1Name, robotToCamera1
                     ) { driveSimulation!!.simulatedDriveTrainPose })
             }
 
@@ -146,21 +148,24 @@ class RobotContainer {
         // Default command, normal field-relative drive
         drive.defaultCommand = DriveCommands.joystickDrive(
             drive,
-            { -controller.leftY },
-            { -controller.leftX },
-            { -controller.rightX })
+            { -driveController.leftY },
+            { -driveController.leftX },
+            { -driveController.rightX })
 
         // Lock to 0° when A button is held
-        controller.a().whileTrue(
+        driveController.a().whileTrue(
                 DriveCommands.joystickDriveAtAngle(
                     drive,
-                    { -controller.leftY },
-                    { -controller.leftX },
+                    { -driveController.leftY },
+                    { -driveController.leftX },
                     { Rotation2d() })
             )
 
         // Switch to X pattern when X button is pressed
-        controller.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
+        driveController.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
+
+        driveController.y().and(driveController.leftBumper()).onTrue(DriveToNearestReefSideCommand(drive, true))
+        driveController.y().and(driveController.leftBumper().negate()).onTrue(DriveToNearestReefSideCommand(drive, false))
 
         // Reset gyro / odometry
         val resetGyro = if (Constants.currentMode == Constants.Mode.SIM)
@@ -170,7 +175,7 @@ class RobotContainer {
             } // reset odometry to actual robot pose during simulation
         else
             Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
-        controller.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
+        driveController.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
     }
 
     val autonomousCommand: Command
