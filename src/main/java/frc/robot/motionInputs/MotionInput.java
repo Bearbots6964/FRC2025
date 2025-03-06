@@ -9,9 +9,14 @@ public class MotionInput {
   // number of 'frames' the buffer hold an input
   @Getter private int life = MotionInputs.maxBufferLength;
 
-  public MotionInput(Rotation2d rotation) {
-    if (rotation.getCos() == 0.0 && rotation.getSin() == 0.0) this.rotation = -1;
-    else this.rotation = rotation.getDegrees();
+  public MotionInput(double x, double y) {
+    if (x < 1e-6 && y < 1e-6) this.rotation = -1;
+    else {
+      this.rotation = new Rotation2d(x,y).getDegrees();
+      if (rotation < 0) {
+        rotation += 360;
+      }
+    }
   }
 
   public int getNumpadNotation() {

@@ -200,7 +200,7 @@ class RobotContainer {
             elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
 
-        motionInputs = MotionInputs(operatorController, arm, elevator)
+        motionInputs = MotionInputs()
 
         // Configure the button bindings
         configureButtonBindings()
@@ -253,28 +253,23 @@ class RobotContainer {
         operatorController.y()
             .whileTrue(elevator.goToPosition(60.0).alongWith(arm.moveArmToAngle(170.0)))
         operatorController.rightTrigger().whileTrue(
-            elevator.goToPosition(60.0).andThen(
-                arm.moveArmToAngle(10.0)
-            ).andThen(
-                elevator.goToPosition(40.0)
-            ).andThen(
-                elevator.goToPosition(53.7)
-            ).andThen(
-                arm.moveArmToAngle(25.0)
-            ).andThen(
-                elevator.goToPosition(10.0).alongWith(
-                    arm.moveArmToAngle(170.0)
-                )
+            elevator.goToPosition(60.0)
+                .andThen(arm.moveArmToAngle(10.0))
+                .andThen(elevator.goToPosition(40.0))
+                .andThen(elevator.goToPosition(53.7))
+                .andThen(arm.moveArmToAngle(25.0))
+                .andThen(elevator.goToPosition(10.0)
+                .alongWith(arm.moveArmToAngle(170.0))
             )
         )
 
-        operatorController.leftBumper().whileTrue(
-            motionInputs.add().andThen(motionInputs.update())
+        operatorController.leftTrigger().whileTrue(
+            motionInputs.update(operatorController)
+        )
+        operatorController.x().onTrue(
+            motionInputs.runCommand(arm, elevator)
         )
 
-        operatorController.x().and(operatorController.leftBumper()).onTrue(
-            motionInputs.runCommand()
-        )
 
         // Arm controls
 

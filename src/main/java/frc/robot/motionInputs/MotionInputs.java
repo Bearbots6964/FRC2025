@@ -16,38 +16,26 @@ public class MotionInputs {
   public Queue<MotionInput> buffer;
   public ArrayList<Integer> held;
 
-  private CommandXboxController controller;
-  private Arm arm;
-  private Elevator elevator;
+  public static int maxBufferLength = 61;
 
-  public static int maxBufferLength = 21;
-
-  public MotionInputs(CommandXboxController controller, Arm arm, Elevator elevator) {
-    this.controller = controller;
-    this.arm = arm;
-    this.elevator = elevator;
+  public MotionInputs() {
     buffer = new LinkedList<>();
     held = new ArrayList<>();
   }
 
-  public Command add() {
-    return run(
-        () ->
-            buffer.add(
-                new MotionInput(new Rotation2d(-controller.getLeftX(), -controller.getRightX()))));
-  }
-
-  public Command update() {
+  public Command update(CommandXboxController controller) {
     return run(
         () -> {
+          buffer.add(
+                  new MotionInput(-controller.getLeftX(), -controller.getRightX()));
+          if(buffer.peek().getLife() <= 0) buffer.poll();
           for (MotionInput input : buffer) {
-            if (input.getLife() <= 0) buffer.remove(input);
-            else input.update();
+            input.update();
           }
         });
   }
 
-  public Command runCommand() {
+  public Command runCommand(Arm arm, Elevator elevator) {
     int temp;
     for (int i = 0; i < buffer.size(); i++) {
       temp = buffer.peek().getNumpadNotation();
