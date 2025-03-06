@@ -15,6 +15,10 @@ package frc.robot
 import com.pathplanner.lib.auto.AutoBuilder
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.units.Units
+import edu.wpi.first.units.measure.Angle
+import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
@@ -53,6 +57,7 @@ class RobotContainer {
 
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
+        DriverStation.silenceJoystickConnectionWarning(true)
         when (Constants.currentMode) {
             Constants.Mode.REAL -> {
                 // Real robot, instantiate hardware IO implementations
@@ -138,6 +143,9 @@ class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings()
+
+        SmartDashboard.putData(drive.pathfindToLowerCoralStation())
+        SmartDashboard.putData(drive.pathfindToUpperCoralStation())
     }
 
     /**
@@ -176,6 +184,10 @@ class RobotContainer {
         else
             Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
         driveController.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
+
+        driveController.b().and { drive.currentZone == Constants.Zone.LOWER_CORAL_STATION }
+            .onTrue(Commands.run({DriveCommands.joystickDriveAtAngle(drive, { -driveController.leftY }, { -driveController.leftX }, { Rotation2d(
+                Angle.ofRelativeUnits(30.0, Units.Degrees)) })}, drive))
     }
 
     val autonomousCommand: Command
