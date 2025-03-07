@@ -8,7 +8,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
@@ -55,11 +54,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     this.rightConfig = rightConfig;
     rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 160;
+    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 150;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 10;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 160;
+    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 150;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 10;
 
     leftMotor = new TalonFX(Constants.ElevatorConstants.LEFT_MOTOR_CAN_ID);
@@ -80,6 +79,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     rightMotorTemperature = rightMotor.getDeviceTemp();
     leftMotorCurrent = leftMotor.getTorqueCurrent();
     rightMotorCurrent = rightMotor.getTorqueCurrent();
+
+    targetPosition = rightMotorPosition.getValue().in(Units.Rotations);
   }
 
   @Override
@@ -142,7 +143,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void stop() {
-    rightMotor.setControl(new StaticBrake());
+    rightMotor.setControl(new MotionMagicVoltage(targetPosition));
   }
 
   @Override

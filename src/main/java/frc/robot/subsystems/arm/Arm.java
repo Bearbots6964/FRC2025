@@ -39,7 +39,7 @@ public class Arm extends SubsystemBase {
   }
 
   public Command stop() {
-    return run(io::holdArm);
+    return run(() -> io.holdArm(io.getArmAngleRotations()));
   }
 
   private void runCharacterization(double output) {
@@ -63,5 +63,10 @@ public class Arm extends SubsystemBase {
   public Command moveArmToAngle(Double angle) {
     return run(() -> io.setArmAngle(angle))
         .until(() -> Math.abs(inputs.armAxisAngle - angle) < 1.0);
+  }
+
+  public Command moveArmAngleDelta(Double delta) {
+    return run(() -> io.setArmAngle(inputs.armAxisAngle + delta))
+        .until(() -> Math.abs(inputs.armAxisAngle - (inputs.armAxisAngle + delta)) < 1.0);
   }
 }
