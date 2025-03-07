@@ -48,13 +48,17 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PhysicalProperties;
 import frc.robot.Constants.PhysicalProperties.ProgrammingBase;
+import frc.robot.Constants.Zone;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
@@ -132,6 +136,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   private final SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
+  private Zone currentZone = Zone.NONE;
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -184,6 +190,12 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+    Notifier zoneNotifier =
+        new Notifier(
+            () -> currentZone = FieldConstants.INSTANCE.getZone(getPose().getTranslation()));
+    zoneNotifier.startPeriodic(0.5); // this really doesn't need to execute that often.
+    // it's also a pretty resource-intensive operation, so we have to be careful with it
   }
 
   /** Returns an array of module translations. */
@@ -198,6 +210,30 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
       new Translation2d(
           TunerConstants.getBackRight().LocationX, TunerConstants.getBackRight().LocationY)
     };
+  }
+
+  public Zone getCurrentZone() {
+    return currentZone;
+  }
+
+  public Command pathfindToLowerCoralStation() {
+    try {
+      var path = PathPlannerPath.fromPathFile("Pathfinding to Lower Coral Station");
+      return AutoBuilder.pathfindThenFollowPath(path, path.getGlobalConstraints());
+    } catch (Exception e) {
+      e.printStackTrace();
+      return Commands.none();
+    }
+  }
+
+  public Command pathfindToUpperCoralStation() {
+    try {
+      var path = PathPlannerPath.fromPathFile("Pathfinding to Upper Coral Station");
+      return AutoBuilder.pathfindThenFollowPath(path, path.getGlobalConstraints());
+    } catch (Exception e) {
+      e.printStackTrace();
+      return Commands.none();
+    }
   }
 
   @Override
@@ -257,6 +293,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getCurrentMode() != Mode.SIM);
+
+    Logger.recordOutput("Odometry/Zone", Constants.INSTANCE.zoneToString(currentZone));
   }
 
   /**

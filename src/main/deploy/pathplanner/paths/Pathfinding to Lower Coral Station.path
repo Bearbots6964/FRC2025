@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.44037109375,
+        "y": 2.144843749999999
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.6560791015624998,
+        "y": 1.8669335937499991
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.17703125,
+        "y": 1.057812499999999
+      },
+      "prevControl": {
+        "x": 1.8370458984375,
+        "y": 1.482016601562499
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Lower Coral Station"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 55.15256889058637
+  },
+  "reversed": false,
+  "folder": "New Folder",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 48.85408809522351
+  },
+  "useDefaultConstraints": true
+}

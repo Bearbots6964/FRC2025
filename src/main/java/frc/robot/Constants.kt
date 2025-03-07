@@ -13,6 +13,7 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.*
 import edu.wpi.first.wpilibj.RobotBase
+import frc.robot.util.Polygon
 
 /*
  * The Constants file provides a convenient place for teams to hold robot-wide
@@ -220,5 +221,159 @@ object Constants {
 
         /** Replaying from a log file.  */
         REPLAY
+    }
+
+    enum class Zone {
+        LOWER_CORAL_STATION,
+        UPPER_CORAL_STATION,
+        REEF_AB,
+        REEF_CD,
+        REEF_EF,
+        REEF_GH,
+        REEF_IJ,
+        REEF_KL,
+        NONE
+    }
+    fun zoneToString(z: Zone): String {
+        return when (z) {
+            Zone.LOWER_CORAL_STATION -> "Lower Coral Station"
+            Zone.UPPER_CORAL_STATION -> "Upper Coral Station"
+            Zone.REEF_AB -> "Reef AB"
+            Zone.REEF_CD -> "Reef CD"
+            Zone.REEF_EF -> "Reef EF"
+            Zone.REEF_GH -> "Reef GH"
+            Zone.REEF_IJ -> "Reef IJ"
+            Zone.REEF_KL -> "Reef KL"
+            Zone.NONE -> "None"
+        }
+    }
+
+
+    object FieldConstants {
+        // Field zoning.
+        // Lower coral station
+        val lowerCoralStation = frc.robot.util.Polygon(
+            listOf(
+                // origin
+                Translation2d(Units.Inches.of(0.0), Units.Inches.of(0.0)),
+                // 124.406 in y
+                Translation2d(Units.Inches.of(0.0), Units.Inches.of(124.406)),
+                // 171.301 in x
+                Translation2d(Units.Inches.of(171.301), Units.Inches.of(0.0)),
+            ),
+        ) // double-checked
+
+        val upperCoralStation = frc.robot.util.Polygon(
+            listOf(
+                // y = 192.594 in
+                Translation2d(Units.Inches.of(0.0), Units.Inches.of(192.594)),
+                // y = 317
+                Translation2d(Units.Inches.of(0.0), Units.Inches.of(317.0)),
+                // x = 171.301 in, y = 317 in
+                Translation2d(Units.Inches.of(171.301), Units.Inches.of(317.0)),
+            ),
+        )
+
+        // reef
+        // the fms orders these starting at the top left and going clockwise
+        // (2 letters per side, corresponding to the 2 poles per side)
+        // reef is a hexagon, we can just extend it outward to get zones
+        // first though let's get the points
+        // starting at the top and going clockwise
+
+        // 176.75, 196
+        val reefPoint1 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(196.0))
+
+        // 209.5, 177.5
+        val reefPoint2 = Translation2d(Units.Inches.of(209.5), Units.Inches.of(177.5))
+
+        // 209.5, 139.5
+        val reefPoint3 = Translation2d(Units.Inches.of(209.5), Units.Inches.of(139.5))
+
+        // 176.75, 120.5
+        val reefPoint4 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(120.5))
+
+        // 144, 139.5
+        val reefPoint5 = Translation2d(Units.Inches.of(144.0), Units.Inches.of(139.5))
+
+        // 144, 177.5
+        val reefPoint6 = Translation2d(Units.Inches.of(144.0), Units.Inches.of(177.5))
+
+        // now the bounds for the reef areas. these are the reef points extended outward 72 inches
+
+        // 176.75, 279.5
+        val outerReefPoint1 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(279.5))
+
+        // 281.5, 219
+        val outerReefPoint2 = Translation2d(Units.Inches.of(281.5), Units.Inches.of(219.0))
+
+        // 281.5, 98
+        val outerReefPoint3 = Translation2d(Units.Inches.of(281.5), Units.Inches.of(98.0))
+
+        // 176.75, 37.5
+        val outerReefPoint4 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(37.5))
+
+        // 72, 98
+        val outerReefPoint5 = Translation2d(Units.Inches.of(72.0), Units.Inches.of(98.0))
+
+        // 72, 219
+        val outerReefPoint6 = Translation2d(Units.Inches.of(72.0), Units.Inches.of(219.0))
+
+        // now we create polygons for the reef zones. as previously stated, we're beginning the reef zones at the top left and going clockwise
+        val reefAreaAB = Polygon(
+            listOf(
+                reefPoint6, outerReefPoint6, outerReefPoint1, reefPoint1
+            )
+        )
+        val reefAreaCD = Polygon(
+            listOf(
+                reefPoint1, outerReefPoint1, outerReefPoint2, reefPoint2
+            )
+        )
+        val reefAreaEF = Polygon(
+            listOf(
+                reefPoint2, outerReefPoint2, outerReefPoint3, reefPoint3
+            )
+        )
+        val reefAreaGH = Polygon(
+            listOf(
+                reefPoint3, outerReefPoint3, outerReefPoint4, reefPoint4
+            )
+        )
+        val reefAreaIJ = Polygon(
+            listOf(
+                reefPoint4, outerReefPoint4, outerReefPoint5, reefPoint5
+            )
+        )
+        val reefAreaKL = Polygon(
+            listOf(
+                reefPoint5, outerReefPoint5, outerReefPoint6, reefPoint6
+            )
+        )
+
+        fun getZone(point: Translation2d): Zone {
+            if (lowerCoralStation.contains(point)) {
+                return Zone.LOWER_CORAL_STATION
+            } else if (upperCoralStation.contains(point)) {
+                return Zone.UPPER_CORAL_STATION
+            } else if (reefAreaAB.contains(point)) {
+                return Zone.REEF_AB
+            } else if (reefAreaCD.contains(point)) {
+                return Zone.REEF_CD
+            } else if (reefAreaEF.contains(point)) {
+                return Zone.REEF_EF
+            } else if (reefAreaGH.contains(point)) {
+                return Zone.REEF_GH
+            } else if (reefAreaIJ.contains(point)) {
+                return Zone.REEF_IJ
+            } else if (reefAreaKL.contains(point)) {
+                return Zone.REEF_KL
+            } else {
+                return Zone.NONE
+            }
+
+        }
+
+
     }
 }
