@@ -24,7 +24,7 @@ import frc.robot.util.Polygon
 
 object Constants {
     object OperatorConstants {
-        const val DRIVER_CONTROLLER_PORT = 0
+        const val DRIVER_FULL_AUTO = true
     }
 
     object ElevatorConstants {
@@ -67,6 +67,7 @@ object Constants {
         const val L2 = 5.0
         const val L3 = 85.0
         const val L4 = 150.0 // TODO: Find actual value
+        const val CORAL_PICKUP = 10.0
 
         enum class ElevatorState {
             HOME, L1, L2, L3, L4
@@ -146,6 +147,7 @@ object Constants {
                 const val INTAKE_CORAL = HOME
             }
         }
+
 
         @JvmStatic
         val armAxisMotorID: Int = 6
@@ -252,7 +254,7 @@ object Constants {
     object FieldConstants {
         // Field zoning.
         // Lower coral station
-        val lowerCoralStation = frc.robot.util.Polygon(
+        val lowerCoralStation = Polygon(
             listOf(
                 // origin
                 Translation2d(Units.Inches.of(0.0), Units.Inches.of(0.0)),
@@ -263,7 +265,7 @@ object Constants {
             ),
         ) // double-checked
 
-        val upperCoralStation = frc.robot.util.Polygon(
+        val upperCoralStation = Polygon(
             listOf(
                 // y = 192.594 in
                 Translation2d(Units.Inches.of(0.0), Units.Inches.of(192.594)),

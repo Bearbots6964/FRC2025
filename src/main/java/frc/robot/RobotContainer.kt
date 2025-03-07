@@ -16,8 +16,10 @@ import com.pathplanner.lib.auto.AutoBuilder
 import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
@@ -233,7 +235,32 @@ class RobotContainer {
             .onTrue(DriveToNearestReefSideCommand(drive, true).command)
         driveController.y().and(driveController.leftBumper().negate())
             .onTrue(DriveToNearestReefSideCommand(drive, false).command)
-        driveController.rightBumper().onTrue(DriveToNearestCoralStationCommand(drive).command)
+
+        // Coral Station handler
+        driveController.rightBumper().onTrue(
+            DriveToNearestCoralStationCommand(drive).command.alongWith(
+                if (Constants.OperatorConstants.DRIVER_FULL_AUTO) ReefPositionCommands.coralStationPosition(
+                    elevator, arm
+                ) else Commands.none()
+            ).andThen(
+                if (Constants.OperatorConstants.DRIVER_FULL_AUTO) Commands.waitTime(
+                    Units.Seconds.of(
+                        5.0
+                    )
+                ).andThen(coralPickup())
+                else Commands.none()
+            )
+        )
+
+        // Arm control after coral placed
+        driveController.rightTrigger()
+            .onTrue( // TODO ask the drivers whether the operator or driver should control this
+                arm.moveArmAngleDelta(-10.0).andThen(
+                    elevator.goToPositionDelta(-10.0)
+                ).andThen(
+                    drive.backUpBy(0.5)
+                )
+            )
 
         // Reset gyro / odometry
         val resetGyro = if (Constants.currentMode == Constants.Mode.SIM) Runnable {
@@ -256,24 +283,7 @@ class RobotContainer {
         operatorController.y()
             .whileTrue(elevator.goToPosition(60.0).alongWith(arm.moveArmToAngle(170.0)))
         operatorController.rightTrigger().whileTrue(
-            elevator.goToPosition(60.0).andThen(
-                arm.moveArmToAngle(12.0)
-            ).andThen(
-                elevator.goToPosition(30.0)
-            ).andThen(
-                elevator.goToPosition(45.0)
-            ).andThen(
-                arm.moveArmToAngle(25.0)
-            ).andThen(
-                //elevator.goToPosition(10.0).alongWith(
-                    arm.moveArmToAngle(170.0)
-                //)
-            )
-        )
-        operatorController.leftTrigger().whileTrue(
-            arm.moveArmToAngle(90.0).andThen(
-                elevator.goToPositionDelta(-10.0)
-            )
+            coralPickup()
         )
 
         // Mark IV controller bindings
@@ -290,7 +300,32 @@ class RobotContainer {
         buttonMacroController.button(10).onTrue(ReefPositionCommands.l2(elevator, arm))
         buttonMacroController.button(11).onTrue(ReefPositionCommands.l3(elevator, arm))
         buttonMacroController.button(12).onTrue(ReefPositionCommands.l4(elevator, arm))
+        // Home and pickup position
+        buttonMacroController.button(7).onTrue(
+            elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME).alongWith(
+                arm.moveArmToAngle(Constants.ArmConstants.ArmState.HOME)
+            )
+        )
+        buttonMacroController.button(8).onTrue(
+            elevator.goToPosition(Constants.ElevatorConstants.CORAL_PICKUP).alongWith(
+                arm.moveArmToAngle(Constants.ArmConstants.ArmState.INTAKE_CORAL)
+            )
+        )
     }
+
+    private fun coralPickup(): SequentialCommandGroup? = elevator.goToPosition(60.0).andThen(
+        arm.moveArmToAngle(12.0)
+    ).andThen(
+        elevator.goToPosition(30.0)
+    ).andThen(
+        elevator.goToPosition(45.0)
+    ).andThen(
+        arm.moveArmToAngle(25.0)
+    ).andThen(
+        //elevator.goToPosition(10.0).alongWith(
+        arm.moveArmToAngle(170.0)
+        //)
+    )
 
     val autonomousCommand: Command
         /**

@@ -64,4 +64,9 @@ public class Arm extends SubsystemBase {
     return run(() -> io.setArmAngle(angle))
         .until(() -> Math.abs(inputs.armAxisAngle - angle) < 1.0);
   }
+
+  public Command moveArmAngleDelta(Double delta) {
+    return run(() -> io.setArmAngle(inputs.armAxisAngle + delta))
+        .until(() -> Math.abs(inputs.armAxisAngle - (inputs.armAxisAngle + delta)) < 1.0);
+  }
 }
