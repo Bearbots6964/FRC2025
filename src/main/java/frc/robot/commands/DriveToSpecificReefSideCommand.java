@@ -29,43 +29,47 @@ public class DriveToSpecificReefSideCommand {
   private int[] numbers;
   private boolean isLeftSide;
 
-  /**
-   * Creates a new DriveToNearestReefSideCommand.
-   */
+  /** Creates a new DriveToNearestReefSideCommand. */
   public DriveToSpecificReefSideCommand(Drive drive, Reef reef) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
-    numbers = switch (reef) {
-      case A, B -> new int[]{7, 18};
-      case C, D -> new int[]{8, 19};
-      case E, F -> new int[]{9, 20};
-      case G, H -> new int[]{10, 21};
-      case I, J -> new int[]{11, 22};
-      case K, L -> new int[]{12, 23};
-    };
-    isLeftSide = switch (reef) {
-      case A, C, E, G, I, K -> true;
-      case B, D, F, H, J, L -> false;
-    };
+    numbers =
+        switch (reef) {
+          case A, B -> new int[] {7, 18};
+          case C, D -> new int[] {8, 19};
+          case E, F -> new int[] {9, 20};
+          case G, H -> new int[] {10, 21};
+          case I, J -> new int[] {11, 22};
+          case K, L -> new int[] {12, 23};
+        };
+    isLeftSide =
+        switch (reef) {
+          case A, C, E, G, I, K -> true;
+          case B, D, F, H, J, L -> false;
+        };
   }
 
   // Called when the command is initially scheduled.
   public Command getCommand() {
     Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
-    Command pathfindPath = AutoBuilder.pathfindToPose(
-        translateCoordinates(closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(),
-                             -0.5),
-        new PathConstraints(1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+    Command pathfindPath =
+        AutoBuilder.pathfindToPose(
+            translateCoordinates(
+                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
+            new PathConstraints(
+                1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
 
     try {
       // Load the path you want to follow using its name in the GUI
-      PathPlannerPath pathToFront = new PathPlannerPath(PathPlannerPath.waypointsFromPoses(
-          translateCoordinates(closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(),
-                               -0.5), closestAprilTagPose),
-                                                        new PathConstraints(0.25, 1.0, 2 * Math.PI,
-                                                                            4 * Math.PI), null,
-                                                        new GoalEndState(0.0,
-                                                                         closestAprilTagPose.getRotation()));
+      PathPlannerPath pathToFront =
+          new PathPlannerPath(
+              PathPlannerPath.waypointsFromPoses(
+                  translateCoordinates(
+                      closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
+                  closestAprilTagPose),
+              new PathConstraints(0.25, 1.0, 2 * Math.PI, 4 * Math.PI),
+              null,
+              new GoalEndState(0.0, closestAprilTagPose.getRotation()));
       pathToFront.preventFlipping = true;
       fullPath = pathfindPath.andThen(AutoBuilder.followPath(pathToFront));
       return fullPath;
@@ -92,31 +96,30 @@ public class DriveToSpecificReefSideCommand {
 
     Pose2d closestPose = aprilTagsToAlignTo.get(aprilTagNum);
 
-
-    Pose2d inFrontOfAprilTag = translateCoordinates(closestPose,
-                                                    closestPose.getRotation().getDegrees(),
-                                                    -Units.inchesToMeters(23.773));
+    Pose2d inFrontOfAprilTag =
+        translateCoordinates(
+            closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(23.773));
 
     Pose2d leftOrRightOfAprilTag;
     if (isLeftSide) {
-      leftOrRightOfAprilTag = translateCoordinates(inFrontOfAprilTag,
-                                                   closestPose.getRotation().getDegrees() + 90,
-                                                   0.1432265);
+      leftOrRightOfAprilTag =
+          translateCoordinates(
+              inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
     } else {
-      leftOrRightOfAprilTag = translateCoordinates(inFrontOfAprilTag,
-                                                   closestPose.getRotation().getDegrees() + 90,
-                                                   -0.1432265);
+      leftOrRightOfAprilTag =
+          translateCoordinates(
+              inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
     }
 
     if (List.of(11, 10, 9, 22, 21, 20).contains(aprilTagNum)) {
       if (isLeftSide) {
-        leftOrRightOfAprilTag = translateCoordinates(inFrontOfAprilTag,
-                                                     closestPose.getRotation().getDegrees() + 90,
-                                                     -0.1432265);
+        leftOrRightOfAprilTag =
+            translateCoordinates(
+                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
       } else {
-        leftOrRightOfAprilTag = translateCoordinates(inFrontOfAprilTag,
-                                                     closestPose.getRotation().getDegrees() + 90,
-                                                     0.1432265);
+        leftOrRightOfAprilTag =
+            translateCoordinates(
+                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
       }
     }
 
@@ -131,6 +134,17 @@ public class DriveToSpecificReefSideCommand {
   }
 
   public enum Reef {
-    A, B, C, D, E, F, G, H, I, J, K, L
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L
   }
 }

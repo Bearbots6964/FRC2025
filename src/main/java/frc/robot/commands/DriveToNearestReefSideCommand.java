@@ -34,7 +34,6 @@ public class DriveToNearestReefSideCommand {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
     this.isLeftBumper = isLeftBumper;
-
   }
 
   // Called when the command is initially scheduled.
@@ -99,7 +98,8 @@ public class DriveToNearestReefSideCommand {
     Pose2d leftOrRightOfAprilTag;
     if (isLeftBumper) {
       leftOrRightOfAprilTag =
-          translateCoordinates(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
+          translateCoordinates(
+              inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
     } else {
       leftOrRightOfAprilTag =
           translateCoordinates(
