@@ -13,6 +13,7 @@
 package frc.robot
 
 import com.pathplanner.lib.auto.AutoBuilder
+import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj2.command.Command
@@ -24,6 +25,10 @@ import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.commands.DriveCommands
 import frc.robot.commands.DriveToNearestReefSideCommand
 import frc.robot.generated.TunerConstants
+import frc.robot.subsystems.arm.Arm
+import frc.robot.subsystems.arm.ArmIO
+import frc.robot.subsystems.arm.ArmIOTalonFX
+import frc.robot.subsystems.arm.ArmIOTalonFXSim
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.elevator.ElevatorIO
@@ -45,13 +50,14 @@ class RobotContainer {
     // Subsystems
     private var drive: Drive
     private var vision: Vision
+    private var arm: Arm
     private var elevator: Elevator
 
     private var driveSimulation: SwerveDriveSimulation? = null
 
     // Controller
     private val driveController = CommandXboxController(0)
-    private val elevatorController = CommandXboxController(1)
+    private val operatorController = CommandXboxController(1)
 
     // Dashboard inputs
     private val autoChooser: LoggedDashboardChooser<Command>
@@ -71,8 +77,21 @@ class RobotContainer {
                 this.vision = Vision(
                     drive,
                     VisionIOPhotonVision(Constants.VisionConstants.camera0Name, robotToCamera0),
-                    VisionIOPhotonVision(Constants.VisionConstants.camera1Name, robotToCamera1))
-                elevator = Elevator(ElevatorIOTalonFX(Constants.ElevatorConstants.leftMotorConfig, Constants.ElevatorConstants.rightMotorConfig))
+                    VisionIOPhotonVision(Constants.VisionConstants.camera1Name, robotToCamera1)
+                )
+                arm = Arm(
+                    ArmIOTalonFX(
+                        //TalonFXConfiguration(),
+                        SparkMaxConfig(),
+                    )
+                )
+
+                elevator = Elevator(
+                    ElevatorIOTalonFX(
+                        Constants.ElevatorConstants.leftMotorConfig,
+                        Constants.ElevatorConstants.rightMotorConfig
+                    )
+                )
             }
 
             Constants.Mode.SIM -> {
@@ -81,28 +100,27 @@ class RobotContainer {
                     SwerveDriveSimulation(Drive.mapleSimConfig, Pose2d(3.0, 3.0, Rotation2d()))
                 SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation)
                 drive = Drive(
-                    GyroIOSim(driveSimulation!!.gyroSimulation),
-                    ModuleIOTalonFXSim(
+                    GyroIOSim(driveSimulation!!.gyroSimulation), ModuleIOTalonFXSim(
                         TunerConstants.FrontLeft, driveSimulation!!.modules[0]
-                    ),
-                    ModuleIOTalonFXSim(
+                    ), ModuleIOTalonFXSim(
                         TunerConstants.FrontRight, driveSimulation!!.modules[1]
-                    ),
-                    ModuleIOTalonFXSim(
+                    ), ModuleIOTalonFXSim(
                         TunerConstants.BackLeft, driveSimulation!!.modules[2]
-                    ),
-                    ModuleIOTalonFXSim(
+                    ), ModuleIOTalonFXSim(
                         TunerConstants.BackRight, driveSimulation!!.modules[3]
                     )
                 ) { robotPose: Pose2d? -> driveSimulation!!.setSimulationWorldPose(robotPose) }
                 vision = Vision(
-                    drive,
-                    VisionIOPhotonVisionSim(
+                    drive, VisionIOPhotonVisionSim(
                         Constants.VisionConstants.camera0Name, robotToCamera0
-                    ) { driveSimulation!!.simulatedDriveTrainPose },
-                    VisionIOPhotonVisionSim(
+                    ) { driveSimulation!!.simulatedDriveTrainPose }, VisionIOPhotonVisionSim(
                         Constants.VisionConstants.camera1Name, robotToCamera1
                     ) { driveSimulation!!.simulatedDriveTrainPose })
+                arm = Arm(
+                    ArmIOTalonFXSim(
+
+                    )
+                )
                 elevator = Elevator(object : ElevatorIO {})
             }
 
@@ -113,11 +131,11 @@ class RobotContainer {
                     object : ModuleIO {},
                     object : ModuleIO {},
                     object : ModuleIO {},
-                    object : ModuleIO {}
-                ) { _: Pose2d? -> }
+                    object : ModuleIO {}) { _: Pose2d? -> }
                 vision = Vision(drive, object : VisionIO {}, object : VisionIO {})
 
                 elevator = Elevator(object : ElevatorIO {})
+                arm = Arm(object : ArmIO {})
             }
         }
         // Set up auto routines
@@ -144,21 +162,37 @@ class RobotContainer {
         autoChooser.addOption(
             "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
-
         autoChooser.addOption(
-            "Elevator SysId (Quasistatic Forward)", elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+            "Arm SysId (Quasistatic Forward)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Quasistatic Reverse)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Dynamic Forward)", arm.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Dynamic Reverse)", arm.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
 
         autoChooser.addOption(
-            "Elevator SysId (Quasistatic Reverse)", elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+            "Elevator SysId (Quasistatic Forward)",
+            elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
         )
 
         autoChooser.addOption(
-            "Elevator SysId (Dynamic Forward)", elevator.sysIdDynamic(SysIdRoutine.Direction.kForward)
+            "Elevator SysId (Quasistatic Reverse)",
+            elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
         )
 
         autoChooser.addOption(
-            "Elevator SysId (Dynamic Reverse)", elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+            "Elevator SysId (Dynamic Forward)",
+            elevator.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        )
+
+        autoChooser.addOption(
+            "Elevator SysId (Dynamic Reverse)",
+            elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
 
         // Configure the button bindings
@@ -170,7 +204,6 @@ class RobotContainer {
      * instantiating a [GenericHID] or one of its subclasses ([ ] or [XboxController]), and then passing it to a [ ].
      */
     private fun configureButtonBindings() {
-        elevator.defaultCommand = elevator.doNothing()
         // Default command, normal field-relative drive
         drive.defaultCommand = DriveCommands.joystickDrive(
             drive,
@@ -180,34 +213,56 @@ class RobotContainer {
 
         // Lock to 0° when A button is held
         driveController.a().whileTrue(
-                DriveCommands.joystickDriveAtAngle(
-                    drive,
-                    { -driveController.leftY },
-                    { -driveController.leftX },
-                    { Rotation2d() })
-            )
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                { -driveController.leftY },
+                { -driveController.leftX },
+                { Rotation2d() })
+        )
 
         // Switch to X pattern when X button is pressed
         driveController.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
 
-        driveController.y().and(driveController.leftBumper()).onTrue(DriveToNearestReefSideCommand(drive, true))
-        driveController.y().and(driveController.leftBumper().negate()).onTrue(DriveToNearestReefSideCommand(drive, false))
+        driveController.y().and(driveController.leftBumper())
+            .onTrue(DriveToNearestReefSideCommand(drive, true))
+        driveController.y().and(driveController.leftBumper().negate())
+            .onTrue(DriveToNearestReefSideCommand(drive, false))
 
         // Reset gyro / odometry
-        val resetGyro = if (Constants.currentMode == Constants.Mode.SIM)
-            Runnable {
-                drive.pose = driveSimulation!!
-                    .simulatedDriveTrainPose
-            } // reset odometry to actual robot pose during simulation
-        else
-            Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
+        val resetGyro = if (Constants.currentMode == Constants.Mode.SIM) Runnable {
+            drive.pose = driveSimulation!!.simulatedDriveTrainPose
+        } // reset odometry to actual robot pose during simulation
+        else Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
         driveController.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
 
-        elevatorController.a().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME))
-        elevatorController.b().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L1))
-        elevatorController.x().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L2))
-        elevatorController.y().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L3))
-        elevatorController.rightBumper().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L4))
+        elevator.defaultCommand = elevator.stop()
+        arm.defaultCommand = arm.stop()
+
+        operatorController.a()
+            .whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME))
+
+
+        operatorController.b()
+            .whileTrue(elevator.goToPosition(10.0).alongWith(arm.moveArmToAngle(150.0)))
+        operatorController.x()
+            .whileTrue(elevator.goToPosition(40.0).alongWith(arm.moveArmToAngle(150.0)))
+        operatorController.y()
+            .whileTrue(elevator.goToPosition(60.0).alongWith(arm.moveArmToAngle(170.0)))
+        operatorController.rightTrigger().whileTrue(
+            elevator.goToPosition(60.0).andThen(
+                arm.moveArmToAngle(10.0)
+            ).andThen(
+                elevator.goToPosition(30.0)
+            ).andThen(
+                elevator.goToPosition(53.7)
+            ).andThen(
+                arm.moveArmToAngle(25.0)
+            ).andThen(
+                elevator.goToPosition(10.0).alongWith(
+                    arm.moveArmToAngle(170.0)
+                )
+            )
+        )
     }
 
     val autonomousCommand: Command
@@ -229,8 +284,7 @@ class RobotContainer {
         if (Constants.currentMode != Constants.Mode.SIM) return
 
         Logger.recordOutput(
-            "FieldSimulation/RobotPosition",
-            driveSimulation!!.simulatedDriveTrainPose
+            "FieldSimulation/RobotPosition", driveSimulation!!.simulatedDriveTrainPose
         )
         Logger.recordOutput(
             "FieldSimulation/Coral", *SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")

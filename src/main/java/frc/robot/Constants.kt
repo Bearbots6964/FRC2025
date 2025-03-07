@@ -134,6 +134,11 @@ object Constants {
         val activeBase = ProgrammingBase
     }
 
+    object ArmConstants {
+        @JvmStatic
+        val armAxisMotorID: Int = 6
+    }
+
     object VisionConstants {
         // AprilTag layout
         @JvmStatic

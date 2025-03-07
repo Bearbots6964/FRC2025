@@ -47,12 +47,20 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final Debouncer leftMotorConnectedDebouncer = new Debouncer(0.5);
   private final Debouncer rightMotorConnectedDebouncer = new Debouncer(0.5);
 
-  protected AngularVelocity targetVelocity = Units.RotationsPerSecond.of(0.0);
-  protected Angle targetPosition = Units.Degrees.of(0.0);
+  protected double targetVelocity = 0.0;
+  protected double targetPosition = 0.0;
 
   public ElevatorIOTalonFX(TalonFXConfiguration leftConfig, TalonFXConfiguration rightConfig) {
     this.leftConfig = leftConfig;
     this.rightConfig = rightConfig;
+    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 160;
+    rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 10;
+    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 160;
+    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 10;
 
     leftMotor = new TalonFX(Constants.ElevatorConstants.LEFT_MOTOR_CAN_ID);
     rightMotor = new TalonFX(Constants.ElevatorConstants.RIGHT_MOTOR_CAN_ID);
@@ -94,20 +102,20 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.leftMotorConnected = leftMotorConnectedDebouncer.calculate(leftStatus.isOK());
     inputs.rightMotorConnected = rightMotorConnectedDebouncer.calculate(rightStatus.isOK());
 
-    inputs.leftMotorPosition = leftMotorPosition.getValue();
-    inputs.rightMotorPosition = rightMotorPosition.getValue();
+    inputs.leftMotorPositionRotations = leftMotorPosition.getValue().in(Units.Rotations);
+    inputs.rightMotorPositionRotations = rightMotorPosition.getValue().in(Units.Rotations);
 
-    inputs.leftMotorVelocity = leftMotorVelocity.getValue();
-    inputs.rightMotorVelocity = rightMotorVelocity.getValue();
+    inputs.leftMotorVelocity = leftMotorVelocity.getValue().in(Units.RotationsPerSecond);
+    inputs.rightMotorVelocity = rightMotorVelocity.getValue().in(Units.RotationsPerSecond);
 
-    inputs.leftMotorVoltage = leftMotorVoltage.getValue();
-    inputs.rightMotorVoltage = rightMotorVoltage.getValue();
+    inputs.leftMotorVoltage = leftMotorVoltage.getValue().in(Units.Volts);
+    inputs.rightMotorVoltage = rightMotorVoltage.getValue().in(Units.Volts);
 
-    inputs.leftMotorTemperature = leftMotorTemperature.getValue();
-    inputs.rightMotorTemperature = rightMotorTemperature.getValue();
+    inputs.leftMotorTemperatureCelsius = leftMotorTemperature.getValue().in(Units.Celsius);
+    inputs.rightMotorTemperatureCelsius = rightMotorTemperature.getValue().in(Units.Celsius);
 
-    inputs.leftMotorCurrent = leftMotorCurrent.getValue();
-    inputs.rightMotorCurrent = rightMotorCurrent.getValue();
+    inputs.leftMotorCurrent = leftMotorCurrent.getValue().in(Units.Amps);
+    inputs.rightMotorCurrent = rightMotorCurrent.getValue().in(Units.Amps);
 
     inputs.targetVelocity = targetVelocity;
     inputs.targetPosition = targetPosition;
@@ -119,14 +127,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   @Override
-  public void setVelocity(AngularVelocity velocity) {
+  public void setVelocity(double velocity) {
     targetVelocity = velocity;
     motionMagicVelocityRequest.withVelocity(velocity);
     rightMotor.setControl(motionMagicVelocityRequest);
   }
 
   @Override
-  public void setPosition(Angle position) {
+  public void setPosition(double position) {
     targetPosition = position;
     motionMagicPositionRequest.withPosition(position);
     rightMotor.setControl(motionMagicPositionRequest);
@@ -138,7 +146,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   @Override
-  public void setVoltage(Voltage voltage) {
+  public void setVoltage(double voltage) {
     voltageRequest.withOutput(voltage);
     rightMotor.setControl(voltageRequest);
   }
