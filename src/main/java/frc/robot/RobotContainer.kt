@@ -25,6 +25,9 @@ import frc.robot.commands.DriveCommands
 import frc.robot.commands.DriveToNearestReefSideCommand
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.drive.*
+import frc.robot.subsystems.elevator.Elevator
+import frc.robot.subsystems.elevator.ElevatorIO
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX
 import frc.robot.subsystems.vision.*
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
@@ -42,11 +45,13 @@ class RobotContainer {
     // Subsystems
     private var drive: Drive
     private var vision: Vision
+    private var elevator: Elevator
 
     private var driveSimulation: SwerveDriveSimulation? = null
 
     // Controller
     private val driveController = CommandXboxController(0)
+    private val elevatorController = CommandXboxController(1)
 
     // Dashboard inputs
     private val autoChooser: LoggedDashboardChooser<Command>
@@ -67,6 +72,7 @@ class RobotContainer {
                     drive,
                     VisionIOPhotonVision(Constants.VisionConstants.camera0Name, robotToCamera0),
                     VisionIOPhotonVision(Constants.VisionConstants.camera1Name, robotToCamera1))
+                elevator = Elevator(ElevatorIOTalonFX(Constants.ElevatorConstants.leftMotorConfig, Constants.ElevatorConstants.rightMotorConfig))
             }
 
             Constants.Mode.SIM -> {
@@ -97,6 +103,7 @@ class RobotContainer {
                     VisionIOPhotonVisionSim(
                         Constants.VisionConstants.camera1Name, robotToCamera1
                     ) { driveSimulation!!.simulatedDriveTrainPose })
+                elevator = Elevator(object : ElevatorIO {})
             }
 
             else -> {
@@ -109,6 +116,8 @@ class RobotContainer {
                     object : ModuleIO {}
                 ) { _: Pose2d? -> }
                 vision = Vision(drive, object : VisionIO {}, object : VisionIO {})
+
+                elevator = Elevator(object : ElevatorIO {})
             }
         }
         // Set up auto routines
@@ -136,6 +145,22 @@ class RobotContainer {
             "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
 
+        autoChooser.addOption(
+            "Elevator SysId (Quasistatic Forward)", elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        )
+
+        autoChooser.addOption(
+            "Elevator SysId (Quasistatic Reverse)", elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        )
+
+        autoChooser.addOption(
+            "Elevator SysId (Dynamic Forward)", elevator.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        )
+
+        autoChooser.addOption(
+            "Elevator SysId (Dynamic Reverse)", elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        )
+
         // Configure the button bindings
         configureButtonBindings()
     }
@@ -145,6 +170,7 @@ class RobotContainer {
      * instantiating a [GenericHID] or one of its subclasses ([ ] or [XboxController]), and then passing it to a [ ].
      */
     private fun configureButtonBindings() {
+        elevator.defaultCommand = elevator.doNothing()
         // Default command, normal field-relative drive
         drive.defaultCommand = DriveCommands.joystickDrive(
             drive,
@@ -176,6 +202,12 @@ class RobotContainer {
         else
             Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
         driveController.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
+
+        elevatorController.a().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME))
+        elevatorController.b().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L1))
+        elevatorController.x().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L2))
+        elevatorController.y().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L3))
+        elevatorController.rightBumper().whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.L4))
     }
 
     val autonomousCommand: Command
