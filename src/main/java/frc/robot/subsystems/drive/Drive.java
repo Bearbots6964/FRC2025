@@ -34,6 +34,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -402,5 +403,16 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   public Command pathfindThenFollowPath(PathPlannerPath path) {
     var constraints = new PathConstraints(4.0, 4.0, 3 * Math.PI, 3.5 * Math.PI);
     return AutoBuilder.pathfindThenFollowPath(path, constraints);
+  }
+
+  /**
+   * Returns a command that will back the robot up.
+   * @param distance The distance to back up in meters
+   * @return a Command that will back the robot up
+   */
+  public Command backUpBy(double distance) {
+    return AutoBuilder.pathfindToPose(
+        getPose().transformBy(new Transform2d(-distance, 0, new Rotation2d())),
+        new PathConstraints(0.5, 1.0, 0.0, 0.0));
   }
 }

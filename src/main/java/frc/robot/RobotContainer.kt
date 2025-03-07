@@ -18,12 +18,16 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.VisionConstants.robotToCamera0
 import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.commands.DriveCommands
+import frc.robot.commands.DriveToNearestCoralStationCommand
 import frc.robot.commands.DriveToNearestReefSideCommand
+import frc.robot.commands.ReefPositionCommands
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ArmIO
@@ -58,6 +62,8 @@ class RobotContainer {
     // Controller
     private val driveController = CommandXboxController(0)
     private val operatorController = CommandXboxController(1)
+    private val markIVController = CommandGenericHID(2)
+    private val buttonMacroController: CommandJoystick = CommandJoystick(3)
 
     // Dashboard inputs
     private val autoChooser: LoggedDashboardChooser<Command>
@@ -224,9 +230,10 @@ class RobotContainer {
         driveController.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
 
         driveController.y().and(driveController.leftBumper())
-            .onTrue(DriveToNearestReefSideCommand(drive, true))
+            .onTrue(DriveToNearestReefSideCommand(drive, true).command)
         driveController.y().and(driveController.leftBumper().negate())
-            .onTrue(DriveToNearestReefSideCommand(drive, false))
+            .onTrue(DriveToNearestReefSideCommand(drive, false).command)
+        driveController.rightBumper().onTrue(DriveToNearestCoralStationCommand(drive).command)
 
         // Reset gyro / odometry
         val resetGyro = if (Constants.currentMode == Constants.Mode.SIM) Runnable {
@@ -250,19 +257,39 @@ class RobotContainer {
             .whileTrue(elevator.goToPosition(60.0).alongWith(arm.moveArmToAngle(170.0)))
         operatorController.rightTrigger().whileTrue(
             elevator.goToPosition(60.0).andThen(
-                arm.moveArmToAngle(10.0)
+                arm.moveArmToAngle(12.0)
             ).andThen(
                 elevator.goToPosition(30.0)
             ).andThen(
-                elevator.goToPosition(53.7)
+                elevator.goToPosition(45.0)
             ).andThen(
                 arm.moveArmToAngle(25.0)
             ).andThen(
-                elevator.goToPosition(10.0).alongWith(
+                //elevator.goToPosition(10.0).alongWith(
                     arm.moveArmToAngle(170.0)
-                )
+                //)
             )
         )
+        operatorController.leftTrigger().whileTrue(
+            arm.moveArmToAngle(90.0).andThen(
+                elevator.goToPositionDelta(-10.0)
+            )
+        )
+
+        // Mark IV controller bindings
+        // L1-L4
+        markIVController.button(3).onTrue(ReefPositionCommands.l1(elevator, arm))
+        markIVController.button(1).onTrue(ReefPositionCommands.l2(elevator, arm))
+        markIVController.button(2).onTrue(ReefPositionCommands.l3(elevator, arm))
+        markIVController.button(4).onTrue(ReefPositionCommands.l4(elevator, arm))
+
+
+        // Button macro joystick pad thing
+        // L1-4
+        buttonMacroController.button(9).onTrue(ReefPositionCommands.l1(elevator, arm))
+        buttonMacroController.button(10).onTrue(ReefPositionCommands.l2(elevator, arm))
+        buttonMacroController.button(11).onTrue(ReefPositionCommands.l3(elevator, arm))
+        buttonMacroController.button(12).onTrue(ReefPositionCommands.l4(elevator, arm))
     }
 
     val autonomousCommand: Command

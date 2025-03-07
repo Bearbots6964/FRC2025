@@ -12,6 +12,8 @@ import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,45 +21,45 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.AprilTagPositions;
 import frc.robot.subsystems.drive.Drive;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-public class DriveToNearestReefSideCommand {
+public class DriveToSpecificCoralStationCommand {
 
-  private Command fullPath;
   private final Drive drive;
-  private boolean isLeftBumper = false;
+  private Command fullPath;
+  private Side side;
 
-  /** Creates a new DriveToNearestReefSideCommand. */
-  public DriveToNearestReefSideCommand(Drive drive, boolean isLeftBumper) {
+  public enum Side {
+    LEFT, RIGHT
+  }
+
+  /**
+   * Creates a new DriveToNearestReefSideCommand.
+   */
+  public DriveToSpecificCoralStationCommand(Drive drive, Side side) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
-    this.isLeftBumper = isLeftBumper;
+    this.side = side;
 
   }
 
   // Called when the command is initially scheduled.
   public Command getCommand() {
     Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
-    Command pathfindPath =
-        AutoBuilder.pathfindToPose(
-            translateCoordinates(
-                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
-            new PathConstraints(
-                1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+    Command pathfindPath = AutoBuilder.pathfindToPose(
+        translateCoordinates(closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(),
+                             -0.5).transformBy(new Transform2d(0, 0,new Rotation2d(Math.PI))),
+        new PathConstraints(1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
 
     try {
       // Load the path you want to follow using its name in the GUI
-      PathPlannerPath pathToFront =
-          new PathPlannerPath(
-              PathPlannerPath.waypointsFromPoses(
-                  translateCoordinates(
-                      closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
-                  closestAprilTagPose),
-              new PathConstraints(0.25, 1.0, 2 * Math.PI, 4 * Math.PI),
-              null,
-              new GoalEndState(0.0, closestAprilTagPose.getRotation()));
+      PathPlannerPath pathToFront = new PathPlannerPath(PathPlannerPath.waypointsFromPoses(
+          translateCoordinates(closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees() + 180,
+                               0.5), closestAprilTagPose),
+                                                        new PathConstraints(0.25, 1.0, 2 * Math.PI,
+                                                                            4 * Math.PI), null,
+                                                        new GoalEndState(0.0,
+                                                                         closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
       pathToFront.preventFlipping = true;
       fullPath = pathfindPath.andThen(AutoBuilder.followPath(pathToFront));
       return fullPath;
@@ -68,13 +70,13 @@ public class DriveToNearestReefSideCommand {
   }
 
   private Pose2d getClosestReefAprilTagPose() {
-    HashMap<Integer, Pose2d> aprilTagsToAlignTo =
-        AprilTagPositions.WELDED_BLUE_CORAL_APRIL_TAG_POSITIONS;
-    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-      if (alliance.get() == DriverStation.Alliance.Red) {
-        aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS;
-      }
+    HashMap<Integer, Pose2d> aprilTagsToAlignTo = new HashMap<>();
+    if (side == Side.LEFT) {
+      aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
+      aprilTagsToAlignTo.put(13, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13));
+    } else {
+      aprilTagsToAlignTo.put(12, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12));
+      aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
     }
 
     Pose2d currentPose = drive.getPose();
@@ -92,40 +94,16 @@ public class DriveToNearestReefSideCommand {
       }
     }
 
-    Pose2d inFrontOfAprilTag =
-        translateCoordinates(
-            closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(23.773));
-
-    Pose2d leftOrRightOfAprilTag;
-    if (isLeftBumper) {
-      leftOrRightOfAprilTag =
-          translateCoordinates(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
-    } else {
-      leftOrRightOfAprilTag =
-          translateCoordinates(
-              inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
-    }
-
-    if (List.of(11, 10, 9, 22, 21, 20).contains(aprilTagNum)) {
-      if (isLeftBumper) {
-        leftOrRightOfAprilTag =
-            translateCoordinates(
-                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
-      } else {
-        leftOrRightOfAprilTag =
-            translateCoordinates(
-                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
-      }
-    }
-
-    return leftOrRightOfAprilTag;
+    return translateCoordinates(closestPose, closestPose.getRotation().getDegrees(),
+                                -Units.inchesToMeters(14.773));
   }
 
   private Pose2d translateCoordinates(Pose2d originalPose, double degreesRotate, double distance) {
     double newXCoord = originalPose.getX() + (Math.cos(Math.toRadians(degreesRotate)) * distance);
     double newYCoord = originalPose.getY() + (Math.sin(Math.toRadians(degreesRotate)) * distance);
 
-    return new Pose2d(newXCoord, newYCoord, originalPose.getRotation());
+    return new Pose2d(newXCoord, newYCoord,
+                      originalPose.getRotation());
   }
 
   private double findDistanceBetween(Pose2d pose1, Pose2d pose2) {

@@ -71,27 +71,23 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command goToPosition(ElevatorConstants.ElevatorState state) {
-    var position = 0.0;
-    switch (state) {
-      case L1:
-        position = ElevatorConstants.L1;
-        break;
-      case L2:
-        position = ElevatorConstants.L2;
-        break;
-      case L3:
-        position = ElevatorConstants.L3;
-        break;
-      case L4:
-        position = ElevatorConstants.L4;
-        break;
-      case HOME:
-      default:
-        position = ElevatorConstants.HOME;
-        break;
-    }
-    double finalPosition = position;
-    return run(() -> setRotations(finalPosition));
+    return run(() -> setRotations(switch (state) {
+      case L1 -> ElevatorConstants.L1;
+      case L2 -> ElevatorConstants.L2;
+      case L3 -> ElevatorConstants.L3;
+      case L4 -> ElevatorConstants.L4;
+      default -> ElevatorConstants.HOME;
+    })).until(() -> Math.abs(inputs.rightMotorPositionRotations - switch (state) {
+      case L1 -> ElevatorConstants.L1;
+      case L2 -> ElevatorConstants.L2;
+      case L3 -> ElevatorConstants.L3;
+      case L4 -> ElevatorConstants.L4;
+      default -> ElevatorConstants.HOME;
+    }) < 1.0);
+  }
+
+  public Command goToPositionDelta(double delta) {
+    return run(() -> setRotations(inputs.rightMotorPositionRotations + delta));
   }
 
   public Command goToPosition(double position) {
