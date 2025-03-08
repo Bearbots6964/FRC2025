@@ -95,7 +95,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command goToPositionDelta(double delta) {
-    return run(() -> setRotations(inputs.rightMotorPositionRotations + delta));
+    return runOnce(() -> io.setPositionDelta(delta)).until(() -> io.getDistanceFromGoal() < 1.0);
   }
 
   public Command goToPosition(double position) {

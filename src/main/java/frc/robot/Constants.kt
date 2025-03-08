@@ -65,8 +65,8 @@ object Constants {
         const val HOME = 0.0
         const val L1 = 5.0
         const val L2 = 5.0
-        const val L3 = 85.0
-        const val L4 = 150.0 // TODO: Find actual value
+        const val L3 = 88.0
+        const val L4 = 98.4 // TODO: Find actual value
         const val CORAL_PICKUP = 10.0
 
         enum class ElevatorState {
@@ -143,8 +143,8 @@ object Constants {
                 const val L1 = 155.0
                 const val L2 = 150.0
                 const val L3 = 150.0
-                const val L4 = 150.0
-                const val INTAKE_CORAL = HOME
+                const val L4 = 162.7
+                const val CORAL_PICKUP = HOME
             }
         }
 

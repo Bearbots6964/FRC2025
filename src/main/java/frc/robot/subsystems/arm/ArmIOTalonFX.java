@@ -64,7 +64,7 @@ public class ArmIOTalonFX implements ArmIO {
                 SparkBase.ResetMode.kResetSafeParameters,
                 SparkBase.PersistMode.kPersistParameters));
 
-    targetPosition = 150.0;
+    targetPosition = 170.0;
   }
 
   @Override
@@ -110,6 +110,16 @@ public class ArmIOTalonFX implements ArmIO {
     armMotor
         .getClosedLoopController()
         .setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+  }
+
+  @Override
+  public void setAngleDelta(double delta) {
+    setArmAngle(targetPosition + delta);
+  }
+
+  @Override
+  public double getDistanceFromGoal() {
+    return Math.abs(armMotor.getAbsoluteEncoder().getPosition() - targetPosition);
   }
 
   @Override

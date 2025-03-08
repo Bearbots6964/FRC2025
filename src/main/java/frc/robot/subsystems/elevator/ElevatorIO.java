@@ -31,7 +31,13 @@ public interface ElevatorIO {
 
   default void setPosition(double position) {}
 
+  default void setPositionDelta(double delta) {}
+
   default void setVoltage(double voltage) {}
+
+  default double getDistanceFromGoal() {
+    return 0.0;
+  }
 
   default void stop() {}
 }

@@ -55,11 +55,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 150;
-    rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 10;
+    rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 150;
-    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 10;
+    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
 
     leftMotor = new TalonFX(Constants.ElevatorConstants.LEFT_MOTOR_CAN_ID);
     rightMotor = new TalonFX(Constants.ElevatorConstants.RIGHT_MOTOR_CAN_ID);
@@ -139,6 +139,18 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     targetPosition = position;
     motionMagicPositionRequest.withPosition(position);
     rightMotor.setControl(motionMagicPositionRequest);
+  }
+
+  @Override
+  public void setPositionDelta(double delta) {
+    targetPosition += delta;
+    motionMagicPositionRequest.withPosition(targetPosition);
+    rightMotor.setControl(motionMagicPositionRequest);
+  }
+
+  @Override
+  public double getDistanceFromGoal() {
+    return Math.abs(rightMotorPosition.getValue().in(Units.Rotations) - targetPosition);
   }
 
   @Override

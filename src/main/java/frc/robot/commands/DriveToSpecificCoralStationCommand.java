@@ -18,6 +18,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.AprilTagPositions;
 import frc.robot.subsystems.drive.Drive;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public class DriveToSpecificCoralStationCommand {
   private final Drive drive;
   private Command fullPath;
   private Side side;
+  public static boolean trigger = false;
 
   public enum Side {
     LEFT,
@@ -67,7 +69,7 @@ public class DriveToSpecificCoralStationCommand {
               new GoalEndState(
                   0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
       pathToFront.preventFlipping = true;
-      fullPath = pathfindPath.andThen(AutoBuilder.followPath(pathToFront));
+      fullPath = pathfindPath.andThen(() -> trigger = true).andThen(AutoBuilder.followPath(pathToFront)).andThen(() -> trigger = false);
       return fullPath;
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());

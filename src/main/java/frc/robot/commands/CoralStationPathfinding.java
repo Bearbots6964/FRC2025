@@ -17,56 +17,52 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.AprilTagPositions;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
 
-public class DriveToNearestCoralStationCommand {
+public class CoralStationPathfinding {
 
   private final Drive drive;
-  private Command fullPath;
+  @Getter
+  private Command pathfindPath;
+  @Getter
+  private Command pathToFront;
+  private Pose2d closestAprilTagPose;
 
   /** Creates a new DriveToNearestReefSideCommand. */
-  public DriveToNearestCoralStationCommand(Drive drive) {
+  public CoralStationPathfinding(Drive drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
-  }
-
-  // Called when the command is initially scheduled.
-  public Command getCommand() {
-    Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
-    Command pathfindPath =
+    RobotContainer.getStatusTopic().set("Driving to nearest coral station");
+    closestAprilTagPose = getClosestReefAprilTagPose();
+    pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
-                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
+                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
             new PathConstraints(
                 1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
-
-    try {
-      // Load the path you want to follow using its name in the GUI
-      PathPlannerPath pathToFront =
-          new PathPlannerPath(
-              PathPlannerPath.waypointsFromPoses(
-                  translateCoordinates(
-                      closestAprilTagPose,
-                      closestAprilTagPose.getRotation().getDegrees() + 180,
-                      0.5),
-                  closestAprilTagPose),
-              new PathConstraints(0.25, 1.0, 2 * Math.PI, 4 * Math.PI),
-              null,
-              new GoalEndState(
-                  0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
-      pathToFront.preventFlipping = true;
-      fullPath = pathfindPath.andThen(AutoBuilder.followPath(pathToFront));
-      return fullPath;
-    } catch (Exception e) {
-      DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
-      return Commands.none();
-    }
+    PathPlannerPath frontPath =
+        new PathPlannerPath(
+            PathPlannerPath.waypointsFromPoses(
+                translateCoordinates(
+                    closestAprilTagPose,
+                    closestAprilTagPose.getRotation().getDegrees() + 180,
+                    0.5),
+                closestAprilTagPose),
+            new PathConstraints(0.25, 1.0, 2 * Math.PI, 4 * Math.PI),
+            null,
+            new GoalEndState(
+                0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
+    frontPath.preventFlipping = true;
+    pathToFront = AutoBuilder.followPath(frontPath);
   }
+
+  // Called when the command is initially scheduled.
 
   private Pose2d getClosestReefAprilTagPose() {
     HashMap<Integer, Pose2d> aprilTagsToAlignTo = new HashMap<>();

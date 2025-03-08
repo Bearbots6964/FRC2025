@@ -438,20 +438,27 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
   }
 
+/**
+   * Generates a command to pathfind and then follow the given path.
+   *
+   * @param path The path to follow.
+   * @return A command that pathfinds and then follows the path.
+   */
   public Command pathfindThenFollowPath(PathPlannerPath path) {
     var constraints = new PathConstraints(4.0, 4.0, 3 * Math.PI, 3.5 * Math.PI);
     return AutoBuilder.pathfindThenFollowPath(path, constraints);
   }
-
   /**
    * Returns a command that will back the robot up.
+   * Uses pathfinding with a pose transform.
+   * Conservative translation constraints.
+   * Zero rotation constraints (no rotation allowed).
    *
    * @param distance The distance to back up in meters
    * @return a Command that will back the robot up
    */
   public Command backUpBy(double distance) {
-    return AutoBuilder.pathfindToPose(
-        getPose().transformBy(new Transform2d(-distance, 0, new Rotation2d())),
-        new PathConstraints(0.5, 1.0, 0.0, 0.0));
+    return run(() -> runVelocity(new ChassisSpeeds(-0.5, 0, 0)))
+        .raceWith(Commands.waitSeconds(1.0));
   }
 }
