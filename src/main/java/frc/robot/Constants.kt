@@ -27,6 +27,7 @@ object Constants {
         const val DRIVER_FULL_AUTO = true
     }
 
+
     object ElevatorConstants {
         const val LEFT_MOTOR_CAN_ID = 3
         const val RIGHT_MOTOR_CAN_ID = 2
@@ -163,6 +164,7 @@ object Constants {
          * Camera for Pi `10.69.64.11`.
          */
         var camera0Name: String = "right"
+
         /**
          * Camera for Pi `10.69.64.12`.
          */
@@ -226,16 +228,9 @@ object Constants {
     }
 
     enum class Zone {
-        LOWER_CORAL_STATION,
-        UPPER_CORAL_STATION,
-        REEF_AB,
-        REEF_CD,
-        REEF_EF,
-        REEF_GH,
-        REEF_IJ,
-        REEF_KL,
-        NONE
+        LOWER_CORAL_STATION, UPPER_CORAL_STATION, REEF_AB, REEF_CD, REEF_EF, REEF_GH, REEF_IJ, REEF_KL, NONE
     }
+
     fun zoneToString(z: Zone): String {
         return when (z) {
             Zone.LOWER_CORAL_STATION -> "Lower Coral Station"
@@ -378,4 +373,27 @@ object Constants {
 
 
     }
+
+
+    // compatibility
+    // don't touch these
+    @JvmField
+    var FIELD_LENGTH_METERS = frc.robot.subsystems.FieldConstants.fieldLength
+
+    @JvmField
+    var FIELD_WIDTH_METERS = frc.robot.subsystems.FieldConstants.fieldWidth
+
+    @JvmField
+    var FIELD_CENTER: Translation2d = Translation2d(
+        FIELD_LENGTH_METERS / 2, FIELD_WIDTH_METERS / 2
+    )
+
+    @JvmField
+    var FRAME_WIDTH_METERS: Double = edu.wpi.first.math.util.Units.inchesToMeters(29.5)
+
+    @JvmField
+    var FRAME_LENGTH_METERS: Double = edu.wpi.first.math.util.Units.inchesToMeters(29.5)
+
+    @JvmField
+    var BUMPER_THICKNESS_METERS: Double = edu.wpi.first.math.util.Units.inchesToMeters(3.5)
 }
