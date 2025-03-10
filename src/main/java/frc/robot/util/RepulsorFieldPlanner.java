@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
-import frc.robot.util.ReefLocations;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +14,7 @@ import java.util.List;
  */
 public class RepulsorFieldPlanner {
 
-  /**
-   * Abstract class representing an obstacle with a certain strength and polarity.
-   */
+  /** Abstract class representing an obstacle with a certain strength and polarity. */
   private abstract static class Obstacle {
     double strength;
     boolean positive;
@@ -63,9 +60,7 @@ public class RepulsorFieldPlanner {
     }
   }
 
-  /**
-   * Represents a teardrop-shaped obstacle with a primary and tail region.
-   */
+  /** Represents a teardrop-shaped obstacle with a primary and tail region. */
   private static class TeardropObstacle extends Obstacle {
     final Translation2d loc;
     final double primaryMaxRange;
@@ -163,9 +158,7 @@ public class RepulsorFieldPlanner {
     }
   }
 
-  /**
-   * Represents a horizontal obstacle.
-   */
+  /** Represents a horizontal obstacle. */
   static class HorizontalObstacle extends Obstacle {
     final double y;
     final double maxRange;
@@ -200,9 +193,7 @@ public class RepulsorFieldPlanner {
     }
   }
 
-  /**
-   * Represents a vertical obstacle.
-   */
+  /** Represents a vertical obstacle. */
   private static class VerticalObstacle extends Obstacle {
     final double x;
     final double maxRange;
@@ -237,9 +228,7 @@ public class RepulsorFieldPlanner {
     }
   }
 
-  /**
-   * Represents a line obstacle.
-   */
+  /** Represents a line obstacle. */
   private static class LineObstacle extends Obstacle {
     final Translation2d startPoint;
     final Translation2d endPoint;
@@ -415,9 +404,7 @@ public class RepulsorFieldPlanner {
     this.goal = goal;
   }
 
-  /**
-   * Represents a sample of the repulsor field at a given position.
-   */
+  /** Represents a sample of the repulsor field at a given position. */
   public record RepulsorSample(Translation2d intermediateGoal, double vx, double vy) {}
 
   /**
@@ -435,16 +422,11 @@ public class RepulsorFieldPlanner {
 
     double stepSize_m;
     if (err.getNorm() < slowdownDistance) {
-      stepSize_m =
-          MathUtil.interpolate(
-              0, maxSpeed * 0.02, err.getNorm() / slowdownDistance);
+      stepSize_m = MathUtil.interpolate(0, maxSpeed * 0.02, err.getNorm() / slowdownDistance);
     } else {
       stepSize_m = maxSpeed * 0.02;
     }
     var step = new Translation2d(stepSize_m, netForce.getAngle());
-    return new RepulsorSample(
-        curTrans.plus(step),
-        step.getX() / 0.02,
-        step.getY() / 0.02);
+    return new RepulsorSample(curTrans.plus(step), step.getX() / 0.02, step.getY() / 0.02);
   }
 }

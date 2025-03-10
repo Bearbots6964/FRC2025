@@ -95,12 +95,15 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command goToPositionDelta(double delta) {
-    return runOnce(() -> io.setPositionDelta(delta)).until(() -> io.getDistanceFromGoal() < 1.0).withName("Elevator Delta");
+    return runOnce(() -> io.setPositionDelta(delta))
+        .until(() -> io.getDistanceFromGoal() < 1.0)
+        .withName("Elevator Delta");
   }
 
   public Command goToPosition(double position) {
     return run(() -> setRotations(position))
-        .until(() -> Math.abs(inputs.rightMotorPositionRotations - position) < 1.0).withName("Elevator to Position");
+        .until(() -> Math.abs(inputs.rightMotorPositionRotations - position) < 1.0)
+        .withName("Elevator to Position");
   }
 
   public Command doNothing() {

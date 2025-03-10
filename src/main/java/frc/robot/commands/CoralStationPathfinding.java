@@ -27,10 +27,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 public class CoralStationPathfinding {
 
   private final Drive drive;
-  @Getter
-   Command pathfindPath;
-  @Getter
-   Command pathToFront;
+  @Getter Command pathfindPath;
+  @Getter Command pathToFront;
   private Pose2d closestAprilTagPose;
 
   public Command getFullPath() {
@@ -46,7 +44,7 @@ public class CoralStationPathfinding {
     pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
-                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
+                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
             new PathConstraints(
                 1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
@@ -54,9 +52,7 @@ public class CoralStationPathfinding {
         new PathPlannerPath(
             PathPlannerPath.waypointsFromPoses(
                 translateCoordinates(
-                    closestAprilTagPose,
-                    closestAprilTagPose.getRotation().getDegrees() + 180,
-                    0.5),
+                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees() + 180, 0.5),
                 closestAprilTagPose),
             new PathConstraints(0.25, 1.0, 2 * Math.PI, 4 * Math.PI),
             null,

@@ -36,7 +36,12 @@ public class DriveToNearestReefSideCommand extends Command {
   private boolean isLeftBumper = false;
 
   /** Creates a new DriveToNearestReefSideCommand. */
-  public DriveToNearestReefSideCommand(Drive drive, boolean isLeftBumper, Elevator elevator, Arm arm, Supplier<ElevatorState> elevatorState) {
+  public DriveToNearestReefSideCommand(
+      Drive drive,
+      boolean isLeftBumper,
+      Elevator elevator,
+      Arm arm,
+      Supplier<ElevatorState> elevatorState) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
     this.isLeftBumper = isLeftBumper;
@@ -70,7 +75,11 @@ public class DriveToNearestReefSideCommand extends Command {
               null,
               new GoalEndState(0.0, closestAprilTagPose.getRotation()));
       pathToFront.preventFlipping = true;
-      fullPath = pathfindPath.andThen(ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get())).andThen(AutoBuilder.followPath(pathToFront));
+      fullPath =
+          pathfindPath
+              .andThen(
+                  ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get()))
+              .andThen(AutoBuilder.followPath(pathToFront));
       fullPath.schedule();
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());

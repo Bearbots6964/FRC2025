@@ -51,10 +51,16 @@ public final class ReefLocations {
       BLUE_POSES[i + 1] = B.rotateAround(BLUE_REEF, rotAngle);
     }
 
-    RED_REEF = BLUE_REEF.rotateAround(new Translation2d(FieldConstants.fieldLength / 2, FieldConstants.fieldWidth / 2), Rotation2d.kPi);
+    RED_REEF =
+        BLUE_REEF.rotateAround(
+            new Translation2d(FieldConstants.fieldLength / 2, FieldConstants.fieldWidth / 2),
+            Rotation2d.kPi);
     RED_POSES = new Pose2d[12];
     for (int i = 0; i < 12; i++) {
-      RED_POSES[i] = BLUE_POSES[i].rotateAround(new Translation2d(FieldConstants.fieldLength / 2, FieldConstants.fieldWidth / 2), Rotation2d.kPi);
+      RED_POSES[i] =
+          BLUE_POSES[i].rotateAround(
+              new Translation2d(FieldConstants.fieldLength / 2, FieldConstants.fieldWidth / 2),
+              Rotation2d.kPi);
     }
   }
 
@@ -80,8 +86,9 @@ public final class ReefLocations {
   }
 
   public static Pose2d getScoringLocation(ReefBranch reefBranch) {
-    if(DriverStation.getAlliance().isPresent()) {
-      return (DriverStation.getAlliance().get().equals(Alliance.Red) ? RED_POSES : BLUE_POSES)[reefBranch.id];
+    if (DriverStation.getAlliance().isPresent()) {
+      return (DriverStation.getAlliance().get().equals(Alliance.Red) ? RED_POSES : BLUE_POSES)
+          [reefBranch.id];
     }
     return (BLUE_POSES)[reefBranch.id];
   }

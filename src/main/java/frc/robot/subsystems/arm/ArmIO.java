@@ -25,6 +25,7 @@ public interface ArmIO {
   }
 
   default void setAngleDelta(double delta) {}
+
   default double getDistanceFromGoal() {
     return 0.0;
   }

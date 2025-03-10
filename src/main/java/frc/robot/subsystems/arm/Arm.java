@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.subsystems.drive.Drive;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -63,10 +62,13 @@ public class Arm extends SubsystemBase {
 
   public Command moveArmToAngle(Double angle) {
     return run(() -> io.setArmAngle(angle))
-        .until(() -> Math.abs(inputs.armAxisAngle - angle) < 3.0).withName("Move Arm to Angle");
+        .until(() -> Math.abs(inputs.armAxisAngle - angle) < 3.0)
+        .withName("Move Arm to Angle");
   }
 
   public Command moveArmAngleDelta(Double delta) {
-    return runOnce(() -> io.setAngleDelta(delta)).until(() -> io.getDistanceFromGoal() < 3.0).withName("Move Arm Delta");
+    return runOnce(() -> io.setAngleDelta(delta))
+        .until(() -> io.getDistanceFromGoal() < 3.0)
+        .withName("Move Arm Delta");
   }
 }
