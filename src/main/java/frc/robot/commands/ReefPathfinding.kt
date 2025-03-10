@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import frc.robot.AprilTagPositions
 import frc.robot.subsystems.drive.Drive
 import lombok.Getter
+import org.littletonrobotics.junction.AutoLogOutput
 import java.util.function.BooleanSupplier
 import kotlin.math.cos
 import kotlin.math.pow
@@ -25,10 +26,18 @@ import kotlin.math.sqrt
 
 class ReefPathfinding(private val drive: Drive, private val isLeftBumper: BooleanSupplier) {
     @Getter
-    private val pathfindPath: Command
+     val pathfindPath: Command
 
     @Getter
-    private var pathToFront: Command? = null
+     var pathToFront: Command? = null
+
+    val fullPath: Command
+        get() {
+            if (pathToFront == null) {
+                return pathfindPath
+            }
+            return pathfindPath.andThen(pathToFront)
+        }
 
     /**
      * Creates a new DriveToNearestReefSideCommand.
@@ -43,7 +52,7 @@ class ReefPathfinding(private val drive: Drive, private val isLeftBumper: Boolea
             ), PathConstraints(
                 1.0, 1.0, Units.degreesToRadians(540.0), Units.degreesToRadians(720.0)
             )
-        )
+        ).withName("Pathfind to Reef")
 
         try {
             // Load the path you want to follow using its name in the GUI
@@ -58,12 +67,13 @@ class ReefPathfinding(private val drive: Drive, private val isLeftBumper: Boolea
                 GoalEndState(0.0, closestAprilTagPose.rotation)
             )
             frontPath.preventFlipping = true
-            pathToFront = AutoBuilder.followPath(frontPath)
+            pathToFront = AutoBuilder.followPath(frontPath).withName("Final Reef Lineup")
         } catch (e: Exception) {
             DriverStation.reportError("Big oops: " + e.message, e.stackTrace)
         }
     }
 
+    @get:AutoLogOutput(key = "Auto/ClosestReefPose")
     private val closestReefAprilTagPose: Pose2d
         // Called when the command is initially scheduled.
         get() {

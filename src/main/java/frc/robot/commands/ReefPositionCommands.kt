@@ -35,6 +35,17 @@ object ReefPositionCommands {
     fun coralStationPosition(e: Elevator, a: Arm): Command {
         RobotContainer.statusTopic.set("Coral Station Position")
         return e.goToPosition(Constants.ElevatorConstants.CORAL_PICKUP)
-            .alongWith(a.moveArmToAngle(Constants.ArmConstants.ArmState.CORAL_PICKUP))
+            .andThen(a.moveArmToAngle(Constants.ArmConstants.ArmState.CORAL_PICKUP))
+    }
+
+    fun goToPosition(e: Elevator, a: Arm, s: Constants.ElevatorConstants.ElevatorState): Command {
+        return when (s) {
+            Constants.ElevatorConstants.ElevatorState.L1 -> l1(e, a)
+            Constants.ElevatorConstants.ElevatorState.L2 -> l2(e, a)
+            Constants.ElevatorConstants.ElevatorState.L3 -> l3(e, a)
+            Constants.ElevatorConstants.ElevatorState.L4 -> l4(e, a)
+            Constants.ElevatorConstants.ElevatorState.CORAL_PICKUP -> coralStationPosition(e, a)
+            else -> l1(e, a)
+        }
     }
 }

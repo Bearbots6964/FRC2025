@@ -65,13 +65,13 @@ object Constants {
 
         const val HOME = 0.0
         const val L1 = 5.0
-        const val L2 = 5.0
-        const val L3 = 88.0
-        const val L4 = 98.4 // TODO: Find actual value
+        const val L2 = 13.5
+        const val L3 = 50.0
+        const val L4 = 106.3 // TODO: Find actual value
         const val CORAL_PICKUP = 10.0
 
         enum class ElevatorState {
-            HOME, L1, L2, L3, L4
+            HOME, L1, L2, L3, L4, CORAL_PICKUP
         }
 
         const val SYSID_PROFILING_ENABLED = false
@@ -142,9 +142,9 @@ object Constants {
             companion object {
                 const val HOME = 170.0
                 const val L1 = 155.0
-                const val L2 = 150.0
-                const val L3 = 150.0
-                const val L4 = 162.7
+                const val L2 = 175.0
+                const val L3 = 170.0
+                const val L4 = 165.0
                 const val CORAL_PICKUP = HOME
             }
         }

@@ -31,8 +31,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.VisionConstants.robotToCamera0
 import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.commands.DriveCommands
-import frc.robot.commands.CoralStationPathfinding
-import frc.robot.commands.ReefPathfinding
+import frc.robot.commands.DriveToNearestCoralStationCommand
+import frc.robot.commands.DriveToNearestReefSideCommand
 import frc.robot.commands.ReefPositionCommands
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.arm.Arm
@@ -75,7 +75,8 @@ class RobotContainer {
     // Dashboard inputs
     private val autoChooser: LoggedDashboardChooser<Command>
 
-    private var nextSuperstructureCommand: Command = Commands.none()
+    private var nextSuperstructureCommand: Constants.ElevatorConstants.ElevatorState =
+        Constants.ElevatorConstants.ElevatorState.HOME
 
 
     companion object {
@@ -232,6 +233,7 @@ class RobotContainer {
      * instantiating a [GenericHID] or one of its subclasses ([ ] or [XboxController]), and then passing it to a [ ].
      */
     private fun configureButtonBindings() {
+        // <editor-fold desc="Drive Controller">
         // Default command, normal field-relative drive
         drive.defaultCommand = DriveCommands.joystickDrive(
             drive,
@@ -251,96 +253,124 @@ class RobotContainer {
         // Switch to X pattern when X button is pressed
         driveController.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
 
-        driveController.y().and(driveController.leftBumper())
-            .onTrue(ReefPathfinding(drive, true))
-        driveController.y().and(driveController.leftBumper().negate())
-            .onTrue(ReefPathfinding(drive, false))
-        driveController.b().onTrue(DriveCommands.joystickDrive(
-            drive,
-            { -driveController.leftY * 0.5 },
-            { -driveController.leftX * 0.5 },
-            { -driveController.rightX }))
-        driveController
+        // Pathfinding commands
+        driveController.y().onTrue(
+            DriveToNearestReefSideCommand(
+                drive,
+                driveController.leftBumper().asBoolean,
+                elevator,
+                arm
+            ) { nextSuperstructureCommand }
+        )
+
+
+        // Reduced speed drive when B button is pressed
+        driveController.b().onTrue(
+            DriveCommands.joystickDrive(
+                drive,
+                { -driveController.leftY * 0.5 },
+                { -driveController.leftX * 0.5 },
+                { -driveController.rightX })
+        )
 
         // Coral Station handler
         driveController.rightBumper().onTrue(
-            ReefPositionCommands.coralStationPosition(elevator, arm).alongWith(
-                CoralStationPathfinding(
-                    drive
-                )
+            DriveToNearestCoralStationCommand(
+                drive, arm, elevator
             )
         )
-
 
         // Arm control after coral placed
         driveController.rightTrigger().onTrue(
             (if (ReefPositionCommands.reefPosition != Constants.ElevatorConstants.ElevatorState.L4) elevator.goToPositionDelta(
                 -10.0
-            ) else elevator.goToPositionDelta(10.0)).withName("Move Elevator Down")
-                .alongWith((arm.moveArmAngleDelta(-20.0)).withName("Move Arm Down")).alongWith(
-                    drive.backUpBy(0.5).withName("Back Up")
-                )
+            )
+            else elevator.goToPositionDelta(10.0)).withName("Move Elevator Down")
+                .alongWith(arm.moveArmAngleDelta(-20.0).withName("Move Arm Down"))
+                .alongWith(drive.backUpBy(0.5).withName("Back Up"))
         )
-        driveController.leftTrigger().onTrue(
-            (elevator.goToPositionDelta(10.0)).withName("Move Elevator Down")
-                .alongWith((arm.moveArmAngleDelta(-60.0)).withName("Move Arm Down")).alongWith(
-                    drive.backUpBy(0.5).withName("Back Up")
-                )
 
+        // Arm control for left trigger
+        driveController.leftTrigger().whileTrue(
+            DriveCommands.joystickDrive(
+                drive,
+                { -driveController.leftY * 0.25 },
+                { -driveController.leftX * 0.25 },
+                { -driveController.rightX * 0.25 })
         )
 
         // Reset gyro / odometry
         val resetGyro = if (Constants.currentMode == Constants.Mode.SIM) Runnable {
             drive.pose = driveSimulation!!.simulatedDriveTrainPose
-        } // reset odometry to actual robot pose during simulation
-        else Runnable { drive.pose = Pose2d(drive.pose.translation, Rotation2d()) } // zero gyro
-        driveController.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true))
+        } else Runnable {
+            drive.pose = Pose2d(drive.pose.translation, Rotation2d())
+        }
+        driveController.start().onTrue(
+            Commands.runOnce(resetGyro, drive).ignoringDisable(true)
+        )
+        // </editor-fold>
 
-        /*
-        elevator.defaultCommand = elevator.stop()
-        arm.defaultCommand = arm.stop()
-         */
-        elevator.defaultCommand = elevator.velocityCommand({ -operatorController.rightY })
-        arm.defaultCommand = arm.moveArm({ -operatorController.leftY })
+        // Default commands for elevator and arm
+        elevator.defaultCommand = elevator.velocityCommand { -operatorController.rightY }
+        arm.defaultCommand = arm.moveArm { -operatorController.leftY }
 
-        operatorController.a()
-            .whileTrue(elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME))
-
-
-        operatorController.b()
-            .whileTrue(ReefPositionCommands.l2(elevator, arm))
-        operatorController.x()
-            .whileTrue(ReefPositionCommands.l3(elevator, arm))
-        operatorController.y()
-            .whileTrue(ReefPositionCommands.l4(elevator, arm))
-        operatorController.rightTrigger().whileTrue(
-            coralPickup()
+        // Operator controller bindings
+        operatorController.a().whileTrue(
+            elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME).alongWith(arm.moveArmToAngle(170.0)).andThen({
+                nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.HOME
+            })
+        )
+        operatorController.b().whileTrue(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L2
+        }))
+        operatorController.x().whileTrue(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L3
+        }))
+        operatorController.y().whileTrue(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L4
+        }))
+        operatorController.rightTrigger().whileTrue(coralPickup())
+        operatorController.leftTrigger().onTrue(
+            Commands.defer(
+                { ReefPositionCommands.goToPosition(elevator, arm, nextSuperstructureCommand) },
+                setOf(elevator, arm)
+            )
         )
 
         // Mark IV controller bindings
-        // L1-L4
         markIVController.button(3).onTrue(ReefPositionCommands.l1(elevator, arm))
         markIVController.button(1).onTrue(ReefPositionCommands.l2(elevator, arm))
         markIVController.button(2).onTrue(ReefPositionCommands.l3(elevator, arm))
         markIVController.button(4).onTrue(ReefPositionCommands.l4(elevator, arm))
 
-
-        // Button macro joystick pad thing
-        // L1-4
-        buttonMacroController.button(9).onTrue(ReefPositionCommands.l1(elevator, arm))
-        buttonMacroController.button(10).onTrue(ReefPositionCommands.l2(elevator, arm))
-        buttonMacroController.button(11).onTrue(ReefPositionCommands.l3(elevator, arm))
-        buttonMacroController.button(12).onTrue(ReefPositionCommands.l4(elevator, arm))
-        // Home and pickup position
-        buttonMacroController.button(7).onTrue(
-            elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME).alongWith(
-                arm.moveArmToAngle(Constants.ArmConstants.ArmState.HOME)
+        // Button macro joystick pad bindings
+        buttonMacroController.button(9).onTrue(
+            ReefPositionCommands.l1(
+                elevator, arm
             )
         )
-        buttonMacroController.button(8).onTrue(
-            elevator.goToPosition(Constants.ElevatorConstants.CORAL_PICKUP).alongWith(
-                arm.moveArmToAngle(Constants.ArmConstants.ArmState.CORAL_PICKUP)
+        buttonMacroController.button(10).onTrue(
+            ReefPositionCommands.l2(
+                elevator, arm
             )
+        )
+        buttonMacroController.button(11).onTrue(
+            ReefPositionCommands.l3(
+                elevator, arm
+            )
+        )
+        buttonMacroController.button(12).onTrue(
+            ReefPositionCommands.l4(
+                elevator, arm
+            )
+        )
+        buttonMacroController.button(7).onTrue(
+            elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME)
+                .alongWith(arm.moveArmToAngle(Constants.ArmConstants.ArmState.HOME))
+        )
+        buttonMacroController.button(8).onTrue(
+            elevator.goToPosition(Constants.ElevatorConstants.CORAL_PICKUP)
+                .alongWith(arm.moveArmToAngle(Constants.ArmConstants.ArmState.CORAL_PICKUP))
         )
     }
 

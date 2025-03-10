@@ -43,7 +43,7 @@ public class ArmIOTalonFX implements ArmIO {
         .forwardSoftLimit(180.0)
         .reverseSoftLimitEnabled(true)
         .reverseSoftLimit(0.0);
-    armConfiguration.openLoopRampRate(5).disableFollowerMode();
+    armConfiguration.openLoopRampRate(1).disableFollowerMode();
     armConfiguration
         .closedLoop
         .p(0.015)

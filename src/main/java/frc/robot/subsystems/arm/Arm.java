@@ -40,7 +40,7 @@ public class Arm extends SubsystemBase {
   }
 
   public Command stop() {
-    return run(() -> io.holdArm(io.getArmAngleRotations()));
+    return run(() -> io.holdArm(io.getArmAngleRotations())).withName("Arm Stop");
   }
 
   private void runCharacterization(double output) {
@@ -58,15 +58,15 @@ public class Arm extends SubsystemBase {
   // TODO: Command Factories?
 
   public Command moveArm(DoubleSupplier output) {
-    return run(() -> io.setArmOpenLoop(output.getAsDouble() * 0.1));
+    return run(() -> io.setArmOpenLoop(output.getAsDouble() * 0.2)).withName("Move Arm");
   }
 
   public Command moveArmToAngle(Double angle) {
     return run(() -> io.setArmAngle(angle))
-        .until(() -> Math.abs(inputs.armAxisAngle - angle) < 1.0);
+        .until(() -> Math.abs(inputs.armAxisAngle - angle) < 3.0).withName("Move Arm to Angle");
   }
 
   public Command moveArmAngleDelta(Double delta) {
-    return runOnce(() -> io.setAngleDelta(delta)).until(() -> io.getDistanceFromGoal() < 1.0);
+    return runOnce(() -> io.setAngleDelta(delta)).until(() -> io.getDistanceFromGoal() < 3.0).withName("Move Arm Delta");
   }
 }

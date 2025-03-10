@@ -25,6 +25,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -36,6 +37,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -55,6 +57,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.AprilTagPositions;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.Mode;
@@ -67,6 +70,11 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.ReefLocations;
 import frc.robot.util.RepulsorFieldPlanner;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -218,26 +226,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                           TunerConstants.getBackLeft().LocationY),
         new Translation2d(TunerConstants.getBackRight().LocationX,
                           TunerConstants.getBackRight().LocationY)};
-  }
-
-  public Command pathfindToLowerCoralStation() {
-    try {
-      var path = PathPlannerPath.fromPathFile("Pathfinding to Lower Coral Station");
-      return AutoBuilder.pathfindThenFollowPath(path, path.getGlobalConstraints());
-    } catch (Exception e) {
-      e.printStackTrace();
-      return Commands.none();
-    }
-  }
-
-  public Command pathfindToUpperCoralStation() {
-    try {
-      var path = PathPlannerPath.fromPathFile("Pathfinding to Upper Coral Station");
-      return AutoBuilder.pathfindThenFollowPath(path, path.getGlobalConstraints());
-    } catch (Exception e) {
-      e.printStackTrace();
-      return Commands.none();
-    }
   }
 
   @Override
@@ -482,7 +470,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    */
   public Command pathfindThenFollowPath(PathPlannerPath path) {
     var constraints = new PathConstraints(4.0, 4.0, 3 * Math.PI, 3.5 * Math.PI);
-    return AutoBuilder.pathfindThenFollowPath(path, constraints);
+    return AutoBuilder.pathfindThenFollowPath(path, constraints).withName("Pathfind then Follow Path");
   }
 
   /**
@@ -494,7 +482,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    */
   public Command backUpBy(double distance) {
     return run(() -> runVelocity(new ChassisSpeeds(-0.5, 0, 0))).raceWith(
-        Commands.waitSeconds(1.0));
+        Commands.waitSeconds(1.0)).withName("Back Up");
   }
 
   // thank you to team 167 for the following code
@@ -718,4 +706,280 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   public Command followRepulsorField(Pose2d goal) {
     return followRepulsorField(goal, null);
   }
+
+
+
+
+  public Command pathfindToReef(boolean isLeftBumper) {
+    return new Command() {
+      Command pathCommand;
+      /**
+       * The initial subroutine of a command. Called once when the command is initially
+       * scheduled.
+       */
+      @Override
+      public void initialize() {
+
+        Pose2d closestAprilTagPose = getClosestReefAprilTagPose(isLeftBumper);
+        pathCommand = AutoBuilder.pathfindToPose(
+            translateCoordinates(
+                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
+            new PathConstraints(
+                1.0, 1.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+        pathCommand.schedule();
+      }
+
+      /**
+       * The action to take when the command ends. Called when either the command finishes
+       * normally, or when it interrupted/canceled.
+       *
+       * <p>Do not schedule commands here that share requirements with this command. Use
+       * {@link
+       * #andThen(Command...)} instead.
+       *
+       * @param interrupted whether the command was interrupted/canceled
+       */
+      @Override
+      public void end(boolean interrupted) {
+        if (pathCommand != null) {
+          pathCommand.cancel();
+        }
+      }
+      @Override
+      public boolean isFinished() {
+        return pathCommand.isScheduled() && pathCommand.isFinished();
+      }
+    };
+
+  }
+  public Command finalReefLineup(boolean isLeftBumper) {
+    return new Command() {
+      Command pathCommand;
+      /**
+       * The initial subroutine of a command. Called once when the command is initially
+       * scheduled.
+       */
+      @Override
+      public void initialize() {
+
+        try {
+          var closestAprilTagPose = getClosestReefAprilTagPose(isLeftBumper);
+          // Load the path you want to follow using its name in the GUI
+          PathPlannerPath pathToFront =
+              new PathPlannerPath(
+                  PathPlannerPath.waypointsFromPoses(
+                      translateCoordinates(
+                          closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
+                      closestAprilTagPose),
+                  new PathConstraints(0.5, 0.5, 2 * Math.PI, 4 * Math.PI),
+                  null,
+                  new GoalEndState(0.0, closestAprilTagPose.getRotation()));
+          pathToFront.preventFlipping = true;
+          pathCommand = AutoBuilder.followPath(pathToFront);
+          pathCommand.schedule();
+        } catch (Exception e) {
+          DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+        }
+
+      }
+
+      /**
+       * The action to take when the command ends. Called when either the command finishes
+       * normally, or when it interrupted/canceled.
+       *
+       * <p>Do not schedule commands here that share requirements with this command. Use
+       * {@link
+       * #andThen(Command...)} instead.
+       *
+       * @param interrupted whether the command was interrupted/canceled
+       */
+      @Override
+      public void end(boolean interrupted) {
+        if (pathCommand != null) {
+          pathCommand.cancel();
+        }
+      }
+    };
+  }
+  public Command pathfindToCoralStation() {
+    return new Command(){
+      Command pathCommand;
+      /**
+       * The initial subroutine of a command. Called once when the command is initially
+       * scheduled.
+       */
+      @Override
+      public void initialize() {
+        Pose2d closestAprilTagPose = getClosestCoralStationAprilTagPose();
+        pathCommand = AutoBuilder.pathfindToPose(
+            translateCoordinates(
+                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
+                .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
+            new PathConstraints(
+                0.5, 0.5, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+        pathCommand.schedule();
+      }
+
+      /**
+       * The action to take when the command ends. Called when either the command finishes
+       * normally, or when it interrupted/canceled.
+       *
+       * <p>Do not schedule commands here that share requirements with this command. Use
+       * {@link
+       * #andThen(Command...)} instead.
+       *
+       * @param interrupted whether the command was interrupted/canceled
+       */
+      @Override
+      public void end(boolean interrupted) {
+        if (pathCommand != null) {
+          pathCommand.cancel();
+        }
+      }
+    };
+  }
+  public Command finalCoralStationLineup() {
+    return new Command(){
+      Command pathCommand;
+      /**
+       * The initial subroutine of a command. Called once when the command is initially
+       * scheduled.
+       */
+      @Override
+      public void initialize() {
+        try {
+          var closestAprilTagPose = getClosestCoralStationAprilTagPose();
+          // Load the path you want to follow using its name in the GUI
+          PathPlannerPath pathToFront =
+              new PathPlannerPath(
+                  PathPlannerPath.waypointsFromPoses(
+                      translateCoordinates(
+                          closestAprilTagPose,
+                          closestAprilTagPose.getRotation().getDegrees() + 180,
+                          0.5),
+                      closestAprilTagPose),
+                  new PathConstraints(0.25, 1.0, 2 * Math.PI, 4 * Math.PI),
+                  null,
+                  new GoalEndState(
+                      0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
+
+          pathToFront.preventFlipping = true;
+          pathCommand = AutoBuilder.followPath(pathToFront);
+          pathCommand.schedule();
+        } catch (Exception e) {
+          DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+        }
+
+      }
+
+      /**
+       * The action to take when the command ends. Called when either the command finishes
+       * normally, or when it interrupted/canceled.
+       *
+       * <p>Do not schedule commands here that share requirements with this command. Use
+       * {@link
+       * #andThen(Command...)} instead.
+       *
+       * @param interrupted whether the command was interrupted/canceled
+       */
+      @Override
+      public void end(boolean interrupted) {
+        if (pathCommand != null) {
+          pathCommand.cancel();
+        }
+      }
+    };
+  }
+  private Pose2d getClosestCoralStationAprilTagPose() {
+    HashMap<Integer, Pose2d> aprilTagsToAlignTo = new HashMap<>();
+    aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
+    aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
+    aprilTagsToAlignTo.put(12, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12));
+    aprilTagsToAlignTo.put(13, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13));
+
+    Pose2d currentPose = getPose();
+    Pose2d closestPose = new Pose2d();
+    double closestDistance = Double.MAX_VALUE;
+    Integer aprilTagNum = -1;
+
+    for (Map.Entry<Integer, Pose2d> entry : aprilTagsToAlignTo.entrySet()) {
+      Pose2d pose = entry.getValue();
+      double distance = findDistanceBetween(currentPose, pose);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestPose = pose;
+        aprilTagNum = entry.getKey();
+      }
+    }
+
+    return translateCoordinates(
+        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(14.773));
+  }
+
+  private Pose2d getClosestReefAprilTagPose(boolean isLeftBumper) {
+    HashMap<Integer, Pose2d> aprilTagsToAlignTo =
+        AprilTagPositions.WELDED_BLUE_CORAL_APRIL_TAG_POSITIONS;
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      if (alliance.get() == DriverStation.Alliance.Red) {
+        aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS;
+      }
+    }
+
+    Pose2d currentPose = getPose();
+    Pose2d closestPose = new Pose2d();
+    double closestDistance = Double.MAX_VALUE;
+    Integer aprilTagNum = -1;
+
+    for (Map.Entry<Integer, Pose2d> entry : aprilTagsToAlignTo.entrySet()) {
+      Pose2d pose = entry.getValue();
+      double distance = findDistanceBetween(currentPose, pose);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestPose = pose;
+        aprilTagNum = entry.getKey();
+      }
+    }
+
+    Pose2d inFrontOfAprilTag =
+        translateCoordinates(
+            closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(23.773));
+
+    Pose2d leftOrRightOfAprilTag;
+    if (isLeftBumper) {
+      leftOrRightOfAprilTag =
+          translateCoordinates(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
+    } else {
+      leftOrRightOfAprilTag =
+          translateCoordinates(
+              inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
+    }
+
+    if (List.of(11, 10, 9, 22, 21, 20).contains(aprilTagNum)) {
+      if (isLeftBumper) {
+        leftOrRightOfAprilTag =
+            translateCoordinates(
+                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
+      } else {
+        leftOrRightOfAprilTag =
+            translateCoordinates(
+                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
+      }
+    }
+
+    return leftOrRightOfAprilTag;
+  }
+
+  private Pose2d translateCoordinates(Pose2d originalPose, double degreesRotate, double distance) {
+    double newXCoord = originalPose.getX() + (Math.cos(Math.toRadians(degreesRotate)) * distance);
+    double newYCoord = originalPose.getY() + (Math.sin(Math.toRadians(degreesRotate)) * distance);
+
+    return new Pose2d(newXCoord, newYCoord, originalPose.getRotation());
+  }
+
+  private double findDistanceBetween(Pose2d pose1, Pose2d pose2) {
+    return Math.sqrt(
+        Math.pow((pose2.getX() - pose1.getX()), 2) + Math.pow((pose2.getY() - pose1.getY()), 2));
+  }
+
 }

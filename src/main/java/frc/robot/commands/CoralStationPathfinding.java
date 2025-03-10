@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTagPositions;
 import frc.robot.RobotContainer;
@@ -23,22 +22,27 @@ import frc.robot.subsystems.drive.Drive;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class CoralStationPathfinding {
 
   private final Drive drive;
   @Getter
-  private Command pathfindPath;
+   Command pathfindPath;
   @Getter
-  private Command pathToFront;
+   Command pathToFront;
   private Pose2d closestAprilTagPose;
+
+  public Command getFullPath() {
+    return pathfindPath.andThen(pathToFront);
+  }
 
   /** Creates a new DriveToNearestReefSideCommand. */
   public CoralStationPathfinding(Drive drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
     RobotContainer.getStatusTopic().set("Driving to nearest coral station");
-    closestAprilTagPose = getClosestReefAprilTagPose();
+    closestAprilTagPose = getClosestCoralStationAprilTagPose();
     pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
@@ -64,7 +68,8 @@ public class CoralStationPathfinding {
 
   // Called when the command is initially scheduled.
 
-  private Pose2d getClosestReefAprilTagPose() {
+  @AutoLogOutput
+  private Pose2d getClosestCoralStationAprilTagPose() {
     HashMap<Integer, Pose2d> aprilTagsToAlignTo = new HashMap<>();
     aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
     aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
