@@ -42,7 +42,6 @@ import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.elevator.ElevatorIO
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX
 import frc.robot.subsystems.vision.*
-import frc.robot.util.superstructurecommands.*
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
@@ -224,6 +223,135 @@ class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings()
+
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.A
+            ).withName("Reef A")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.B
+            ).withName("Reef B")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.C
+            ).withName("Reef C")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.D
+            ).withName("Reef D")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.E
+            ).withName("Reef E")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.F
+            ).withName("Reef F")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.G
+            ).withName("Reef G")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.H
+            ).withName("Reef H")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.I
+            ).withName("Reef I")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.J
+            ).withName("Reef J")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.K
+            ).withName("Reef K")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.L
+            ).withName("Reef L")
+        )
+
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.HOME
+        }).withName("Superstructure Home"))
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L1
+        }).withName("Superstructure L1"))
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L2
+        }).withName("Superstructure L2"))
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L3
+        }).withName("Superstructure L3"))
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L4
+        }).withName("Superstructure L4"))
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.CORAL_PICKUP
+        }).withName("Superstructure Coral Pickup"))
+
     }
 
     /**
