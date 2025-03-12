@@ -54,7 +54,7 @@ public class DriveToSpecificCoralStationCommand extends Command {
     Command pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
-                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
+                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
             new PathConstraints(
                 3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
@@ -99,11 +99,11 @@ public class DriveToSpecificCoralStationCommand extends Command {
   private Pose2d getClosestReefAprilTagPose() {
     HashMap<Integer, Pose2d> aprilTagsToAlignTo = new HashMap<>();
     if (side == Side.LEFT) {
-    aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
+      aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
       aprilTagsToAlignTo.put(13, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13));
     } else {
       aprilTagsToAlignTo.put(12, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12));
-    aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
+      aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
     }
 
     Pose2d currentPose = drive.getPose();

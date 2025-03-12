@@ -22,7 +22,6 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -36,15 +35,9 @@ public class DriveToSpecificReefSideCommand extends Command {
   private int[] numbers;
   private boolean isLeftSide;
 
-  /**
-   * Creates a new DriveToNearestReefSideCommand.
-   */
+  /** Creates a new DriveToNearestReefSideCommand. */
   public DriveToSpecificReefSideCommand(
-      Drive drive,
-      Elevator elevator,
-      Arm arm,
-      Supplier<ElevatorState> elevatorState,
-      Reef reef) {
+      Drive drive, Elevator elevator, Arm arm, Supplier<ElevatorState> elevatorState, Reef reef) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
     this.elevator = elevator;
@@ -92,7 +85,8 @@ public class DriveToSpecificReefSideCommand extends Command {
               new GoalEndState(0.0, closestAprilTagPose.getRotation()));
       pathToFront.preventFlipping = true;
       fullPath =
-          ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, ElevatorState.HOME)
+          ReefPositionCommands.INSTANCE
+              .goToPosition(elevator, arm, ElevatorState.HOME)
               .andThen(
                   ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get()))
               .andThen(AutoBuilder.followPath(pathToFront));
@@ -104,8 +98,7 @@ public class DriveToSpecificReefSideCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override

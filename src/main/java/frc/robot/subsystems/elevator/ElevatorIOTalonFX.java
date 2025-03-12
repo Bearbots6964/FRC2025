@@ -121,7 +121,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.targetVelocity = targetVelocity;
     inputs.targetPosition = targetPosition;
 
-    inputs.atTarget = Math.abs(rightMotorPosition.getValue().in(Units.Rotations) - targetPosition) < 1.0;
+    inputs.atTarget =
+        Math.abs(rightMotorPosition.getValue().in(Units.Rotations) - targetPosition) < 1.0;
   }
 
   @Override

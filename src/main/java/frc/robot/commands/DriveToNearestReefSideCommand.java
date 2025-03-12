@@ -76,7 +76,9 @@ public class DriveToNearestReefSideCommand extends Command {
               new GoalEndState(0.0, closestAprilTagPose.getRotation()));
       pathToFront.preventFlipping = true;
       fullPath =
-          ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, ElevatorState.HOME).alongWith(pathfindPath)
+          ReefPositionCommands.INSTANCE
+              .goToPosition(elevator, arm, ElevatorState.HOME)
+              .alongWith(pathfindPath)
               .andThen(
                   ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get()))
               .andThen(AutoBuilder.followPath(pathToFront));
