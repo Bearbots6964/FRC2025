@@ -21,6 +21,8 @@ public interface ElevatorIO {
 
     public double targetVelocity = 0.0;
     public double targetPosition = 0.0;
+
+    public boolean atTarget = false;
   }
 
   default void updateInputs(ElevatorIOInputs inputs) {}

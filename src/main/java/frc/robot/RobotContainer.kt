@@ -27,17 +27,15 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.VisionConstants.robotToCamera0
 import frc.robot.Constants.VisionConstants.robotToCamera1
-import frc.robot.commands.DriveCommands
-import frc.robot.commands.DriveToNearestCoralStationCommand
-import frc.robot.commands.DriveToNearestReefSideCommand
-import frc.robot.commands.ReefPositionCommands
+import frc.robot.commands.*
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ArmIO
-import frc.robot.subsystems.arm.ArmIOTalonFX
+import frc.robot.subsystems.arm.ArmIOSparkMax
 import frc.robot.subsystems.arm.ArmIOTalonFXSim
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.elevator.Elevator
@@ -105,7 +103,7 @@ class RobotContainer {
                     VisionIOPhotonVision(Constants.VisionConstants.camera1Name, robotToCamera1)
                 )
                 arm = Arm(
-                    ArmIOTalonFX(
+                    ArmIOSparkMax(
                         //TalonFXConfiguration(),
                         SparkMaxConfig(),
                     )
@@ -256,13 +254,13 @@ class RobotContainer {
         // Pathfinding commands
         driveController.y().onTrue(
             DriveToNearestReefSideCommand(
-                drive,
-                driveController.leftBumper().asBoolean,
-                elevator,
-                arm
-            ) { nextSuperstructureCommand }
-        )
+                drive, driveController.leftBumper().asBoolean, elevator, arm
+            ) { nextSuperstructureCommand })
 
+        driveController.y().and(driveController.leftBumper()).onTrue(
+            DriveToNearestReefSideCommand(
+                drive, true, elevator, arm
+            ) { nextSuperstructureCommand })
 
         // Reduced speed drive when B button is pressed
         driveController.b().onTrue(
@@ -286,7 +284,7 @@ class RobotContainer {
                 -10.0
             )
             else elevator.goToPositionDelta(10.0)).withName("Move Elevator Down")
-                .alongWith(arm.moveArmAngleDelta(-20.0).withName("Move Arm Down"))
+                .alongWith(arm.moveArmAngleDelta(-30.0).withName("Move Arm Down"))
                 .alongWith(drive.backUpBy(0.5).withName("Back Up"))
         )
 
@@ -316,9 +314,10 @@ class RobotContainer {
 
         // Operator controller bindings
         operatorController.a().whileTrue(
-            elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME).alongWith(arm.moveArmToAngle(170.0)).andThen({
-                nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.HOME
-            })
+            elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME)
+                .alongWith(arm.moveArmToAngle(170.0)).andThen({
+                    nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.HOME
+                })
         )
         operatorController.b().whileTrue(Commands.runOnce({
             nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L2
@@ -371,6 +370,11 @@ class RobotContainer {
         buttonMacroController.button(8).onTrue(
             elevator.goToPosition(Constants.ElevatorConstants.CORAL_PICKUP)
                 .alongWith(arm.moveArmToAngle(Constants.ArmConstants.ArmState.CORAL_PICKUP))
+        )
+
+
+        Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
+            ReefPositionCommands.home(elevator, arm)
         )
     }
 

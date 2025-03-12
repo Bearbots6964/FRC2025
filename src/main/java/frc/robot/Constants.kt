@@ -63,12 +63,12 @@ object Constants {
             motionMagicConfigs.MotionMagicJerk = 1000.0
         }
 
-        const val HOME = 0.0
+        const val HOME = 5.0
         const val L1 = 5.0
         const val L2 = 13.5
         const val L3 = 50.0
         const val L4 = 106.3 // TODO: Find actual value
-        const val CORAL_PICKUP = 10.0
+        const val CORAL_PICKUP = 40.0
 
         enum class ElevatorState {
             HOME, L1, L2, L3, L4, CORAL_PICKUP
@@ -80,13 +80,13 @@ object Constants {
     object PhysicalProperties {
         object ProgrammingBase {
             @JvmStatic
-            val mass: Mass = Units.Pounds.of(60.0)
+            val mass: Mass = Units.Pounds.of(125.0)
 
             @JvmStatic
             val momentOfInteria: MomentOfInertia = Units.KilogramSquareMeters.of(2.0) // TODO
 
             @JvmStatic
-            val wheelRadius: Distance = Units.Inches.of(2.0)
+            val wheelRadius: Distance = Units.Inches.of(1.913)
 
             // We are using Kraken X60's. 15.5 ft/s without field-oriented control,
             // and 15.0 ft/s without.

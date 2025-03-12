@@ -47,10 +47,10 @@ public class DriveToNearestCoralStationCommand extends Command {
     Command pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
-                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
+                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.3)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
             new PathConstraints(
-                1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+                3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
 
     try {
       // Load the path you want to follow using its name in the GUI
@@ -60,9 +60,9 @@ public class DriveToNearestCoralStationCommand extends Command {
                   translateCoordinates(
                       closestAprilTagPose,
                       closestAprilTagPose.getRotation().getDegrees() + 180,
-                      0.5),
+                      0.3),
                   closestAprilTagPose),
-              new PathConstraints(0.25, 1.0, 2 * Math.PI, 4 * Math.PI),
+              new PathConstraints(0.6, 1.0, 2 * Math.PI, 4 * Math.PI),
               null,
               new GoalEndState(
                   0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
@@ -112,7 +112,7 @@ public class DriveToNearestCoralStationCommand extends Command {
     }
 
     return translateCoordinates(
-        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(14.773));
+        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(17.773));
   }
 
   private Pose2d translateCoordinates(Pose2d originalPose, double degreesRotate, double distance) {

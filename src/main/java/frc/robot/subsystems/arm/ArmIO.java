@@ -10,6 +10,8 @@ public interface ArmIO {
     public double armAppliedCurrentAmps = 0.0;
     public double armVelocity = 0.0;
     public double targetPosition = 0.0;
+
+    public boolean atTarget = false;
   }
 
   default void updateInputs(ArmIOInputs inputs) {}

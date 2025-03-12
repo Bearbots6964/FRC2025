@@ -490,7 +490,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    * @return a Command that will back the robot up
    */
   public Command backUpBy(double distance) {
-    return run(() -> runVelocity(new ChassisSpeeds(-0.5, 0, 0)))
+    return run(() -> runVelocity(new ChassisSpeeds(-0.25, 0, 0)))
         .raceWith(Commands.waitSeconds(1.0))
         .withName("Back Up");
   }
@@ -1037,5 +1037,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   private double findDistanceBetween(Pose2d pose1, Pose2d pose2) {
     return Math.sqrt(
         Math.pow((pose2.getX() - pose1.getX()), 2) + Math.pow((pose2.getY() - pose1.getY()), 2));
+  }
+
+  public double getVelocity() {
+    return Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond);
   }
 }

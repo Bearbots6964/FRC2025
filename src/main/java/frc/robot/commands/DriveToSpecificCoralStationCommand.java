@@ -17,18 +17,20 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.AprilTagPositions;
+import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.elevator.Elevator;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DriveToSpecificCoralStationCommand {
+public class DriveToSpecificCoralStationCommand extends Command {
 
   private final Drive drive;
+  private final Arm arm;
+  private final Elevator elevator;
   private Command fullPath;
   private Side side;
-  public static boolean trigger = false;
 
   public enum Side {
     LEFT,
@@ -36,22 +38,26 @@ public class DriveToSpecificCoralStationCommand {
   }
 
   /** Creates a new DriveToNearestReefSideCommand. */
-  public DriveToSpecificCoralStationCommand(Drive drive, Side side) {
+  public DriveToSpecificCoralStationCommand(Drive drive, Side side, Arm arm, Elevator elevator) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
+    this.arm = arm;
+    this.elevator = elevator;
     this.side = side;
+
+    addRequirements(drive, arm, elevator);
   }
 
   // Called when the command is initially scheduled.
-  public Command getCommand() {
+  public void initialize() {
     Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
     Command pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
-                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
+                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
             new PathConstraints(
-                1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+                3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
 
     try {
       // Load the path you want to follow using its name in the GUI
@@ -63,31 +69,41 @@ public class DriveToSpecificCoralStationCommand {
                       closestAprilTagPose.getRotation().getDegrees() + 180,
                       0.5),
                   closestAprilTagPose),
-              new PathConstraints(0.25, 1.0, 2 * Math.PI, 4 * Math.PI),
+              new PathConstraints(0.375, 1.0, 2 * Math.PI, 4 * Math.PI),
               null,
               new GoalEndState(
                   0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
       pathToFront.preventFlipping = true;
       fullPath =
           pathfindPath
-              .andThen(() -> trigger = true)
-              .andThen(AutoBuilder.followPath(pathToFront))
-              .andThen(() -> trigger = false);
-      return fullPath;
+              .andThen(ReefPositionCommands.INSTANCE.coralStationPosition(elevator, arm))
+              .andThen(AutoBuilder.followPath(pathToFront));
+      fullPath.schedule();
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
-      return Commands.none();
     }
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    if (fullPath != null && fullPath.isScheduled()) {
+      fullPath.cancel();
+    }
+  }
+
+  @Override
+  public boolean isFinished() {
+    return fullPath.isScheduled() && fullPath.isFinished();
   }
 
   private Pose2d getClosestReefAprilTagPose() {
     HashMap<Integer, Pose2d> aprilTagsToAlignTo = new HashMap<>();
     if (side == Side.LEFT) {
-      aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
+    aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
       aprilTagsToAlignTo.put(13, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13));
     } else {
       aprilTagsToAlignTo.put(12, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12));
-      aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
+    aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
     }
 
     Pose2d currentPose = drive.getPose();

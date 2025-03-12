@@ -15,7 +15,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import frc.robot.Constants;
 
 // TODO: MotionMagic
-public class ArmIOTalonFX implements ArmIO {
+public class ArmIOSparkMax implements ArmIO {
 
   protected SparkMax armMotor;
   protected SparkBaseConfig armConfiguration;
@@ -23,7 +23,7 @@ public class ArmIOTalonFX implements ArmIO {
   protected SparkAbsoluteEncoder armEncoder;
   protected double targetPosition;
 
-  public ArmIOTalonFX(SparkBaseConfig armConfiguration) {
+  public ArmIOSparkMax(SparkBaseConfig armConfiguration) {
     this.armConfiguration = armConfiguration;
 
     armMotor =
@@ -74,6 +74,8 @@ public class ArmIOTalonFX implements ArmIO {
     inputs.armAppliedCurrentAmps = armMotor.getOutputCurrent();
     inputs.armVelocity = armMotor.getAbsoluteEncoder().getVelocity();
     inputs.targetPosition = targetPosition;
+
+    inputs.atTarget = Math.abs(armMotor.getAbsoluteEncoder().getPosition() - targetPosition) < 5.0;
   }
 
   @Override

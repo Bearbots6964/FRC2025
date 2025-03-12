@@ -61,7 +61,7 @@ public class DriveToNearestReefSideCommand extends Command {
             translateCoord(
                 closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
             new PathConstraints(
-                3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+                3.0, 3.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
 
     try {
       // Load the path you want to follow using its name in the GUI
@@ -71,12 +71,12 @@ public class DriveToNearestReefSideCommand extends Command {
                   translateCoord(
                       closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
                   closestAprilTagPose),
-              new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI),
+              new PathConstraints(0.5, 1.0, 2 * Math.PI, 4 * Math.PI),
               null,
               new GoalEndState(0.0, closestAprilTagPose.getRotation()));
       pathToFront.preventFlipping = true;
       fullPath =
-          pathfindPath
+          ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, ElevatorState.HOME).alongWith(pathfindPath)
               .andThen(
                   ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get()))
               .andThen(AutoBuilder.followPath(pathToFront));
@@ -131,27 +131,27 @@ public class DriveToNearestReefSideCommand extends Command {
 
     Pose2d inFrontOfAprilTag =
         translateCoord(
-            closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(23.773));
+            closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(18.773));
 
     Pose2d leftOrRightOfAprilTag;
     if (isLeftBumper) {
       leftOrRightOfAprilTag =
-          translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
+          translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1686306);
     } else {
       leftOrRightOfAprilTag =
           translateCoord(
-              inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
+              inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1686306);
     }
 
     if (List.of(11, 10, 9, 22, 21, 20).contains(aprilTagNum)) {
       if (isLeftBumper) {
         leftOrRightOfAprilTag =
             translateCoord(
-                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1432265);
+                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1686306);
       } else {
         leftOrRightOfAprilTag =
             translateCoord(
-                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1432265);
+                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1686306);
       }
     }
 
