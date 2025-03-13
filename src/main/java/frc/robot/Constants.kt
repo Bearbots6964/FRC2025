@@ -31,8 +31,7 @@ object Constants {
             val mass: Mass = Units.Pounds.of(60.0)
 
             @JvmStatic
-            val momentOfInteria: MomentOfInertia =
-                Units.KilogramSquareMeters.of(2.0) // TODO
+            val momentOfInteria: MomentOfInertia = Units.KilogramSquareMeters.of(2.0) // TODO
 
             @JvmStatic
             val wheelRadius: Distance = Units.Inches.of(2.0)
@@ -96,6 +95,7 @@ object Constants {
          * Camera for Pi `10.69.64.11`.
          */
         var camera0Name: String = "right"
+
         /**
          * Camera for Pi `10.69.64.12`.
          */
@@ -159,30 +159,52 @@ object Constants {
     }
 
     enum class Zone {
-        LOWER_CORAL_STATION,
-        UPPER_CORAL_STATION,
-        REEF_AB,
-        REEF_CD,
-        REEF_EF,
-        REEF_GH,
-        REEF_IJ,
-        REEF_KL,
-        NONE
-    }
-    fun zoneToString(z: Zone): String {
-        return when (z) {
-            Zone.LOWER_CORAL_STATION -> "Lower Coral Station"
-            Zone.UPPER_CORAL_STATION -> "Upper Coral Station"
-            Zone.REEF_AB -> "Reef AB"
-            Zone.REEF_CD -> "Reef CD"
-            Zone.REEF_EF -> "Reef EF"
-            Zone.REEF_GH -> "Reef GH"
-            Zone.REEF_IJ -> "Reef IJ"
-            Zone.REEF_KL -> "Reef KL"
-            Zone.NONE -> "None"
+        LOWER_CORAL_STATION {
+            override fun toString(): String {
+                return "Lower Coral Station"
+            }
+        },
+        UPPER_CORAL_STATION {
+            override fun toString(): String {
+                return "Upper Coral Station"
+            }
+        },
+        REEF_AB {
+            override fun toString(): String {
+                return "Reef AB"
+            }
+        },
+        REEF_CD {
+            override fun toString(): String {
+                return "Reef CD"
+            }
+        },
+        REEF_EF {
+            override fun toString(): String {
+                return "Reef EF"
+            }
+        },
+        REEF_GH {
+            override fun toString(): String {
+                return "Reef GH"
+            }
+        },
+        REEF_IJ {
+            override fun toString(): String {
+                return "Reef IJ"
+            }
+        },
+        REEF_KL {
+            override fun toString(): String {
+                return "Reef KL"
+            }
+        },
+        NONE {
+            override fun toString(): String {
+                return "None"
+            }
         }
     }
-
 
     object FieldConstants {
         // Field zoning.

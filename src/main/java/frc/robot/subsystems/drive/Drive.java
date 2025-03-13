@@ -293,7 +293,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getCurrentMode() != Mode.SIM);
 
-    Logger.recordOutput("Odometry/Zone", Constants.INSTANCE.zoneToString(currentZone));
+    Logger.recordOutput("Odometry/Zone", currentZone);
   }
 
   /**
