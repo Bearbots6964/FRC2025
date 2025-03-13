@@ -12,7 +12,6 @@
 // GNU General Public License for more details.
 package frc.robot.commands
 
-import com.pathplanner.lib.path.PathConstraints
 import com.pathplanner.lib.path.PathPlannerPath
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.ProfiledPIDController

@@ -28,7 +28,9 @@ object TunerConstants {
     @JvmStatic
     private val steerGains: Slot0Configs = Slot0Configs()
         .withKP(100.0).withKI(0.0).withKD(0.5)
-        .withKS(0.34282).withKV(0.31622).withKA(0.169)
+        .withKS(0.1)
+        .withKV(2.66)
+        .withKA(0.0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
 
     // When using closed-loop control, the drive motor uses the control
@@ -36,7 +38,7 @@ object TunerConstants {
     @JvmStatic
     private val driveGains: Slot0Configs = Slot0Configs()
         .withKP(0.066996).withKI(0.0).withKD(0.0)
-        .withKS(0.19917).withKV(0.12538).withKA(0.086173)
+        .withKS(0.19917).withKV(0.12538).withKA(0.124)
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -58,7 +60,7 @@ object TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private val slipCurrent: Current = Units.Amps.of(40.0)
+    private val slipCurrent: Current = Units.Amps.of(45.0)
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -77,7 +79,7 @@ object TunerConstants {
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
-    val canBus: CANBus = CANBus("Drivebase", "./logs/example.hoot")
+    private val canBus: CANBus = CANBus("Drivebase", "./logs/example.hoot")
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot

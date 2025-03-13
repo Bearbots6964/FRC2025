@@ -12,6 +12,8 @@ import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,66 +23,63 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
 
-public class DriveToNearestReefSideCommand extends Command {
+public class DriveToSpecificCoralStationCommand extends Command {
 
-  private Command fullPath;
   private final Drive drive;
-  private final Elevator elevator;
   private final Arm arm;
-  private final Supplier<ElevatorState> elevatorState;
-  private boolean isLeftBumper = false;
+  private final Elevator elevator;
+  private Command fullPath;
+  private Side side;
+
+  public enum Side {
+    LEFT,
+    RIGHT
+  }
 
   /** Creates a new DriveToNearestReefSideCommand. */
-  public DriveToNearestReefSideCommand(
-      Drive drive,
-      boolean isLeftBumper,
-      Elevator elevator,
-      Arm arm,
-      Supplier<ElevatorState> elevatorState) {
+  public DriveToSpecificCoralStationCommand(Drive drive, Side side, Arm arm, Elevator elevator) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
-    this.isLeftBumper = isLeftBumper;
-    this.elevator = elevator;
     this.arm = arm;
-    this.elevatorState = elevatorState;
+    this.elevator = elevator;
+    this.side = side;
 
-    addRequirements(drive, elevator, arm);
+    addRequirements(drive, arm, elevator);
   }
 
   // Called when the command is initially scheduled.
-  @Override
   public void initialize() {
     Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
     Command pathfindPath =
         AutoBuilder.pathfindToPose(
-            translateCoord(
-                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
+            translateCoordinates(
+                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
+                .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
             new PathConstraints(
-                3.0, 3.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+                3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
 
     try {
       // Load the path you want to follow using its name in the GUI
       PathPlannerPath pathToFront =
           new PathPlannerPath(
               PathPlannerPath.waypointsFromPoses(
-                  translateCoord(
-                      closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
+                  translateCoordinates(
+                      closestAprilTagPose,
+                      closestAprilTagPose.getRotation().getDegrees() + 180,
+                      0.5),
                   closestAprilTagPose),
-              new PathConstraints(0.5, 1.0, 2 * Math.PI, 4 * Math.PI),
+              new PathConstraints(0.375, 1.0, 2 * Math.PI, 4 * Math.PI),
               null,
-              new GoalEndState(0.0, closestAprilTagPose.getRotation()));
+              new GoalEndState(
+                  0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
       pathToFront.preventFlipping = true;
       fullPath =
           ReefPositionCommands.INSTANCE
               .goToPosition(elevator, arm, ElevatorState.HOME)
-              .alongWith(pathfindPath)
-              .andThen(
-                  ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get()))
+              .andThen(pathfindPath)
+              .andThen(ReefPositionCommands.INSTANCE.coralStationPosition(elevator, arm))
               .andThen(AutoBuilder.followPath(pathToFront));
       fullPath.schedule();
     } catch (Exception e) {
@@ -88,32 +87,26 @@ public class DriveToNearestReefSideCommand extends Command {
     }
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
-
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (fullPath != null) {
+    if (fullPath != null && fullPath.isScheduled()) {
       fullPath.cancel();
     }
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return fullPath.isScheduled() && fullPath.isFinished();
   }
 
   private Pose2d getClosestReefAprilTagPose() {
-    HashMap<Integer, Pose2d> aprilTagsToAlignTo =
-        AprilTagPositions.WELDED_BLUE_CORAL_APRIL_TAG_POSITIONS;
-    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-      if (alliance.get() == DriverStation.Alliance.Red) {
-        aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS;
-      }
+    HashMap<Integer, Pose2d> aprilTagsToAlignTo = new HashMap<>();
+    if (side == Side.LEFT) {
+      aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
+      aprilTagsToAlignTo.put(13, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13));
+    } else {
+      aprilTagsToAlignTo.put(12, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12));
+      aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
     }
 
     Pose2d currentPose = drive.getPose();
@@ -131,36 +124,11 @@ public class DriveToNearestReefSideCommand extends Command {
       }
     }
 
-    Pose2d inFrontOfAprilTag =
-        translateCoord(
-            closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(18.773));
-
-    Pose2d leftOrRightOfAprilTag;
-    if (isLeftBumper) {
-      leftOrRightOfAprilTag =
-          translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1686306);
-    } else {
-      leftOrRightOfAprilTag =
-          translateCoord(
-              inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1686306);
-    }
-
-    if (List.of(11, 10, 9, 22, 21, 20).contains(aprilTagNum)) {
-      if (isLeftBumper) {
-        leftOrRightOfAprilTag =
-            translateCoord(
-                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1686306);
-      } else {
-        leftOrRightOfAprilTag =
-            translateCoord(
-                inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1686306);
-      }
-    }
-
-    return leftOrRightOfAprilTag;
+    return translateCoordinates(
+        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(14.773));
   }
 
-  private Pose2d translateCoord(Pose2d originalPose, double degreesRotate, double distance) {
+  private Pose2d translateCoordinates(Pose2d originalPose, double degreesRotate, double distance) {
     double newXCoord = originalPose.getX() + (Math.cos(Math.toRadians(degreesRotate)) * distance);
     double newYCoord = originalPose.getY() + (Math.sin(Math.toRadians(degreesRotate)) * distance);
 

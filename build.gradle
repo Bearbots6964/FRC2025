@@ -18,6 +18,13 @@ kotlin {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
 project.compileKotlin.dependsOn(createVersionFile)
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"

@@ -71,35 +71,51 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command goToPosition(ElevatorConstants.ElevatorState state) {
-    var position = 0.0;
-    switch (state) {
-      case L1:
-        position = ElevatorConstants.L1;
-        break;
-      case L2:
-        position = ElevatorConstants.L2;
-        break;
-      case L3:
-        position = ElevatorConstants.L3;
-        break;
-      case L4:
-        position = ElevatorConstants.L4;
-        break;
-      case HOME:
-      default:
-        position = ElevatorConstants.HOME;
-        break;
-    }
-    double finalPosition = position;
-    return run(() -> setRotations(finalPosition));
+    return run(() ->
+            setRotations(
+                switch (state) {
+                  case L1 -> ElevatorConstants.L1;
+                  case L2 -> ElevatorConstants.L2;
+                  case L3 -> ElevatorConstants.L3;
+                  case L4 -> ElevatorConstants.L4;
+                  default -> ElevatorConstants.HOME;
+                }))
+        .until(
+            () ->
+                Math.abs(
+                        inputs.rightMotorPositionRotations
+                            - switch (state) {
+                              case L1 -> ElevatorConstants.L1;
+                              case L2 -> ElevatorConstants.L2;
+                              case L3 -> ElevatorConstants.L3;
+                              case L4 -> ElevatorConstants.L4;
+                              default -> ElevatorConstants.HOME;
+                            })
+                    < 1.0);
+  }
+
+  public Command goToPositionDelta(double delta) {
+    return runOnce(() -> io.setPositionDelta(delta))
+        .until(() -> io.getDistanceFromGoal() < 1.0)
+        .withName("Elevator Delta");
   }
 
   public Command goToPosition(double position) {
     return run(() -> setRotations(position))
-        .until(() -> Math.abs(inputs.rightMotorPositionRotations - position) < 1.0);
+        .until(() -> Math.abs(inputs.rightMotorPositionRotations - position) < 1.0)
+        .withName("Elevator to Position");
   }
 
   public Command doNothing() {
-    return run(io::stop);
+    return run(io::stop).withName("Elevator Stop");
+  }
+
+  public Command homeElevator() {
+    return runOnce(() -> io.setSoftLimitsEnabled(false))
+        .andThen(() -> io.setOpenLoop(-0.05))
+        .until(() -> inputs.rightMotorCurrent > 10)
+        .andThen(runOnce(() -> io.setOpenLoop(0.0)))
+        .andThen(runOnce(io::zero))
+        .andThen(() -> io.setSoftLimitsEnabled(true));
   }
 }

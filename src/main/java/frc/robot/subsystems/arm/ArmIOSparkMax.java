@@ -12,10 +12,11 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.units.Units;
 import frc.robot.Constants;
 
 // TODO: MotionMagic
-public class ArmIOTalonFX implements ArmIO {
+public class ArmIOSparkMax implements ArmIO {
 
   protected SparkMax armMotor;
   protected SparkBaseConfig armConfiguration;
@@ -23,7 +24,7 @@ public class ArmIOTalonFX implements ArmIO {
   protected SparkAbsoluteEncoder armEncoder;
   protected double targetPosition;
 
-  public ArmIOTalonFX(SparkBaseConfig armConfiguration) {
+  public ArmIOSparkMax(SparkBaseConfig armConfiguration) {
     this.armConfiguration = armConfiguration;
 
     armMotor =
@@ -43,17 +44,20 @@ public class ArmIOTalonFX implements ArmIO {
         .forwardSoftLimit(180.0)
         .reverseSoftLimitEnabled(true)
         .reverseSoftLimit(0.0);
-    armConfiguration.openLoopRampRate(5).disableFollowerMode();
+    armConfiguration.openLoopRampRate(1).disableFollowerMode();
     armConfiguration
         .closedLoop
         .p(0.015)
         .i(0)
         .d(0)
-        .maxOutput(0.25)
-        .minOutput(-0.25)
+        .maxOutput(0.5)
+        .minOutput(-0.5)
         .positionWrappingEnabled(true);
     armConfiguration.absoluteEncoder.positionConversionFactor(360);
-    armConfiguration.absoluteEncoder.velocityConversionFactor(360);
+    armConfiguration
+        .absoluteEncoder
+        .velocityConversionFactor(360)
+        .zeroOffset(Units.Rotations.of(0.6170204).in(Units.Rotations));
     armConfiguration.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     tryUntilOk(
         armMotor,
@@ -63,6 +67,8 @@ public class ArmIOTalonFX implements ArmIO {
                 armConfiguration,
                 SparkBase.ResetMode.kResetSafeParameters,
                 SparkBase.PersistMode.kPersistParameters));
+
+    targetPosition = 170.0;
   }
 
   @Override
@@ -72,6 +78,8 @@ public class ArmIOTalonFX implements ArmIO {
     inputs.armAppliedCurrentAmps = armMotor.getOutputCurrent();
     inputs.armVelocity = armMotor.getAbsoluteEncoder().getVelocity();
     inputs.targetPosition = targetPosition;
+
+    inputs.atTarget = Math.abs(armMotor.getAbsoluteEncoder().getPosition() - targetPosition) < 5.0;
   }
 
   @Override
@@ -104,10 +112,20 @@ public class ArmIOTalonFX implements ArmIO {
   }
 
   @Override
-  public void holdArm() {
+  public void holdArm(Double ref) {
     armMotor
         .getClosedLoopController()
-        .setReference(0, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        .setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+  }
+
+  @Override
+  public void setAngleDelta(double delta) {
+    setArmAngle(targetPosition + delta);
+  }
+
+  @Override
+  public double getDistanceFromGoal() {
+    return Math.abs(armMotor.getAbsoluteEncoder().getPosition() - targetPosition);
   }
 
   @Override

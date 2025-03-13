@@ -99,12 +99,11 @@ object PhoenixUtil {
 
 
     open class TalonFXMotorControllerSim(talonFX: TalonFX) : SimulatedMotorController {
-        val id: Int
+        val id: Int = instances++
 
         private val talonFXSimState: TalonFXSimState
 
         init {
-            this.id = instances++
 
             this.talonFXSimState = talonFX.simState
         }

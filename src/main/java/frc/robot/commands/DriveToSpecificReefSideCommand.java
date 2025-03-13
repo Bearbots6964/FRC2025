@@ -22,32 +22,41 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class DriveToNearestReefSideCommand extends Command {
+public class DriveToSpecificReefSideCommand extends Command {
 
-  private Command fullPath;
   private final Drive drive;
   private final Elevator elevator;
   private final Arm arm;
   private final Supplier<ElevatorState> elevatorState;
-  private boolean isLeftBumper = false;
+  private Command fullPath;
+  private int[] numbers;
+  private boolean isLeftSide;
 
   /** Creates a new DriveToNearestReefSideCommand. */
-  public DriveToNearestReefSideCommand(
-      Drive drive,
-      boolean isLeftBumper,
-      Elevator elevator,
-      Arm arm,
-      Supplier<ElevatorState> elevatorState) {
+  public DriveToSpecificReefSideCommand(
+      Drive drive, Elevator elevator, Arm arm, Supplier<ElevatorState> elevatorState, Reef reef) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
-    this.isLeftBumper = isLeftBumper;
     this.elevator = elevator;
     this.arm = arm;
     this.elevatorState = elevatorState;
+    numbers =
+        switch (reef) {
+          case A, B -> new int[] {7, 18};
+          case C, D -> new int[] {8, 19};
+          case E, F -> new int[] {9, 20};
+          case G, H -> new int[] {10, 21};
+          case I, J -> new int[] {11, 22};
+          case K, L -> new int[] {12, 23};
+        };
+    isLeftSide =
+        switch (reef) {
+          case A, C, E, G, I, K -> true;
+          case B, D, F, H, J, L -> false;
+        };
 
     addRequirements(drive, elevator, arm);
   }
@@ -107,36 +116,28 @@ public class DriveToNearestReefSideCommand extends Command {
   }
 
   private Pose2d getClosestReefAprilTagPose() {
-    HashMap<Integer, Pose2d> aprilTagsToAlignTo =
-        AprilTagPositions.WELDED_BLUE_CORAL_APRIL_TAG_POSITIONS;
+    HashMap<Integer, Pose2d> aprilTagsToAlignTo = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS;
+    int aprilTagNum;
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
       if (alliance.get() == DriverStation.Alliance.Red) {
-        aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS;
+        aprilTagNum = numbers[0];
+      } else {
+        aprilTagNum = numbers[1];
       }
+    } else {
+      DriverStation.reportError("Alliance not present! Cannot determine reef side", false);
+      return new Pose2d();
     }
 
-    Pose2d currentPose = drive.getPose();
-    Pose2d closestPose = new Pose2d();
-    double closestDistance = Double.MAX_VALUE;
-    Integer aprilTagNum = -1;
-
-    for (Map.Entry<Integer, Pose2d> entry : aprilTagsToAlignTo.entrySet()) {
-      Pose2d pose = entry.getValue();
-      double distance = findDistanceBetween(currentPose, pose);
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestPose = pose;
-        aprilTagNum = entry.getKey();
-      }
-    }
+    Pose2d closestPose = aprilTagsToAlignTo.get(aprilTagNum);
 
     Pose2d inFrontOfAprilTag =
         translateCoord(
             closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(18.773));
 
     Pose2d leftOrRightOfAprilTag;
-    if (isLeftBumper) {
+    if (isLeftSide) {
       leftOrRightOfAprilTag =
           translateCoord(inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, 0.1686306);
     } else {
@@ -146,7 +147,7 @@ public class DriveToNearestReefSideCommand extends Command {
     }
 
     if (List.of(11, 10, 9, 22, 21, 20).contains(aprilTagNum)) {
-      if (isLeftBumper) {
+      if (isLeftSide) {
         leftOrRightOfAprilTag =
             translateCoord(
                 inFrontOfAprilTag, closestPose.getRotation().getDegrees() + 90, -0.1686306);
@@ -170,5 +171,20 @@ public class DriveToNearestReefSideCommand extends Command {
   private double findDistanceBetween(Pose2d pose1, Pose2d pose2) {
     return Math.sqrt(
         Math.pow((pose2.getX() - pose1.getX()), 2) + Math.pow((pose2.getY() - pose1.getY()), 2));
+  }
+
+  public enum Reef {
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L
   }
 }

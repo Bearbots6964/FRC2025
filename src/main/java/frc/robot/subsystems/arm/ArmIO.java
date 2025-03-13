@@ -10,6 +10,8 @@ public interface ArmIO {
     public double armAppliedCurrentAmps = 0.0;
     public double armVelocity = 0.0;
     public double targetPosition = 0.0;
+
+    public boolean atTarget = false;
   }
 
   default void updateInputs(ArmIOInputs inputs) {}
@@ -24,11 +26,17 @@ public interface ArmIO {
     return 0;
   }
 
+  default void setAngleDelta(double delta) {}
+
+  default double getDistanceFromGoal() {
+    return 0.0;
+  }
+
   default double getArmVelocity() {
     return 0;
   }
 
   default void stopArm() {}
 
-  default void holdArm() {}
+  default void holdArm(Double ref) {}
 }
