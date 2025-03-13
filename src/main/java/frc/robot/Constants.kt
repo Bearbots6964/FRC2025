@@ -1,5 +1,7 @@
 package frc.robot
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.signals.NeutralModeValue
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.RobotConfig
 import edu.wpi.first.apriltag.AprilTagFieldLayout
@@ -23,6 +25,54 @@ import frc.robot.util.Polygon
 object Constants {
     object OperatorConstants {
         const val DRIVER_CONTROLLER_PORT = 0
+    }
+
+    object ElevatorConstants {
+        const val LEFT_MOTOR_CAN_ID = 3
+        const val RIGHT_MOTOR_CAN_ID = 2
+
+        @JvmStatic
+        val leftMotorConfig: TalonFXConfiguration = TalonFXConfiguration()
+
+        @JvmStatic
+        val rightMotorConfig: TalonFXConfiguration = TalonFXConfiguration()
+
+        init {
+            leftMotorConfig.ClosedLoopGeneral.ContinuousWrap = false
+            leftMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake
+            leftMotorConfig.CurrentLimits.StatorCurrentLimit = 40.0
+            leftMotorConfig.CurrentLimits.SupplyCurrentLimit = 40.0
+
+            rightMotorConfig.ClosedLoopGeneral.ContinuousWrap = false
+            rightMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake
+            rightMotorConfig.CurrentLimits.StatorCurrentLimit = 40.0
+            rightMotorConfig.CurrentLimits.SupplyCurrentLimit = 40.0
+
+
+            var slot0Configs = rightMotorConfig.Slot0
+            slot0Configs.kS = 0.12893
+            slot0Configs.kV = 0.12063
+            slot0Configs.kA = 0.0018313
+            slot0Configs.kG = 0.092435
+            slot0Configs.kP = 0.8
+
+            var motionMagicConfigs = rightMotorConfig.MotionMagic
+            motionMagicConfigs.MotionMagicCruiseVelocity = 100.0
+            motionMagicConfigs.MotionMagicAcceleration = 200.0
+            motionMagicConfigs.MotionMagicJerk = 1000.0
+        }
+
+        const val HOME = 0.0
+        const val L1 = 40.0
+        const val L2 = 50.0
+        const val L3 = 85.0
+        const val L4 = 150.0 // TODO: Find actual value
+
+        enum class ElevatorState {
+            HOME, L1, L2, L3, L4
+        }
+
+        const val SYSID_PROFILING_ENABLED = false
     }
 
     object PhysicalProperties {
@@ -83,6 +133,11 @@ object Constants {
 
         @JvmStatic
         val activeBase = ProgrammingBase
+    }
+
+    object ArmConstants {
+        @JvmStatic
+        val armAxisMotorID: Int = 6
     }
 
     object VisionConstants {
