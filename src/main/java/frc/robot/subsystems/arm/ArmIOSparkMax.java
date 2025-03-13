@@ -50,8 +50,8 @@ public class ArmIOSparkMax implements ArmIO {
         .p(0.015)
         .i(0)
         .d(0)
-        .maxOutput(0.25)
-        .minOutput(-0.25)
+        .maxOutput(0.5)
+        .minOutput(-0.5)
         .positionWrappingEnabled(true);
     armConfiguration.absoluteEncoder.positionConversionFactor(360);
     armConfiguration

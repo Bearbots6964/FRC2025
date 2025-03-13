@@ -42,4 +42,8 @@ public interface ElevatorIO {
   }
 
   default void stop() {}
+
+  default void setSoftLimitsEnabled(boolean enabled) {}
+
+  default void zero() {}
 }

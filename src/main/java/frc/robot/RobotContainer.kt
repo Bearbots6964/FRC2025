@@ -338,9 +338,13 @@ class RobotContainer {
             ).withName("Reef L")
         )
 
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.HOME
-        }).withName("Superstructure Home"))
+        SmartDashboard.putData(
+            ReefPositionCommands.goToPosition(
+                elevator,
+                arm,
+                Constants.ElevatorConstants.ElevatorState.HOME
+            ).withName("Superstructure Home")
+        )
         SmartDashboard.putData(Commands.runOnce({
             nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L1
         }).withName("Superstructure L1"))

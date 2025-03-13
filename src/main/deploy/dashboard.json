@@ -1,0 +1,501 @@
+{
+  "version": 1.0,
+  "grid_size": 32,
+  "tabs": [
+    {
+      "name": "Biblically Accurate Reefscape Dashboard",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Reef A",
+            "x": 512.0,
+            "y": 640.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef A",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef B",
+            "x": 832.0,
+            "y": 640.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef B",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef C",
+            "x": 960.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef C",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef D",
+            "x": 1088.0,
+            "y": 384.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef D",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef E",
+            "x": 1088.0,
+            "y": 256.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef E",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef F",
+            "x": 960.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef F",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef G",
+            "x": 832.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef G",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef H",
+            "x": 576.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef H",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef I",
+            "x": 448.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef I",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef K",
+            "x": 256.0,
+            "y": 384.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef K",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef J",
+            "x": 256.0,
+            "y": 256.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef J",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef L",
+            "x": 448.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef L",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure L1",
+            "x": 576.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure L1",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure L2",
+            "x": 832.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure L2",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure L3",
+            "x": 576.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure L3",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure L4",
+            "x": 832.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure L4",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure Home",
+            "x": 704.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure Home",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure Coral Pickup",
+            "x": 704.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure Coral Pickup",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Elevator At Target",
+            "x": 448.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/Elevator/AtTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "Checkmark",
+              "false_icon": "X"
+            }
+          },
+          {
+            "title": "Arm At Target",
+            "x": 1088.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/Arm/AtTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "Checkmark",
+              "false_icon": "X"
+            }
+          },
+          {
+            "title": "ArmAxisAngle",
+            "x": 1408.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Radial Gauge",
+            "properties": {
+              "topic": "/AdvantageKit/Arm/ArmAxisAngle",
+              "period": 0.06,
+              "data_type": "double",
+              "start_angle": 0.0,
+              "end_angle": 180.0,
+              "min_value": 0.0,
+              "max_value": 180.0,
+              "number_of_labels": 8,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
+            }
+          },
+          {
+            "title": "RightMotorPositionRotations",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Number Bar",
+            "properties": {
+              "topic": "/AdvantageKit/Elevator/RightMotorPositionRotations",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 0.0,
+              "max_value": 150.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "vertical"
+            }
+          },
+          {
+            "title": "FMSInfo",
+            "x": 320.0,
+            "y": 768.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "FMSInfo",
+            "properties": {
+              "topic": "/FMSInfo",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Alerts",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/SmartDashboard/Alerts",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Voltage",
+            "x": 1408.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/AdvantageKit/PowerDistribution/Voltage",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 4.0,
+              "max_value": 13.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "TotalCurrent",
+            "x": 1408.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/AdvantageKit/PowerDistribution/TotalCurrent",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 0.0,
+              "max_value": 150.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "Drive to Left Coral Station",
+            "x": 256.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Drive to Left Coral Station",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Drive to Right Coral Station",
+            "x": 1152.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Drive to Right Coral Station",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Place Coral",
+            "x": 0.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Place Coral",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Coral Pickup",
+            "x": 1408.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Coral Pickup",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Left Camera",
+            "x": 256.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/photonvision/left/hasTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4278190080,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Right Camera",
+            "x": 1216.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/photonvision/right/hasTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4278190080,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "FullCycleMS",
+            "x": 1408.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/LoggedRobot/FullCycleMS",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 5.0,
+              "min_value": 0.0,
+              "max_value": 50.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "MatchTime",
+            "x": 832.0,
+            "y": 768.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/AdvantageKit/DriverStation/MatchTime",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 15,
+              "yellow_start_time": 30
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

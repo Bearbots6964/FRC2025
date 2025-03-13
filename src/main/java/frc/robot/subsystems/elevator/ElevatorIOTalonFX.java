@@ -77,8 +77,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     rightMotorVoltage = rightMotor.getMotorVoltage();
     leftMotorTemperature = leftMotor.getDeviceTemp();
     rightMotorTemperature = rightMotor.getDeviceTemp();
-    leftMotorCurrent = leftMotor.getTorqueCurrent();
-    rightMotorCurrent = rightMotor.getTorqueCurrent();
+    leftMotorCurrent = leftMotor.getStatorCurrent();
+    rightMotorCurrent = rightMotor.getStatorCurrent();
 
     targetPosition = rightMotorPosition.getValue().in(Units.Rotations);
   }
@@ -165,5 +165,21 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void setVoltage(double voltage) {
     voltageRequest.withOutput(voltage);
     rightMotor.setControl(voltageRequest);
+  }
+
+  @Override
+  public void setSoftLimitsEnabled(boolean enabled) {
+    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = enabled;
+    rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = enabled;
+    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = enabled;
+    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = enabled;
+    tryUntilOk(5, () -> leftMotor.getConfigurator().apply(leftConfig, 0.25));
+    tryUntilOk(5, () -> rightMotor.getConfigurator().apply(rightConfig, 0.25));
+  }
+
+  @Override
+  public void zero() {
+    leftMotor.setPosition(leftMotorPosition.getValue().in(Units.Rotations) % 1.0);
+    rightMotor.setPosition(rightMotorPosition.getValue().in(Units.Rotations) % 1.0);
   }
 }

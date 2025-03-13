@@ -109,4 +109,12 @@ public class Elevator extends SubsystemBase {
   public Command doNothing() {
     return run(io::stop).withName("Elevator Stop");
   }
+
+  public Command homeElevator() {
+    return runOnce(() -> io.setSoftLimitsEnabled(false))
+        .andThen(() -> io.setOpenLoop(-0.05)).until(() -> inputs.rightMotorCurrent > 10)
+        .andThen(runOnce(() -> io.setOpenLoop(0.0)))
+        .andThen(runOnce(io::zero))
+        .andThen(() -> io.setSoftLimitsEnabled(true));
+  }
 }
