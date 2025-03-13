@@ -317,13 +317,11 @@ public class RepulsorFieldPlanner {
               .5));
 
   /**
-   * -- SETTER --
-   *  Sets the goal position.
+   * -- SETTER -- Sets the goal position.
    *
    * @param goal the new goal position
    */
-  @Setter
-  private Translation2d goal = new Translation2d(1, 1);
+  @Setter private Translation2d goal = new Translation2d(1, 1);
 
   private static final int ARROWS_X = 40;
   private static final int ARROWS_Y = 20;
