@@ -48,6 +48,7 @@ import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
+import kotlin.math.abs
 
 
 /**
@@ -466,8 +467,15 @@ class RobotContainer {
         // </editor-fold>
 
         // Default commands for elevator and arm
-        elevator.defaultCommand = elevator.velocityCommand { -operatorController.rightY }
-        arm.defaultCommand = arm.moveArm { -operatorController.leftY }
+        elevator.defaultCommand = elevator.stop()
+        arm.defaultCommand = arm.stop()
+
+        Trigger { abs(operatorController.leftY) > 0.1 }.whileTrue(
+            arm.moveArm { -operatorController.leftY }
+        )
+        Trigger { abs(operatorController.rightY) > 0.1 }.whileTrue(
+            elevator.velocityCommand { -operatorController.rightY }
+        )
 
         // Operator controller bindings
         operatorController.a().whileTrue(
