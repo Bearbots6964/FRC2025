@@ -80,13 +80,20 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
-  public static final double DRIVE_BASE_RADIUS = Math.max(Math.max(
-      Math.hypot(TunerConstants.getFrontLeft().LocationX, TunerConstants.getFrontLeft().LocationY),
-      Math.hypot(TunerConstants.getFrontRight().LocationX,
-                 TunerConstants.getFrontRight().LocationY)), Math.max(
-      Math.hypot(TunerConstants.getBackLeft().LocationX, TunerConstants.getBackLeft().LocationY),
-      Math.hypot(TunerConstants.getBackRight().LocationX,
-                 TunerConstants.getBackRight().LocationY)));
+  public static final double DRIVE_BASE_RADIUS =
+      Math.max(
+          Math.max(
+              Math.hypot(
+                  TunerConstants.getFrontLeft().LocationX, TunerConstants.getFrontLeft().LocationY),
+              Math.hypot(
+                  TunerConstants.getFrontRight().LocationX,
+                  TunerConstants.getFrontRight().LocationY)),
+          Math.max(
+              Math.hypot(
+                  TunerConstants.getBackLeft().LocationX, TunerConstants.getBackLeft().LocationY),
+              Math.hypot(
+                  TunerConstants.getBackRight().LocationX,
+                  TunerConstants.getBackRight().LocationY)));
   public static final DriveTrainSimulationConfig mapleSimConfig;
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
@@ -95,51 +102,59 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   private static final RobotConfig PP_CONFIG = PhysicalProperties.getActiveBase().getRobotConfig();
 
   static {
-    mapleSimConfig = DriveTrainSimulationConfig.Default().withRobotMass(ProgrammingBase.getMass())
-        .withCustomModuleTranslations(getModuleTranslations()).withGyro(COTS.ofPigeon2())
-        .withSwerveModule(
-            new SwerveModuleSimulationConfig(DCMotor.getKrakenX60(1), DCMotor.getKrakenX60(1),
-                                             TunerConstants.getFrontLeft().DriveMotorGearRatio,
-                                             TunerConstants.getFrontLeft().SteerMotorGearRatio,
-                                             Volts.of(
-                                                 TunerConstants.getFrontLeft().DriveFrictionVoltage),
-                                             Volts.of(
-                                                 TunerConstants.getFrontLeft().SteerFrictionVoltage),
-                                             Meters.of(TunerConstants.getFrontLeft().WheelRadius),
-                                             KilogramSquareMeters.of(
-                                                 TunerConstants.getFrontLeft().SteerInertia),
-                                             ProgrammingBase.getCoefficentOfFriction()));
+    mapleSimConfig =
+        DriveTrainSimulationConfig.Default()
+            .withRobotMass(ProgrammingBase.getMass())
+            .withCustomModuleTranslations(getModuleTranslations())
+            .withGyro(COTS.ofPigeon2())
+            .withSwerveModule(
+                new SwerveModuleSimulationConfig(
+                    DCMotor.getKrakenX60(1),
+                    DCMotor.getKrakenX60(1),
+                    TunerConstants.getFrontLeft().DriveMotorGearRatio,
+                    TunerConstants.getFrontLeft().SteerMotorGearRatio,
+                    Volts.of(TunerConstants.getFrontLeft().DriveFrictionVoltage),
+                    Volts.of(TunerConstants.getFrontLeft().SteerFrictionVoltage),
+                    Meters.of(TunerConstants.getFrontLeft().WheelRadius),
+                    KilogramSquareMeters.of(TunerConstants.getFrontLeft().SteerInertia),
+                    ProgrammingBase.getCoefficentOfFriction()));
   }
 
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine sysId;
-  private final Alert gyroDisconnectedAlert = new Alert(
-      "Disconnected gyro, using kinematics as fallback.", AlertType.kError);
-  private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-      getModuleTranslations());
+  private final Alert gyroDisconnectedAlert =
+      new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+  private final SwerveDriveKinematics kinematics =
+      new SwerveDriveKinematics(getModuleTranslations());
   private final SwerveModulePosition[] lastModulePositions = // For delta tracking
-      new SwerveModulePosition[]{new SwerveModulePosition(), new SwerveModulePosition(),
-          new SwerveModulePosition(), new SwerveModulePosition()};
+      new SwerveModulePosition[] {
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
+      };
   private final Consumer<Pose2d> resetSimulationPoseCallBack;
   private final PIDController xController, yController, yawController;
-  private final double maxLinearSpeedMetersPerSec = TunerConstants.getSpeedAt12Volts()
-      .in(MetersPerSecond);
+  private final double maxLinearSpeedMetersPerSec =
+      TunerConstants.getSpeedAt12Volts().in(MetersPerSecond);
   private final SwerveSetpointGenerator setpointGenerator;
   private final RepulsorFieldPlanner repulsorFieldPlanner = new RepulsorFieldPlanner();
   private ChassisSpeeds currentSpeeds = new ChassisSpeeds();
   private Rotation2d rawGyroRotation = new Rotation2d();
-  private final SwervePoseEstimator poseEstimator = new SwervePoseEstimator(kinematics,
-                                                                            rawGyroRotation,
-                                                                            lastModulePositions,
-                                                                            new Pose2d());
-  @Getter
-  private Zone currentZone = Zone.NONE;
+  private final SwervePoseEstimator poseEstimator =
+      new SwervePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+  @Getter private Zone currentZone = Zone.NONE;
   private com.pathplanner.lib.util.swerve.SwerveSetpoint lastSetpoint;
 
-  public Drive(GyroIO gyroIO, ModuleIO flModuleIO, ModuleIO frModuleIO, ModuleIO blModuleIO,
-      ModuleIO brModuleIO, Consumer<Pose2d> resetSimulationPoseCallBack) {
+  public Drive(
+      GyroIO gyroIO,
+      ModuleIO flModuleIO,
+      ModuleIO frModuleIO,
+      ModuleIO blModuleIO,
+      ModuleIO brModuleIO,
+      Consumer<Pose2d> resetSimulationPoseCallBack) {
     this.gyroIO = gyroIO;
     this.resetSimulationPoseCallBack = resetSimulationPoseCallBack;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.getFrontLeft());
@@ -154,28 +169,37 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     PhoenixOdometryThread.getInstance().start();
 
     // Configure AutoBuilder for PathPlanner
-    AutoBuilder.configure(this::getPose, this::setPose, this::getChassisSpeeds, this::runVelocity,
-                          new PPHolonomicDriveController(new PIDConstants(5.0, 0.0, 0.0),
-                                                         new PIDConstants(5.0, 0.0, 0.0)),
-                          PP_CONFIG,
-                          () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-                          this);
+    AutoBuilder.configure(
+        this::getPose,
+        this::setPose,
+        this::getChassisSpeeds,
+        this::runVelocity,
+        new PPHolonomicDriveController(
+            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+        PP_CONFIG,
+        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+        this);
     Pathfinding.setPathfinder(new LocalADStarAK());
     PathPlannerLogging.setLogActivePathCallback(
-        (activePath) -> Logger.recordOutput("Odometry/Trajectory",
-                                            activePath.toArray(new Pose2d[0])));
+        (activePath) ->
+            Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0])));
     PathPlannerLogging.setLogTargetPoseCallback(
         (targetPose) -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
 
     // Configure SysId
-    sysId = new SysIdRoutine(new SysIdRoutine.Config(null, null, null,
-                                                     (state) -> Logger.recordOutput(
-                                                         "Drive/SysIdState", state.toString())),
-                             new SysIdRoutine.Mechanism(
-                                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+    sysId =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 
-    Notifier zoneNotifier = new Notifier(
-        () -> currentZone = FieldConstants.INSTANCE.getZone(getPose().getTranslation()));
+    Notifier zoneNotifier =
+        new Notifier(
+            () -> currentZone = FieldConstants.INSTANCE.getZone(getPose().getTranslation()));
     zoneNotifier.startPeriodic(0.5); // this really doesn't need to execute that often.
     // it's also a pretty resource-intensive operation, so we have to be careful with it
 
@@ -185,23 +209,23 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     yawController.enableContinuousInput(-PI, PI);
 
     setpointGenerator = new SwerveSetpointGenerator(PP_CONFIG, Units.rotationsToRadians(10.0));
-    lastSetpoint = new com.pathplanner.lib.util.swerve.SwerveSetpoint(new ChassisSpeeds(),
-                                                                      getModuleStates(),
-                                                                      DriveFeedforwards.zeros(4));
+    lastSetpoint =
+        new com.pathplanner.lib.util.swerve.SwerveSetpoint(
+            new ChassisSpeeds(), getModuleStates(), DriveFeedforwards.zeros(4));
   }
 
-  /**
-   * Returns an array of module translations.
-   */
+  /** Returns an array of module translations. */
   public static Translation2d[] getModuleTranslations() {
-    return new Translation2d[]{new Translation2d(TunerConstants.getFrontLeft().LocationX,
-                                                 TunerConstants.getFrontLeft().LocationY),
-        new Translation2d(TunerConstants.getFrontRight().LocationX,
-                          TunerConstants.getFrontRight().LocationY),
-        new Translation2d(TunerConstants.getBackLeft().LocationX,
-                          TunerConstants.getBackLeft().LocationY),
-        new Translation2d(TunerConstants.getBackRight().LocationX,
-                          TunerConstants.getBackRight().LocationY)};
+    return new Translation2d[] {
+      new Translation2d(
+          TunerConstants.getFrontLeft().LocationX, TunerConstants.getFrontLeft().LocationY),
+      new Translation2d(
+          TunerConstants.getFrontRight().LocationX, TunerConstants.getFrontRight().LocationY),
+      new Translation2d(
+          TunerConstants.getBackLeft().LocationX, TunerConstants.getBackLeft().LocationY),
+      new Translation2d(
+          TunerConstants.getBackRight().LocationX, TunerConstants.getBackRight().LocationY)
+    };
   }
 
   @Override
@@ -227,12 +251,13 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     // Log empty setpoint states when disabled
     if (DriverStation.isDisabled()) {
-      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[]{});
-      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[]{});
+      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
+      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
     }
 
     // Update odometry
-    double[] sampleTimestamps = modules[0].getOdometryTimestamps(); // All signals are sampled together
+    double[] sampleTimestamps =
+        modules[0].getOdometryTimestamps(); // All signals are sampled together
     int sampleCount = sampleTimestamps.length;
     for (int i = 0; i < sampleCount; i++) {
       // Read wheel positions and deltas from each module
@@ -240,10 +265,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
       SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
       for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
         modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
-        moduleDeltas[moduleIndex] = new SwerveModulePosition(
-            modulePositions[moduleIndex].distanceMeters
-                - lastModulePositions[moduleIndex].distanceMeters,
-            modulePositions[moduleIndex].angle);
+        moduleDeltas[moduleIndex] =
+            new SwerveModulePosition(
+                modulePositions[moduleIndex].distanceMeters
+                    - lastModulePositions[moduleIndex].distanceMeters,
+                modulePositions[moduleIndex].angle);
         lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
       }
 
@@ -292,18 +318,14 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
   }
 
-  /**
-   * Runs the drive in a straight line with the specified drive output.
-   */
+  /** Runs the drive in a straight line with the specified drive output. */
   public void runCharacterization(double output) {
     for (int i = 0; i < 4; i++) {
       modules[i].runCharacterization(output);
     }
   }
 
-  /**
-   * Stops the drive.
-   */
+  /** Stops the drive. */
   public void stop() {
     runVelocity(new ChassisSpeeds());
   }
@@ -321,24 +343,19 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     stop();
   }
 
-  /**
-   * Returns a command to run a quasistatic test in the specified direction.
-   */
+  /** Returns a command to run a quasistatic test in the specified direction. */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return run(() -> runCharacterization(0.0)).withTimeout(1.0)
+    return run(() -> runCharacterization(0.0))
+        .withTimeout(1.0)
         .andThen(sysId.quasistatic(direction));
   }
 
-  /**
-   * Returns a command to run a dynamic test in the specified direction.
-   */
+  /** Returns a command to run a dynamic test in the specified direction. */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return run(() -> runCharacterization(0.0)).withTimeout(1.0).andThen(sysId.dynamic(direction));
   }
 
-  /**
-   * Returns the module states (turn angles and drive velocities) for all the modules.
-   */
+  /** Returns the module states (turn angles and drive velocities) for all the modules. */
   @AutoLogOutput(key = "SwerveStates/Measured")
   private SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] states = new SwerveModuleState[4];
@@ -348,9 +365,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     return states;
   }
 
-  /**
-   * Returns the module positions (turn angles and drive positions) for all the modules.
-   */
+  /** Returns the module positions (turn angles and drive positions) for all the modules. */
   private SwerveModulePosition[] getModulePositions() {
     SwerveModulePosition[] states = new SwerveModulePosition[4];
     for (int i = 0; i < 4; i++) {
@@ -359,17 +374,13 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     return states;
   }
 
-  /**
-   * Returns the measured chassis speeds of the robot.
-   */
+  /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
   private ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
-  /**
-   * Returns the position of each module in radians.
-   */
+  /** Returns the position of each module in radians. */
   public double[] getWheelRadiusCharacterizationPositions() {
     double[] values = new double[4];
     for (int i = 0; i < 4; i++) {
@@ -378,9 +389,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     return values;
   }
 
-  /**
-   * Returns the average velocity of the modules in rotations/sec (Phoenix native units).
-   */
+  /** Returns the average velocity of the modules in rotations/sec (Phoenix native units). */
   public double getFFCharacterizationVelocity() {
     double output = 0.0;
     for (int i = 0; i < 4; i++) {
@@ -389,49 +398,39 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     return output;
   }
 
-  /**
-   * Returns the current odometry pose.
-   */
+  /** Returns the current odometry pose. */
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
   }
 
-  /**
-   * Resets the current odometry pose.
-   */
+  /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     resetSimulationPoseCallBack.accept(pose);
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
-  /**
-   * Returns the current odometry rotation.
-   */
+  /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
   }
 
-  /**
-   * Adds a new timestamped vision measurement.
-   */
+  /** Adds a new timestamped vision measurement. */
   @Override
-  public void accept(Pose2d visionRobotPoseMeters, double timestampSeconds,
+  public void accept(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds,
-                                       visionMeasurementStdDevs.getData());
+    poseEstimator.addVisionMeasurement(
+        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs.getData());
   }
 
-  /**
-   * Returns the maximum linear speed in meters per sec.
-   */
+  /** Returns the maximum linear speed in meters per sec. */
   public double getMaxLinearSpeedMetersPerSec() {
     return TunerConstants.getSpeedAt12Volts().in(MetersPerSecond);
   }
 
-  /**
-   * Returns the maximum angular speed in radians per sec.
-   */
+  /** Returns the maximum angular speed in radians per sec. */
   public double getMaxAngularSpeedRadPerSec() {
     return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
   }
@@ -455,8 +454,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    * @return a Command that will back the robot up
    */
   public Command backUpBy() {
-    return run(() -> runVelocity(new ChassisSpeeds(-0.25, 0, 0))).raceWith(
-        Commands.waitSeconds(1.0)).withName("Back Up");
+    return run(() -> runVelocity(new ChassisSpeeds(-0.25, 0, 0)))
+        .raceWith(Commands.waitSeconds(1.0))
+        .withName("Back Up");
   }
 
   // thank you to team 167 for the following code
@@ -468,7 +468,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    * less.
    *
    * @return An array of length 3, containing the estimated standard deviations in each axis (x, y,
-   * yaw)
+   *     yaw)
    */
   private double[] getDriveStdDevs() {
     // Get idealized states from the current robot velocity.
@@ -477,10 +477,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     double xSquaredSum = 0;
     double ySquaredSum = 0;
     for (int i = 0; i < 4; i++) {
-      var measuredVector = new Translation2d(getModuleStates()[i].speedMetersPerSecond,
-                                             getModuleStates()[i].angle);
-      var idealVector = new Translation2d(idealStates[i].speedMetersPerSecond,
-                                          idealStates[i].angle);
+      var measuredVector =
+          new Translation2d(getModuleStates()[i].speedMetersPerSecond, getModuleStates()[i].angle);
+      var idealVector =
+          new Translation2d(idealStates[i].speedMetersPerSecond, idealStates[i].angle);
 
       // Compare the state vectors and get the delta between them.
       var xDelta = idealVector.getX() - measuredVector.getX();
@@ -494,108 +494,137 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     // Sqrt of avg of squared deltas = standard deviation
     // Rotate to convert to field relative
     double scalar = 15;
-    var stdDevs = new Translation2d(scalar * (Math.sqrt(xSquaredSum) / 4),
-                                    scalar * (Math.sqrt(ySquaredSum) / 4)).rotateBy(
-        gyroInputs.yawPosition);
+    var stdDevs =
+        new Translation2d(
+                scalar * (Math.sqrt(xSquaredSum) / 4), scalar * (Math.sqrt(ySquaredSum) / 4))
+            .rotateBy(gyroInputs.yawPosition);
 
     // If translating and rotating at the same time, odometry drifts pretty badly in the
     // direction perpendicular to the direction of translational travel.
     // This factor massively distrusts odometry in that direction when translating and rotating
     // at the same time.
-    var scaledSpeed = new Translation2d(ChassisSpeeds.fromFieldRelativeSpeeds(currentSpeeds,
-                                                                              gyroInputs.yawPosition).vxMetersPerSecond
-                                            / TunerConstants.getSpeedAt12Volts()
-        .in(MetersPerSecond), ChassisSpeeds.fromFieldRelativeSpeeds(currentSpeeds,
-                                                                    gyroInputs.yawPosition).vyMetersPerSecond
-                                            / TunerConstants.getSpeedAt12Volts()
-        .in(MetersPerSecond)).rotateBy(Rotation2d.kCCW_90deg).times(1 * Math.abs(
-        currentSpeeds.omegaRadiansPerSecond / (
-            TunerConstants.getSpeedAt12Volts().in(MetersPerSecond) / DRIVE_BASE_RADIUS)));
+    var scaledSpeed =
+        new Translation2d(
+                ChassisSpeeds.fromFieldRelativeSpeeds(currentSpeeds, gyroInputs.yawPosition)
+                        .vxMetersPerSecond
+                    / TunerConstants.getSpeedAt12Volts().in(MetersPerSecond),
+                ChassisSpeeds.fromFieldRelativeSpeeds(currentSpeeds, gyroInputs.yawPosition)
+                        .vyMetersPerSecond
+                    / TunerConstants.getSpeedAt12Volts().in(MetersPerSecond))
+            .rotateBy(Rotation2d.kCCW_90deg)
+            .times(
+                1
+                    * Math.abs(
+                        currentSpeeds.omegaRadiansPerSecond
+                            / (TunerConstants.getSpeedAt12Volts().in(MetersPerSecond)
+                                / DRIVE_BASE_RADIUS)));
 
     // Add a minimum to account for mechanical slop and to prevent divide by 0 errors
-    return new double[]{Math.abs(stdDevs.getX()) + Math.abs(scaledSpeed.getX()) + .1,
-        Math.abs(stdDevs.getY()) + Math.abs(scaledSpeed.getY()) + .1, .001};
+    return new double[] {
+      Math.abs(stdDevs.getX()) + Math.abs(scaledSpeed.getX()) + .1,
+      Math.abs(stdDevs.getY()) + Math.abs(scaledSpeed.getY()) + .1,
+      .001
+    };
   }
 
   /**
    * Follows a repulsor field to a goal. The repulsor field is generated by the repulsorFieldPlanner
    * and is used to avoid obstacles.
    *
-   * @param goal          Goal pose to navigate to
+   * @param goal Goal pose to navigate to
    * @param nudgeSupplier Supplier for a nudge vector to apply to the robot's velocity
    * @return Command to follow the repulsor field
    */
   public Command followRepulsorField(Pose2d goal, Supplier<Translation2d> nudgeSupplier) {
     return sequence(
-        // reset the repulsor field planner and controllers, set the goal
-        runOnce(() -> {
-          repulsorFieldPlanner.setGoal(goal.getTranslation());
-          xController.reset();
-          yController.reset();
-          yawController.reset();
-        }), run(() -> {
-          // log the goal pose
-          Logger.recordOutput("Repulsor/Goal", goal);
+            // reset the repulsor field planner and controllers, set the goal
+            runOnce(
+                () -> {
+                  repulsorFieldPlanner.setGoal(goal.getTranslation());
+                  xController.reset();
+                  yController.reset();
+                  yawController.reset();
+                }),
+            run(
+                () -> {
+                  // log the goal pose
+                  Logger.recordOutput("Repulsor/Goal", goal);
 
-          // get the repulsor field sample
-          var sample = repulsorFieldPlanner.sampleField(
-              poseEstimator.getEstimatedPosition().getTranslation(),
-              maxLinearSpeedMetersPerSec * .9, 1.25);
+                  // get the repulsor field sample
+                  var sample =
+                      repulsorFieldPlanner.sampleField(
+                          poseEstimator.getEstimatedPosition().getTranslation(),
+                          maxLinearSpeedMetersPerSec * .9,
+                          1.25);
 
-          // calculate feedforward and feedback
-          var feedforward = new ChassisSpeeds(sample.vx(), sample.vy(), 0);
-          var feedback = new ChassisSpeeds(
-              xController.calculate(poseEstimator.getEstimatedPosition().getX(),
-                                    sample.intermediateGoal().getX()),
-              yController.calculate(poseEstimator.getEstimatedPosition().getY(),
-                                    sample.intermediateGoal().getY()), yawController.calculate(
-              poseEstimator.getEstimatedPosition().getRotation().getRadians(),
-              goal.getRotation().getRadians()));
+                  // calculate feedforward and feedback
+                  var feedforward = new ChassisSpeeds(sample.vx(), sample.vy(), 0);
+                  var feedback =
+                      new ChassisSpeeds(
+                          xController.calculate(
+                              poseEstimator.getEstimatedPosition().getX(),
+                              sample.intermediateGoal().getX()),
+                          yController.calculate(
+                              poseEstimator.getEstimatedPosition().getY(),
+                              sample.intermediateGoal().getY()),
+                          yawController.calculate(
+                              poseEstimator.getEstimatedPosition().getRotation().getRadians(),
+                              goal.getRotation().getRadians()));
 
-          // log the error, feedforward, and feedback
-          var error = goal.minus(poseEstimator.getEstimatedPosition());
-          Logger.recordOutput("Repulsor/Error", error);
-          Logger.recordOutput("Repulsor/Feedforward", feedforward);
-          Logger.recordOutput("Repulsor/Feedback", feedback);
+                  // log the error, feedforward, and feedback
+                  var error = goal.minus(poseEstimator.getEstimatedPosition());
+                  Logger.recordOutput("Repulsor/Error", error);
+                  Logger.recordOutput("Repulsor/Feedforward", feedforward);
+                  Logger.recordOutput("Repulsor/Feedback", feedback);
 
-          // log the repulsor field
-          // FIXME if this doesn't work, delete it
-          Logger.recordOutput("Repulsor/Vector field", repulsorFieldPlanner.getArrows());
+                  // log the repulsor field
+                  // FIXME if this doesn't work, delete it
+                  Logger.recordOutput("Repulsor/Vector field", repulsorFieldPlanner.getArrows());
 
-          // calculate the output field relative and robot relative speeds
-          var outputFieldRelative = feedforward.plus(feedback);
+                  // calculate the output field relative and robot relative speeds
+                  var outputFieldRelative = feedforward.plus(feedback);
 
-          if (nudgeSupplier != null) {
-            var nudge = nudgeSupplier.get();
-            if (nudge.getNorm() > .1) {
-              var nudgeScalar = Math.min(error.getTranslation().getNorm() / 3, 1) * Math.min(
-                  error.getTranslation().getNorm() / 3, 1) * maxLinearSpeedMetersPerSec;
+                  if (nudgeSupplier != null) {
+                    var nudge = nudgeSupplier.get();
+                    if (nudge.getNorm() > .1) {
+                      var nudgeScalar =
+                          Math.min(error.getTranslation().getNorm() / 3, 1)
+                              * Math.min(error.getTranslation().getNorm() / 3, 1)
+                              * maxLinearSpeedMetersPerSec;
 
-              if (DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get() == Alliance.Red) {
-                nudge = new Translation2d(-nudge.getX(), -nudge.getY());
-              }
-              nudgeScalar *= Math.abs(nudge.getAngle().minus(
-                  new Rotation2d(outputFieldRelative.vxMetersPerSecond,
-                                 outputFieldRelative.vyMetersPerSecond)).getSin());
-              outputFieldRelative.vxMetersPerSecond += nudge.getX() * nudgeScalar;
-              outputFieldRelative.vyMetersPerSecond += nudge.getY() * nudgeScalar;
-            }
-          }
+                      if (DriverStation.getAlliance().isPresent()
+                          && DriverStation.getAlliance().get() == Alliance.Red) {
+                        nudge = new Translation2d(-nudge.getX(), -nudge.getY());
+                      }
+                      nudgeScalar *=
+                          Math.abs(
+                              nudge
+                                  .getAngle()
+                                  .minus(
+                                      new Rotation2d(
+                                          outputFieldRelative.vxMetersPerSecond,
+                                          outputFieldRelative.vyMetersPerSecond))
+                                  .getSin());
+                      outputFieldRelative.vxMetersPerSecond += nudge.getX() * nudgeScalar;
+                      outputFieldRelative.vyMetersPerSecond += nudge.getY() * nudgeScalar;
+                    }
+                  }
 
-          var outputRobotRelative = ChassisSpeeds.fromFieldRelativeSpeeds(outputFieldRelative,
-                                                                          poseEstimator.getEstimatedPosition()
-                                                                              .getRotation());
+                  var outputRobotRelative =
+                      ChassisSpeeds.fromFieldRelativeSpeeds(
+                          outputFieldRelative, poseEstimator.getEstimatedPosition().getRotation());
 
-          var setpoint = setpointGenerator.generateSetpoint(lastSetpoint, outputRobotRelative,
-                                                            0.02);
-          runVelocity(setpoint.robotRelativeSpeeds());
-          lastSetpoint = setpoint;
-        })).withName("Repulsor Field");
+                  var setpoint =
+                      setpointGenerator.generateSetpoint(lastSetpoint, outputRobotRelative, 0.02);
+                  runVelocity(setpoint.robotRelativeSpeeds());
+                  lastSetpoint = setpoint;
+                }))
+        .withName("Repulsor Field");
   }
 
   /**
    * Follows a repulsor field to a goal. The repulsor field is generated by the repulsorFieldPlanner
+   *
    * @param goal Goal pose to navigate to
    * @return Command to follow the repulsor field
    */
