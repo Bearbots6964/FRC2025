@@ -18,6 +18,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTagPositions;
+import frc.robot.Constants.ElevatorConstants.ElevatorState;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
@@ -75,7 +76,8 @@ public class DriveToSpecificCoralStationCommand extends Command {
                   0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
       pathToFront.preventFlipping = true;
       fullPath =
-          pathfindPath
+          ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, ElevatorState.HOME)
+              .andThen(pathfindPath)
               .andThen(ReefPositionCommands.INSTANCE.coralStationPosition(elevator, arm))
               .andThen(AutoBuilder.followPath(pathToFront));
       fullPath.schedule();

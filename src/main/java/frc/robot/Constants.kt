@@ -67,7 +67,7 @@ object Constants {
         const val L1 = 5.0
         const val L2 = 13.5
         const val L3 = 50.0
-        const val L4 = 106.3 // TODO: Find actual value
+        const val L4 = 96.3 // TODO: Find actual value
         const val CORAL_PICKUP = 40.0
 
         enum class ElevatorState {
@@ -140,10 +140,10 @@ object Constants {
     object ArmConstants {
         class ArmState {
             companion object {
-                const val HOME = 170.0
+                const val HOME = 160.0
                 const val L1 = 155.0
-                const val L2 = 175.0
-                const val L3 = 170.0
+                const val L2 = 160.0
+                const val L3 = 155.0
                 const val L4 = 165.0
                 const val CORAL_PICKUP = HOME
             }
@@ -164,6 +164,7 @@ object Constants {
          * Camera for Pi `10.69.64.11`.
          */
         var camera0Name: String = "right"
+        var camera2Name: String = "back"
 
         /**
          * Camera for Pi `10.69.64.12`.
@@ -186,6 +187,12 @@ object Constants {
             Units.Inches.of(8.25),
             Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-30.0)),
         )
+        var robotToCamera2: Transform3d = Transform3d(
+            Units.Inches.of(-1.25),
+            Units.Inches.of(0.0),
+            Units.Inches.of(46.0),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-10.0), Units.Degrees.of(180.0))
+        )
 
         // Basic filtering thresholds
         var maxAmbiguity: Double = 0.3
@@ -201,7 +208,8 @@ object Constants {
         @JvmStatic
         var cameraStdDevFactors: DoubleArray = doubleArrayOf(
             1.0,  // Camera 0
-            1.0 // Camera 1
+            1.0, // Camera 1
+            1.0 // Camera 2
         )
 
         // Multipliers to apply for MegaTag 2 observations

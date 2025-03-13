@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.units.Units;
 import frc.robot.Constants;
 
 // TODO: MotionMagic
@@ -53,7 +54,8 @@ public class ArmIOSparkMax implements ArmIO {
         .minOutput(-0.25)
         .positionWrappingEnabled(true);
     armConfiguration.absoluteEncoder.positionConversionFactor(360);
-    armConfiguration.absoluteEncoder.velocityConversionFactor(360);
+    armConfiguration.absoluteEncoder.velocityConversionFactor(360).zeroOffset(
+        Units.Rotations.of(0.6170204).in(Units.Rotations));
     armConfiguration.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     tryUntilOk(
         armMotor,

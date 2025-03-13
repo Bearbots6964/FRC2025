@@ -87,6 +87,7 @@ public class DriveToSpecificReefSideCommand extends Command {
       fullPath =
           ReefPositionCommands.INSTANCE
               .goToPosition(elevator, arm, ElevatorState.HOME)
+              .alongWith(pathfindPath)
               .andThen(
                   ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get()))
               .andThen(AutoBuilder.followPath(pathToFront));
