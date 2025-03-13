@@ -263,7 +263,7 @@ public class SwervePoseEstimator {
     visionUpdates.put(timestamp, visionUpdate);
 
     // Step 8: Remove later vision measurements. (Matches previous behavior)
-    visionUpdates.tailMap(timestamp, false).entrySet().clear();
+    visionUpdates.tailMap(timestamp, false).clear();
 
     // Step 9: Update latest pose estimate. Since we cleared all updates after this vision update,
     // it's guaranteed to be the latest vision update.

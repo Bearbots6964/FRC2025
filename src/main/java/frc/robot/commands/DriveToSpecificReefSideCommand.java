@@ -117,7 +117,7 @@ public class DriveToSpecificReefSideCommand extends Command {
 
   private Pose2d getClosestReefAprilTagPose() {
     HashMap<Integer, Pose2d> aprilTagsToAlignTo = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS;
-    Integer aprilTagNum;
+    int aprilTagNum;
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
       if (alliance.get() == DriverStation.Alliance.Red) {

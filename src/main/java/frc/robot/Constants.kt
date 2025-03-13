@@ -50,14 +50,14 @@ object Constants {
             rightMotorConfig.CurrentLimits.SupplyCurrentLimit = 40.0
 
 
-            var slot0Configs = rightMotorConfig.Slot0
+            val slot0Configs = rightMotorConfig.Slot0
             slot0Configs.kS = 0.12893
             slot0Configs.kV = 0.12063
             slot0Configs.kA = 0.0018313
             slot0Configs.kG = 0.092435
             slot0Configs.kP = 0.8
 
-            var motionMagicConfigs = rightMotorConfig.MotionMagic
+            val motionMagicConfigs = rightMotorConfig.MotionMagic
             motionMagicConfigs.MotionMagicCruiseVelocity = 100.0
             motionMagicConfigs.MotionMagicAcceleration = 200.0
             motionMagicConfigs.MotionMagicJerk = 1000.0
@@ -94,7 +94,7 @@ object Constants {
             val maxVelocity: LinearVelocity = Units.FeetPerSecond.of(15.5)
 
             @JvmStatic
-            val coefficentOfFriction = 1.1 // this will need to be changed.
+            val coefficentOfFriction = 0.8 // this will need to be changed.
 
             // just a ballpark estimate for now.
             // very much depends on whether we're on carpet or concrete.
@@ -191,7 +191,7 @@ object Constants {
             Units.Inches.of(-1.25),
             Units.Inches.of(0.0),
             Units.Inches.of(46.0),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-10.0), Units.Degrees.of(180.0))
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-10.0), Units.Degrees.of(180.0)),
         )
 
         // Basic filtering thresholds
@@ -219,7 +219,7 @@ object Constants {
     }
 
 
-    val simMode: Mode = Mode.SIM
+    private val simMode: Mode = Mode.SIM
 
     @JvmStatic
     val currentMode: Mode = if (RobotBase.isReal()) Mode.REAL else simMode
@@ -236,28 +236,57 @@ object Constants {
     }
 
     enum class Zone {
-        LOWER_CORAL_STATION, UPPER_CORAL_STATION, REEF_AB, REEF_CD, REEF_EF, REEF_GH, REEF_IJ, REEF_KL, NONE
-    }
-
-    fun zoneToString(z: Zone): String {
-        return when (z) {
-            Zone.LOWER_CORAL_STATION -> "Lower Coral Station"
-            Zone.UPPER_CORAL_STATION -> "Upper Coral Station"
-            Zone.REEF_AB -> "Reef AB"
-            Zone.REEF_CD -> "Reef CD"
-            Zone.REEF_EF -> "Reef EF"
-            Zone.REEF_GH -> "Reef GH"
-            Zone.REEF_IJ -> "Reef IJ"
-            Zone.REEF_KL -> "Reef KL"
-            Zone.NONE -> "None"
+        LOWER_CORAL_STATION {
+            override fun toString(): String {
+                return "Lower Coral Station"
+            }
+        },
+        UPPER_CORAL_STATION {
+            override fun toString(): String {
+                return "Upper Coral Station"
+            }
+        },
+        REEF_AB {
+            override fun toString(): String {
+                return "Reef AB"
+            }
+        },
+        REEF_CD {
+            override fun toString(): String {
+                return "Reef CD"
+            }
+        },
+        REEF_EF {
+            override fun toString(): String {
+                return "Reef EF"
+            }
+        },
+        REEF_GH {
+            override fun toString(): String {
+                return "Reef GH"
+            }
+        },
+        REEF_IJ {
+            override fun toString(): String {
+                return "Reef IJ"
+            }
+        },
+        REEF_KL {
+            override fun toString(): String {
+                return "Reef KL"
+            }
+        },
+        NONE {
+            override fun toString(): String {
+                return "None"
+            }
         }
     }
-
 
     object FieldConstants {
         // Field zoning.
         // Lower coral station
-        val lowerCoralStation = Polygon(
+        private val lowerCoralStation = Polygon(
             listOf(
                 // origin
                 Translation2d(Units.Inches.of(0.0), Units.Inches.of(0.0)),
@@ -268,7 +297,7 @@ object Constants {
             ),
         ) // double-checked
 
-        val upperCoralStation = Polygon(
+        private val upperCoralStation = Polygon(
             listOf(
                 // y = 192.594 in
                 Translation2d(Units.Inches.of(0.0), Units.Inches.of(192.594)),
@@ -287,70 +316,70 @@ object Constants {
         // starting at the top and going clockwise
 
         // 176.75, 196
-        val reefPoint1 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(196.0))
+        private val reefPoint1 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(196.0))
 
         // 209.5, 177.5
-        val reefPoint2 = Translation2d(Units.Inches.of(209.5), Units.Inches.of(177.5))
+        private val reefPoint2 = Translation2d(Units.Inches.of(209.5), Units.Inches.of(177.5))
 
         // 209.5, 139.5
-        val reefPoint3 = Translation2d(Units.Inches.of(209.5), Units.Inches.of(139.5))
+        private val reefPoint3 = Translation2d(Units.Inches.of(209.5), Units.Inches.of(139.5))
 
         // 176.75, 120.5
-        val reefPoint4 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(120.5))
+        private val reefPoint4 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(120.5))
 
         // 144, 139.5
-        val reefPoint5 = Translation2d(Units.Inches.of(144.0), Units.Inches.of(139.5))
+        private val reefPoint5 = Translation2d(Units.Inches.of(144.0), Units.Inches.of(139.5))
 
         // 144, 177.5
-        val reefPoint6 = Translation2d(Units.Inches.of(144.0), Units.Inches.of(177.5))
+        private val reefPoint6 = Translation2d(Units.Inches.of(144.0), Units.Inches.of(177.5))
 
         // now the bounds for the reef areas. these are the reef points extended outward 72 inches
 
         // 176.75, 279.5
-        val outerReefPoint1 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(279.5))
+        private val outerReefPoint1 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(279.5))
 
         // 281.5, 219
-        val outerReefPoint2 = Translation2d(Units.Inches.of(281.5), Units.Inches.of(219.0))
+        private val outerReefPoint2 = Translation2d(Units.Inches.of(281.5), Units.Inches.of(219.0))
 
         // 281.5, 98
-        val outerReefPoint3 = Translation2d(Units.Inches.of(281.5), Units.Inches.of(98.0))
+        private val outerReefPoint3 = Translation2d(Units.Inches.of(281.5), Units.Inches.of(98.0))
 
         // 176.75, 37.5
-        val outerReefPoint4 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(37.5))
+        private val outerReefPoint4 = Translation2d(Units.Inches.of(176.75), Units.Inches.of(37.5))
 
         // 72, 98
-        val outerReefPoint5 = Translation2d(Units.Inches.of(72.0), Units.Inches.of(98.0))
+        private val outerReefPoint5 = Translation2d(Units.Inches.of(72.0), Units.Inches.of(98.0))
 
         // 72, 219
-        val outerReefPoint6 = Translation2d(Units.Inches.of(72.0), Units.Inches.of(219.0))
+        private val outerReefPoint6 = Translation2d(Units.Inches.of(72.0), Units.Inches.of(219.0))
 
         // now we create polygons for the reef zones. as previously stated, we're beginning the reef zones at the top left and going clockwise
-        val reefAreaAB = Polygon(
+        private val reefAreaAB = Polygon(
             listOf(
                 reefPoint6, outerReefPoint6, outerReefPoint1, reefPoint1
             )
         )
-        val reefAreaCD = Polygon(
+        private val reefAreaCD = Polygon(
             listOf(
                 reefPoint1, outerReefPoint1, outerReefPoint2, reefPoint2
             )
         )
-        val reefAreaEF = Polygon(
+        private val reefAreaEF = Polygon(
             listOf(
                 reefPoint2, outerReefPoint2, outerReefPoint3, reefPoint3
             )
         )
-        val reefAreaGH = Polygon(
+        private val reefAreaGH = Polygon(
             listOf(
                 reefPoint3, outerReefPoint3, outerReefPoint4, reefPoint4
             )
         )
-        val reefAreaIJ = Polygon(
+        private val reefAreaIJ = Polygon(
             listOf(
                 reefPoint4, outerReefPoint4, outerReefPoint5, reefPoint5
             )
         )
-        val reefAreaKL = Polygon(
+        private val reefAreaKL = Polygon(
             listOf(
                 reefPoint5, outerReefPoint5, outerReefPoint6, reefPoint6
             )

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Setter;
 
 /**
  * The RepulsorFieldPlanner class is responsible for calculating the forces exerted by various
@@ -315,6 +316,13 @@ public class RepulsorFieldPlanner {
               .5,
               .5));
 
+  /**
+   * -- SETTER --
+   *  Sets the goal position.
+   *
+   * @param goal the new goal position
+   */
+  @Setter
   private Translation2d goal = new Translation2d(1, 1);
 
   private static final int ARROWS_X = 40;
@@ -328,7 +336,7 @@ public class RepulsorFieldPlanner {
    *
    * @return an array of Pose2d objects representing the arrows
    */
-  Pose2d[] getArrows() {
+  public Pose2d[] getArrows() {
     if (goal.equals(lastGoal)) {
       return arrowList;
     }
@@ -393,15 +401,6 @@ public class RepulsorFieldPlanner {
    */
   Translation2d getForce(Translation2d curLocation, Translation2d target) {
     return getGoalForce(curLocation, target).plus(getObstacleForce(curLocation, target));
-  }
-
-  /**
-   * Sets the goal position.
-   *
-   * @param goal the new goal position
-   */
-  public void setGoal(Translation2d goal) {
-    this.goal = goal;
   }
 
   /** Represents a sample of the repulsor field at a given position. */

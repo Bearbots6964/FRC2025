@@ -79,7 +79,7 @@ object TunerConstants {
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
-    val canBus: CANBus = CANBus("Drivebase", "./logs/example.hoot")
+    private val canBus: CANBus = CANBus("Drivebase", "./logs/example.hoot")
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
