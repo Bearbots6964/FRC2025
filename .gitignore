@@ -183,6 +183,14 @@ ctre_sim/
 /.cache
 compile_commands.json
 
+
+# End entries from WPI Lib team
+
+# BuildConstants is auto-generated at compile time.
+src/main/java/frc/robot/BuildConstants.java
 # Version file
 src/main/java/frc/robot/BuildConstants.java
 /.factorypath
+
+# neovim lsp database
+kls_database.db
