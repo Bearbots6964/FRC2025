@@ -376,8 +376,10 @@ class RobotContainer {
         SmartDashboard.putData(coralPickup().withName("Coral Pickup"))
         SmartDashboard.putData(
             elevator.goToPositionDelta(-10.0).alongWith(arm.moveArmAngleDelta(-30.0))
-                .alongWith(drive.backUpBy(0.5)).withName("Place Coral")
+                .alongWith(drive.backUpBy()).withName("Place Coral")
         )
+
+        SmartDashboard.putData(drive.followRepulsorField(AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]))
 
     }
 
@@ -440,7 +442,7 @@ class RobotContainer {
             )
             else elevator.goToPositionDelta(10.0)).withName("Move Elevator Down")
                 .alongWith(arm.moveArmAngleDelta(-30.0).withName("Move Arm Down"))
-                .alongWith(drive.backUpBy(0.5).withName("Back Up"))
+                .alongWith(drive.backUpBy().withName("Back Up"))
         )
 
         // Arm control for left trigger
