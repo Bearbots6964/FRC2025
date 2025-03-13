@@ -76,7 +76,8 @@ public class DriveToSpecificCoralStationCommand extends Command {
                   0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
       pathToFront.preventFlipping = true;
       fullPath =
-          ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, ElevatorState.HOME)
+          ReefPositionCommands.INSTANCE
+              .goToPosition(elevator, arm, ElevatorState.HOME)
               .andThen(pathfindPath)
               .andThen(ReefPositionCommands.INSTANCE.coralStationPosition(elevator, arm))
               .andThen(AutoBuilder.followPath(pathToFront));

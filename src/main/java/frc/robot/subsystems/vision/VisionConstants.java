@@ -29,7 +29,6 @@ public class VisionConstants {
   public static String camera0Name = "left";
   public static String camera1Name = "right";
 
-
   // Robot to camera transforms
   // (Not used by Limelight, configure in web UI instead)
   public static Transform3d robotToCamera0 =

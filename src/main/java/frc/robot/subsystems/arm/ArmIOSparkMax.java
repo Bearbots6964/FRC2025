@@ -54,8 +54,10 @@ public class ArmIOSparkMax implements ArmIO {
         .minOutput(-0.25)
         .positionWrappingEnabled(true);
     armConfiguration.absoluteEncoder.positionConversionFactor(360);
-    armConfiguration.absoluteEncoder.velocityConversionFactor(360).zeroOffset(
-        Units.Rotations.of(0.6170204).in(Units.Rotations));
+    armConfiguration
+        .absoluteEncoder
+        .velocityConversionFactor(360)
+        .zeroOffset(Units.Rotations.of(0.6170204).in(Units.Rotations));
     armConfiguration.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     tryUntilOk(
         armMotor,
