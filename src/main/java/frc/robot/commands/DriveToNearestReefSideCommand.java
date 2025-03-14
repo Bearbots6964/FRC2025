@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTagPositions;
 import frc.robot.Constants.ElevatorConstants.ElevatorState;
+import frc.robot.Robot;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
@@ -109,12 +110,9 @@ public class DriveToNearestReefSideCommand extends Command {
   private Pose2d getClosestReefAprilTagPose() {
     HashMap<Integer, Pose2d> aprilTagsToAlignTo =
         AprilTagPositions.WELDED_BLUE_CORAL_APRIL_TAG_POSITIONS;
-    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-      if (alliance.get() == DriverStation.Alliance.Red) {
+      if (Robot.getAlliance() == DriverStation.Alliance.Red) {
         aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS;
       }
-    }
 
     Pose2d currentPose = drive.getPose();
     Pose2d closestPose = new Pose2d();

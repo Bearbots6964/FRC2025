@@ -23,11 +23,11 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.math.util.Units
-import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
+import frc.robot.Robot
 import frc.robot.subsystems.drive.Drive
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -93,8 +93,7 @@ object DriveCommands {
                         omega * drive.maxAngularSpeedRadPerSec
                     )
                 val isFlipped =
-                    DriverStation.getAlliance().isPresent
-                            && DriverStation.getAlliance().get() == Alliance.Red
+                    Robot.alliance == Alliance.Red
                 drive.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         speeds,
@@ -152,8 +151,7 @@ object DriveCommands {
                         omega
                     )
                 val isFlipped =
-                    DriverStation.getAlliance().isPresent
-                            && DriverStation.getAlliance().get() == Alliance.Red
+                    Robot.alliance == Alliance.Red
                 drive.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         speeds,

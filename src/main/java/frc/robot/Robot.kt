@@ -20,7 +20,9 @@ import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.net.WebServer
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Filesystem
+import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.generated.TunerConstants
@@ -90,22 +92,34 @@ class Robot : LoggedRobot() {
             )
         HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
         for (constants in modules) {
-            if (constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated
-                || constants.SteerMotorType != SteerMotorArrangement.TalonFX_Integrated
+            if ((constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated)
+                || (constants.SteerMotorType != SteerMotorArrangement.TalonFX_Integrated)
             ) {
                 throw RuntimeException(
                     "You are using an unsupported swerve configuration, which this template does not support without manual customization. The 2025 release of Phoenix supports some swerve configurations which were not available during 2025 beta testing, preventing any development and support from the AdvantageKit developers."
                 )
             }
         }
-        WebServer.start(5800, Filesystem.getDeployDirectory().path)
+        WebServer.start(5800, Filesystem.getDeployDirectory().path) // For dashboard files
+
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
 
+        // Schedule the warmup command. Significantly speeds up pathfinding after the first run.
         PathfindingCommand.warmupCommand().schedule()
 
+        // Silence joystick connection warning
         DriverStation.silenceJoystickConnectionWarning(true)
+
+        // Start a notifier to update the alliance color
+        Notifier { alliance = if (DriverStation.getAlliance().isPresent) DriverStation.getAlliance().get() else alliance }.startPeriodic(0.5)
+
+    }
+
+    companion object {
+        @JvmStatic
+        var alliance = if (DriverStation.getAlliance().isPresent) DriverStation.getAlliance().get() else Alliance.Red
     }
 
     /** This function is called periodically during all modes.  */

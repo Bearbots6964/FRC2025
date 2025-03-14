@@ -63,6 +63,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.Constants.PhysicalProperties;
 import frc.robot.Constants.PhysicalProperties.ProgrammingBase;
 import frc.robot.Constants.Zone;
+import frc.robot.Robot;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
@@ -177,7 +178,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         new PPHolonomicDriveController(
             new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
         PP_CONFIG,
-        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+        () -> Robot.getAlliance() == Alliance.Red,
         this);
     Pathfinding.setPathfinder(new LocalADStarAK());
     PathPlannerLogging.setLogActivePathCallback(
@@ -592,8 +593,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                               * Math.min(error.getTranslation().getNorm() / 3, 1)
                               * maxLinearSpeedMetersPerSec;
 
-                      if (DriverStation.getAlliance().isPresent()
-                          && DriverStation.getAlliance().get() == Alliance.Red) {
+                      if (Robot.getAlliance() == Alliance.Red) {
                         nudge = new Translation2d(-nudge.getX(), -nudge.getY());
                       }
                       nudgeScalar *=
