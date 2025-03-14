@@ -379,6 +379,9 @@ class RobotContainer {
             elevator.goToPositionDelta(-10.0).alongWith(arm.moveArmAngleDelta(-30.0))
                 .alongWith(drive.backUpBy()).withName("Place Coral")
         )
+        SmartDashboard.putData(
+            elevator.homeElevator().withName("Home Elevator")
+        )
 
         SmartDashboard.putData(drive.followRepulsorField(AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]))
 
