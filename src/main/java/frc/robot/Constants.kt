@@ -67,7 +67,7 @@ object Constants {
         const val L1 = 5.0
         const val L2 = 13.5
         const val L3 = 50.0
-        const val L4 = 96.3 // TODO: Find actual value
+        const val L4 = 102.3 // TODO: Find actual value
         const val CORAL_PICKUP = 40.0
 
         enum class ElevatorState {
@@ -195,12 +195,12 @@ object Constants {
         )
 
         // Basic filtering thresholds
-        var maxAmbiguity: Double = 0.3
-        var maxZError: Double = 0.75
+        var maxAmbiguity: Double = 0.2
+        var maxZError: Double = 0.25
 
         // Standard deviation baselines, for 1 meter distance and 1 tag
         // (Adjusted automatically based on distance and # of tags)
-        var linearStdDevBaseline: Double = 0.2 // Meters
+        var linearStdDevBaseline: Double = 0.5 // Meters
         var angularStdDevBaseline: Double = 0.6 // Radians
 
         // Standard deviation multipliers for each camera
@@ -209,7 +209,7 @@ object Constants {
         var cameraStdDevFactors: DoubleArray = doubleArrayOf(
             1.0,  // Camera 0
             1.0, // Camera 1
-            1.0 // Camera 2
+            3.0 // Camera 2
         )
 
         // Multipliers to apply for MegaTag 2 observations
