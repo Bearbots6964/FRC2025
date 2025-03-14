@@ -69,8 +69,8 @@ public class DriveToNearestCoralStationCommand extends Command {
       pathToFront.preventFlipping = true;
       fullPath =
           pathfindPath
-              .andThen(ReefPositionCommands.INSTANCE.coralStationPosition(elevator, arm))
-              .andThen(AutoBuilder.followPath(pathToFront));
+              .andThen(ReefPositionCommands.INSTANCE.coralStationPosition(elevator, arm)
+              .alongWith(AutoBuilder.followPath(pathToFront)));
       fullPath.schedule();
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
@@ -112,7 +112,7 @@ public class DriveToNearestCoralStationCommand extends Command {
     }
 
     return translateCoordinates(
-        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(17.773));
+        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(16.773));
   }
 
   private Pose2d translateCoordinates(Pose2d originalPose, double degreesRotate, double distance) {

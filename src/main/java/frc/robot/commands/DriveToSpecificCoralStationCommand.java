@@ -125,7 +125,7 @@ public class DriveToSpecificCoralStationCommand extends Command {
     }
 
     return translateCoordinates(
-        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(14.773));
+        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(16.773));
   }
 
   private Pose2d translateCoordinates(Pose2d originalPose, double degreesRotate, double distance) {
