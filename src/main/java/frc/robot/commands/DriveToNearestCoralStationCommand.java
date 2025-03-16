@@ -69,7 +69,7 @@ public class DriveToNearestCoralStationCommand extends Command {
       pathToFront.preventFlipping = true;
       fullPath =
           pathfindPath.andThen(
-              ReefPositionCommands.INSTANCE
+              SuperstructureCommands.INSTANCE
                   .coralStationPosition(elevator, arm)
                   .alongWith(AutoBuilder.followPath(pathToFront)));
       fullPath.schedule();

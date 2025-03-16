@@ -21,7 +21,6 @@ import frc.robot.Robot;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -63,8 +62,8 @@ public class DriveToSpecificReefSideCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
-    Command pathfindPath =
+    var closestAprilTagPose = getTargetPose();
+    var pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoord(
                 closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
@@ -73,7 +72,7 @@ public class DriveToSpecificReefSideCommand extends Command {
 
     try {
       // Load the path you want to follow using its name in the GUI
-      PathPlannerPath pathToFront =
+      var pathToFront =
           new PathPlannerPath(
               PathPlannerPath.waypointsFromPoses(
                   translateCoord(
@@ -84,11 +83,11 @@ public class DriveToSpecificReefSideCommand extends Command {
               new GoalEndState(0.0, closestAprilTagPose.getRotation()));
       pathToFront.preventFlipping = true;
       fullPath =
-          ReefPositionCommands.INSTANCE
+          SuperstructureCommands.INSTANCE
               .goToPosition(elevator, arm, ElevatorState.HOME)
               .alongWith(pathfindPath)
               .andThen(
-                  ReefPositionCommands.INSTANCE
+                  SuperstructureCommands.INSTANCE
                       .goToPosition(elevator, arm, elevatorState.get())
                       .alongWith(AutoBuilder.followPath(pathToFront)));
       fullPath.schedule();
@@ -115,17 +114,17 @@ public class DriveToSpecificReefSideCommand extends Command {
     return false;
   }
 
-  private Pose2d getClosestReefAprilTagPose() {
-    HashMap<Integer, Pose2d> aprilTagsToAlignTo = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS;
+  private Pose2d getTargetPose() {
+    var aprilTagsToAlignTo = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS;
     int aprilTagNum =
         switch (Robot.getAlliance()) {
           case Red -> numbers[0];
           case Blue -> numbers[1];
         };
 
-    Pose2d closestPose = aprilTagsToAlignTo.get(aprilTagNum);
+    var closestPose = aprilTagsToAlignTo.get(aprilTagNum);
 
-    Pose2d inFrontOfAprilTag =
+    var inFrontOfAprilTag =
         translateCoord(
             closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(18.773));
 
@@ -159,11 +158,6 @@ public class DriveToSpecificReefSideCommand extends Command {
     double newYCoord = originalPose.getY() + (Math.sin(Math.toRadians(degreesRotate)) * distance);
 
     return new Pose2d(newXCoord, newYCoord, originalPose.getRotation());
-  }
-
-  private double findDistanceBetween(Pose2d pose1, Pose2d pose2) {
-    return Math.sqrt(
-        Math.pow((pose2.getX() - pose1.getX()), 2) + Math.pow((pose2.getY() - pose1.getY()), 2));
   }
 
   public enum Reef {

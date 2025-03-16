@@ -8,7 +8,7 @@ import frc.robot.RobotContainer
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.elevator.Elevator
 
-object ReefPositionCommands {
+object SuperstructureCommands {
     var reefPosition = ElevatorState.L1
     fun l1(e: Elevator, a: Arm): Command {
         RobotContainer.statusTopic.set("L1")

@@ -16,14 +16,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTagPositions;
 import frc.robot.Constants.ElevatorConstants.ElevatorState;
+import frc.robot.Robot;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DriveToSpecificCoralStationCommand extends Command {
 
@@ -51,7 +51,7 @@ public class DriveToSpecificCoralStationCommand extends Command {
 
   // Called when the command is initially scheduled.
   public void initialize() {
-    Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
+    Pose2d closestAprilTagPose = getTargetPosition();
     Command pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
@@ -76,10 +76,10 @@ public class DriveToSpecificCoralStationCommand extends Command {
                   0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
       pathToFront.preventFlipping = true;
       fullPath =
-          ReefPositionCommands.INSTANCE
+          SuperstructureCommands.INSTANCE
               .goToPosition(elevator, arm, ElevatorState.HOME)
               .andThen(pathfindPath)
-              .andThen(ReefPositionCommands.INSTANCE.coralStationPosition(elevator, arm))
+              .andThen(SuperstructureCommands.INSTANCE.coralStationPosition(elevator, arm))
               .andThen(AutoBuilder.followPath(pathToFront));
       fullPath.schedule();
     } catch (Exception e) {
@@ -99,33 +99,16 @@ public class DriveToSpecificCoralStationCommand extends Command {
     return fullPath.isScheduled() && fullPath.isFinished();
   }
 
-  private Pose2d getClosestReefAprilTagPose() {
-    HashMap<Integer, Pose2d> aprilTagsToAlignTo = new HashMap<>();
-    if (side == Side.LEFT) {
-      aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
-      aprilTagsToAlignTo.put(13, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13));
+  private Pose2d getTargetPosition() {
+    Pose2d tagPose;
+    if (Robot.getAlliance() == Alliance.Red) {
+      tagPose = (side == Side.LEFT) ? AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1) : AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2);
     } else {
-      aprilTagsToAlignTo.put(12, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12));
-      aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
-    }
-
-    Pose2d currentPose = drive.getPose();
-    Pose2d closestPose = new Pose2d();
-    double closestDistance = Double.MAX_VALUE;
-    Integer aprilTagNum = -1;
-
-    for (Map.Entry<Integer, Pose2d> entry : aprilTagsToAlignTo.entrySet()) {
-      Pose2d pose = entry.getValue();
-      double distance = findDistanceBetween(currentPose, pose);
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestPose = pose;
-        aprilTagNum = entry.getKey();
-      }
+      tagPose = (side == Side.LEFT) ? AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13) : AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12);
     }
 
     return translateCoordinates(
-        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(16.773));
+        tagPose, tagPose.getRotation().getDegrees(), -Units.inchesToMeters(16.773));
   }
 
   private Pose2d translateCoordinates(Pose2d originalPose, double degreesRotate, double distance) {
@@ -133,10 +116,5 @@ public class DriveToSpecificCoralStationCommand extends Command {
     double newYCoord = originalPose.getY() + (Math.sin(Math.toRadians(degreesRotate)) * distance);
 
     return new Pose2d(newXCoord, newYCoord, originalPose.getRotation());
-  }
-
-  private double findDistanceBetween(Pose2d pose1, Pose2d pose2) {
-    return Math.sqrt(
-        Math.pow((pose2.getX() - pose1.getX()), 2) + Math.pow((pose2.getY() - pose1.getY()), 2));
   }
 }

@@ -340,7 +340,7 @@ class RobotContainer {
         )
 
         SmartDashboard.putData(
-            ReefPositionCommands.goToPosition(
+            SuperstructureCommands.goToPosition(
                 elevator,
                 arm,
                 Constants.ElevatorConstants.ElevatorState.HOME
@@ -441,7 +441,7 @@ class RobotContainer {
 
         // Arm control after coral placed
         driveController.rightTrigger().onTrue(
-            (if (ReefPositionCommands.reefPosition != Constants.ElevatorConstants.ElevatorState.L4) elevator.goToPositionDelta(
+            (if (SuperstructureCommands.reefPosition != Constants.ElevatorConstants.ElevatorState.L4) elevator.goToPositionDelta(
                 -10.0
             )
             else elevator.goToPositionDelta(10.0)).withName("Move Elevator Down")
@@ -499,35 +499,35 @@ class RobotContainer {
         operatorController.rightTrigger().whileTrue(coralPickup())
         operatorController.leftTrigger().onTrue(
             Commands.defer(
-                { ReefPositionCommands.goToPosition(elevator, arm, nextSuperstructureCommand) },
+                { SuperstructureCommands.goToPosition(elevator, arm, nextSuperstructureCommand) },
                 setOf(elevator, arm)
             )
         )
 
         // Mark IV controller bindings
-        markIVController.button(3).onTrue(ReefPositionCommands.l1(elevator, arm))
-        markIVController.button(1).onTrue(ReefPositionCommands.l2(elevator, arm))
-        markIVController.button(2).onTrue(ReefPositionCommands.l3(elevator, arm))
-        markIVController.button(4).onTrue(ReefPositionCommands.l4(elevator, arm))
+        markIVController.button(3).onTrue(SuperstructureCommands.l1(elevator, arm))
+        markIVController.button(1).onTrue(SuperstructureCommands.l2(elevator, arm))
+        markIVController.button(2).onTrue(SuperstructureCommands.l3(elevator, arm))
+        markIVController.button(4).onTrue(SuperstructureCommands.l4(elevator, arm))
 
         // Button macro joystick pad bindings
         buttonMacroController.button(9).onTrue(
-            ReefPositionCommands.l1(
+            SuperstructureCommands.l1(
                 elevator, arm
             )
         )
         buttonMacroController.button(10).onTrue(
-            ReefPositionCommands.l2(
+            SuperstructureCommands.l2(
                 elevator, arm
             )
         )
         buttonMacroController.button(11).onTrue(
-            ReefPositionCommands.l3(
+            SuperstructureCommands.l3(
                 elevator, arm
             )
         )
         buttonMacroController.button(12).onTrue(
-            ReefPositionCommands.l4(
+            SuperstructureCommands.l4(
                 elevator, arm
             )
         )
@@ -542,7 +542,7 @@ class RobotContainer {
 
 
         Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
-            ReefPositionCommands.home(elevator, arm)
+            SuperstructureCommands.home(elevator, arm)
         )
     }
 
