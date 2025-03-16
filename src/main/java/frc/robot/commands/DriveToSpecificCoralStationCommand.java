@@ -102,9 +102,15 @@ public class DriveToSpecificCoralStationCommand extends Command {
   private Pose2d getTargetPosition() {
     Pose2d tagPose;
     if (Robot.getAlliance() == Alliance.Red) {
-      tagPose = (side == Side.LEFT) ? AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1) : AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2);
+      tagPose =
+          (side == Side.LEFT)
+              ? AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1)
+              : AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2);
     } else {
-      tagPose = (side == Side.LEFT) ? AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13) : AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12);
+      tagPose =
+          (side == Side.LEFT)
+              ? AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13)
+              : AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12);
     }
 
     return translateCoordinates(
