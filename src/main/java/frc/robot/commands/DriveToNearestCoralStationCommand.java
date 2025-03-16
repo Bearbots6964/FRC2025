@@ -43,8 +43,8 @@ public class DriveToNearestCoralStationCommand extends Command {
 
   // Called when the command is initially scheduled.
   public void initialize() {
-    Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
-    Command pathfindPath =
+    var closestAprilTagPose = getClosestReefAprilTagPose();
+    var pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
                     closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.3)
@@ -54,7 +54,7 @@ public class DriveToNearestCoralStationCommand extends Command {
 
     try {
       // Load the path you want to follow using its name in the GUI
-      PathPlannerPath pathToFront =
+      var pathToFront =
           new PathPlannerPath(
               PathPlannerPath.waypointsFromPoses(
                   translateCoordinates(
@@ -97,18 +97,16 @@ public class DriveToNearestCoralStationCommand extends Command {
     aprilTagsToAlignTo.put(12, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12));
     aprilTagsToAlignTo.put(13, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13));
 
-    Pose2d currentPose = drive.getPose();
-    Pose2d closestPose = new Pose2d();
-    double closestDistance = Double.MAX_VALUE;
-    Integer aprilTagNum = -1;
+    var currentPose = drive.getPose();
+    var closestPose = new Pose2d();
+    var closestDistance = Double.MAX_VALUE;
 
     for (Map.Entry<Integer, Pose2d> entry : aprilTagsToAlignTo.entrySet()) {
-      Pose2d pose = entry.getValue();
+      var pose = entry.getValue();
       double distance = findDistanceBetween(currentPose, pose);
       if (distance < closestDistance) {
         closestDistance = distance;
         closestPose = pose;
-        aprilTagNum = entry.getKey();
       }
     }
 

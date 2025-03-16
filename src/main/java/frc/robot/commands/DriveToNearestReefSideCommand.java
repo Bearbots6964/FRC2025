@@ -55,8 +55,8 @@ public class DriveToNearestReefSideCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    Pose2d closestAprilTagPose = getClosestReefAprilTagPose();
-    Command pathfindPath =
+    var closestAprilTagPose = getClosestReefAprilTagPose();
+    var pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoord(
                 closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5),
@@ -65,7 +65,7 @@ public class DriveToNearestReefSideCommand extends Command {
 
     try {
       // Load the path you want to follow using its name in the GUI
-      PathPlannerPath pathToFront =
+      var pathToFront =
           new PathPlannerPath(
               PathPlannerPath.waypointsFromPoses(
                   translateCoord(
@@ -113,8 +113,8 @@ public class DriveToNearestReefSideCommand extends Command {
       aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS;
     }
 
-    Pose2d currentPose = drive.getPose();
-    Pose2d closestPose = new Pose2d();
+    var currentPose = drive.getPose();
+    var closestPose = new Pose2d();
     double closestDistance = Double.MAX_VALUE;
     Integer aprilTagNum = -1;
 
