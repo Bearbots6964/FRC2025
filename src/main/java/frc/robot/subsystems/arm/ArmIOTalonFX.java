@@ -32,9 +32,6 @@ public class ArmIOTalonFX implements ArmIO {
     armController = armMotor.getClosedLoopController();
     armEncoder = armMotor.getAbsoluteEncoder();
 
-    // tryUntilOk(5, () -> armAxisMotor.getConfigurator().apply(armAxisConfiguration, 0.25));
-    // tryUntilOk(5, () -> armAxisMotor.setPosition(Units.Degrees.of(0.0), 0.25));
-
     armConfiguration
         .smartCurrentLimit(20)
         .idleMode(IdleMode.kBrake)

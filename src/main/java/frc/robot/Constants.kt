@@ -139,6 +139,15 @@ object Constants {
         val armAxisMotorID: Int = 6
     }
 
+    //BLUE DRIVE BASE
+    object IntakeConstants {
+        @JvmStatic
+        val intakeFlywheelMotorID: Int = 4
+
+        @JvmStatic
+        val intakeAxisMotorID: Int = 5
+    }
+
     object VisionConstants {
         // AprilTag layout
         @JvmStatic
