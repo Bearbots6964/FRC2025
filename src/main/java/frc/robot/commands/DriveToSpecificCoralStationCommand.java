@@ -58,7 +58,7 @@ public class DriveToSpecificCoralStationCommand extends Command {
                     closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
             new PathConstraints(
-                3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+                3.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
 
     try {
       // Load the path you want to follow using its name in the GUI

@@ -23,7 +23,6 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class DriveToSpecificReefSideCommand extends Command {
@@ -36,7 +35,9 @@ public class DriveToSpecificReefSideCommand extends Command {
   private int[] numbers;
   private boolean isLeftSide;
 
-  /** Creates a new DriveToNearestReefSideCommand. */
+  /**
+   * Creates a new DriveToNearestReefSideCommand.
+   */
   public DriveToSpecificReefSideCommand(
       Drive drive, Elevator elevator, Arm arm, Supplier<ElevatorState> elevatorState, Reef reef) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -44,14 +45,15 @@ public class DriveToSpecificReefSideCommand extends Command {
     this.elevator = elevator;
     this.arm = arm;
     this.elevatorState = elevatorState;
+    addRequirements(drive);
     numbers =
         switch (reef) {
-          case A, B -> new int[] {7, 18};
-          case C, D -> new int[] {8, 19};
-          case E, F -> new int[] {9, 20};
-          case G, H -> new int[] {10, 21};
-          case I, J -> new int[] {11, 22};
-          case K, L -> new int[] {12, 23};
+          case A, B -> new int[]{7, 18};
+          case C, D -> new int[]{8, 17};
+          case E, F -> new int[]{9, 22};
+          case G, H -> new int[]{10, 21};
+          case I, J -> new int[]{11, 20};
+          case K, L -> new int[]{6, 19};
         };
     isLeftSide =
         switch (reef) {
@@ -59,7 +61,6 @@ public class DriveToSpecificReefSideCommand extends Command {
           case B, D, F, H, J, L -> false;
         };
 
-    addRequirements(drive, elevator, arm);
   }
 
   // Called when the command is initially scheduled.
@@ -86,12 +87,13 @@ public class DriveToSpecificReefSideCommand extends Command {
               new GoalEndState(0.0, closestAprilTagPose.getRotation()));
       pathToFront.preventFlipping = true;
       fullPath =
+
           ReefPositionCommands.INSTANCE
               .goToPosition(elevator, arm, ElevatorState.HOME)
               .alongWith(pathfindPath)
               .andThen(
-                  ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get()))
-              .andThen(AutoBuilder.followPath(pathToFront));
+                  ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get())
+              .alongWith(AutoBuilder.followPath(pathToFront)));
       fullPath.schedule();
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
@@ -100,7 +102,8 @@ public class DriveToSpecificReefSideCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+  }
 
   // Called once the command ends or is interrupted.
   @Override
