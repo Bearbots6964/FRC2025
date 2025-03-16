@@ -588,6 +588,4 @@ class RobotContainer {
             "FieldSimulation/Algae", *SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
         )
     }
-
-
 }
