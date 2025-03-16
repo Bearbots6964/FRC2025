@@ -38,6 +38,7 @@ import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ArmIO
 import frc.robot.subsystems.arm.ArmIOSparkMax
+import frc.robot.subsystems.arm.ArmIOTalonFX
 import frc.robot.subsystems.arm.ArmIOTalonFXSim
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.elevator.Elevator
@@ -106,9 +107,8 @@ class RobotContainer {
                     VisionIOPhotonVision(Constants.VisionConstants.camera2Name, robotToCamera2),
                 )
                 arm = Arm(
-                    ArmIOSparkMax(
-                        //TalonFXConfiguration(),
-                        SparkMaxConfig(),
+                    ArmIOTalonFX(
+                        Constants.ArmConstants.talonConfig
                     )
                 )
 

@@ -1,7 +1,10 @@
 package frc.robot
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.configs.*
+import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue
+import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
+import com.ctre.phoenix6.signals.SensorPhaseValue
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.RobotConfig
 import edu.wpi.first.apriltag.AprilTagFieldLayout
@@ -152,6 +155,25 @@ object Constants {
 
         @JvmStatic
         val armAxisMotorID: Int = 6
+
+        @JvmStatic
+        val talonConfig: TalonFXSConfiguration = TalonFXSConfiguration().withCurrentLimits(
+            CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true)
+        ).withExternalFeedback(
+            ExternalFeedbackConfigs().withExternalFeedbackSensorSource(
+                ExternalFeedbackSensorSourceValue.PulseWidth
+            ).withRotorToSensorRatio(60.0).withSensorPhase(SensorPhaseValue.Aligned)
+                .withQuadratureEdgesPerRotation(8192).withAbsoluteSensorOffset(0.060546875)
+        ).withMotorOutput(
+            MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
+                .withInverted(InvertedValue.Clockwise_Positive)
+        )
+            .withSlot0(Slot0Configs().withKP(10.0))
+            .withMotionMagic(
+                MotionMagicConfigs().withMotionMagicCruiseVelocity(5.0)
+                    .withMotionMagicAcceleration(2.0)
+            )
+
     }
 
     object VisionConstants {

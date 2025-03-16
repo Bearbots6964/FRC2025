@@ -73,7 +73,7 @@ public class ArmIOSparkMax implements ArmIO {
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
-    inputs.armAxisAngle = getArmAngleRotations();
+    inputs.armAxisAngle = getArmAngleDegrees();
     inputs.armAppliedVolts = armMotor.getAppliedOutput() * armMotor.getBusVoltage();
     inputs.armAppliedCurrentAmps = armMotor.getOutputCurrent();
     inputs.armVelocity = armMotor.getAbsoluteEncoder().getVelocity();
@@ -102,20 +102,13 @@ public class ArmIOSparkMax implements ArmIO {
   }
 
   @Override
-  public double getArmAngleRotations() {
+  public double getArmAngleDegrees() {
     return armMotor.getAbsoluteEncoder().getPosition();
   }
 
   @Override
   public void stopArm() {
     armMotor.setVoltage(0);
-  }
-
-  @Override
-  public void holdArm(Double ref) {
-    armMotor
-        .getClosedLoopController()
-        .setReference(targetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
   @Override
@@ -128,8 +121,4 @@ public class ArmIOSparkMax implements ArmIO {
     return Math.abs(armMotor.getAbsoluteEncoder().getPosition() - targetPosition);
   }
 
-  @Override
-  public double getArmVelocity() {
-    return armMotor.getAbsoluteEncoder().getVelocity();
-  }
 }

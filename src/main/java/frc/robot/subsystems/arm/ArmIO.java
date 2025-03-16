@@ -22,7 +22,7 @@ public interface ArmIO {
 
   default void setArmAngle(double angle) {}
 
-  default double getArmAngleRotations() {
+  default double getArmAngleDegrees() {
     return 0;
   }
 
@@ -32,11 +32,8 @@ public interface ArmIO {
     return 0.0;
   }
 
-  default double getArmVelocity() {
-    return 0;
-  }
-
   default void stopArm() {}
 
-  default void holdArm(Double ref) {}
+  default void setPositionToCurrent() {}
+
 }

@@ -39,7 +39,7 @@ public class Arm extends SubsystemBase {
   }
 
   public Command stop() {
-    return run(() -> io.holdArm(io.getArmAngleRotations())).withName("Arm Stop");
+    return run(io::stopArm).withName("Arm Stop");
   }
 
   private void runCharacterization(double output) {
