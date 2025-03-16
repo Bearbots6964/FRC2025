@@ -86,8 +86,7 @@ public final class ReefLocations {
   }
 
   public static Pose2d getScoringLocation(ReefBranch reefBranch) {
-      return (Robot.getAlliance().equals(Alliance.Red) ? RED_POSES : BLUE_POSES)
-          [reefBranch.id];
+    return (Robot.getAlliance().equals(Alliance.Red) ? RED_POSES : BLUE_POSES)[reefBranch.id];
   }
 
   public static void log() {

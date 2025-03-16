@@ -53,7 +53,9 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
-    var pivotStatus = BaseStatusSignal.refreshAll(pivotMotorPosition, pivotMotorVelocity, pivotMotorVoltage, pivotMotorCurrent);
+    var pivotStatus =
+        BaseStatusSignal.refreshAll(
+            pivotMotorPosition, pivotMotorVelocity, pivotMotorVoltage, pivotMotorCurrent);
 
     inputs.armAxisAngle = pivotMotorPosition.getValue().in(Units.Degrees);
     inputs.armAppliedVolts = pivotMotorVoltage.getValue().in(Units.Volts);

@@ -120,5 +120,4 @@ public class ArmIOSparkMax implements ArmIO {
   public double getDistanceFromGoal() {
     return Math.abs(armMotor.getAbsoluteEncoder().getPosition() - targetPosition);
   }
-
 }

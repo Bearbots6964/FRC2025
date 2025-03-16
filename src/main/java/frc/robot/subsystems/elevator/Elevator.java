@@ -28,10 +28,14 @@ public class Elevator extends SubsystemBase {
     if (ElevatorConstants.SYSID_PROFILING_ENABLED) {
       SignalLogger.setPath("/U/sysidlogs/");
       SignalLogger.start();
-      sysIdRoutine = new SysIdRoutine(new Config(null, Volts.of(4), null,
-                                                 (state) -> SignalLogger.writeString("state",
-                                                                                     state.toString())),
-                                      new Mechanism((v) -> io.setVoltage(v.in(Volts)), null, this));
+      sysIdRoutine =
+          new SysIdRoutine(
+              new Config(
+                  null,
+                  Volts.of(4),
+                  null,
+                  (state) -> SignalLogger.writeString("state", state.toString())),
+              new Mechanism((v) -> io.setVoltage(v.in(Volts)), null, this));
 
       targetPosition = inputs.rightMotorPositionRotations;
     }
@@ -53,6 +57,7 @@ public class Elevator extends SubsystemBase {
 
   /**
    * Command to move the elevator up or down based on a joystick input.
+   *
    * @param joystick The joystick input to control the elevator
    * @return Command to move the elevator up or down based on a joystick input
    */
@@ -62,6 +67,7 @@ public class Elevator extends SubsystemBase {
 
   /**
    * Run a quasistatic sysid routine on the elevator.
+   *
    * @param direction The direction to run the sysid routine
    * @return The sysid routine command
    */
@@ -75,6 +81,7 @@ public class Elevator extends SubsystemBase {
 
   /**
    * Run a dynamic sysid routine on the elevator.
+   *
    * @param direction The direction to run the sysid routine
    * @return The sysid routine command
    */
@@ -88,56 +95,71 @@ public class Elevator extends SubsystemBase {
 
   /**
    * Command to go to a specific position. Accurate within one rotation (~1.187 inches).
+   *
    * @param state The position to go to
    * @return Command to go to a specific position
    */
   public Command goToPosition(ElevatorConstants.ElevatorState state) {
-    targetPosition = switch (state) {
-      case L1 -> ElevatorConstants.L1;
-      case L2 -> ElevatorConstants.L2;
-      case L3 -> ElevatorConstants.L3;
-      case L4 -> ElevatorConstants.L4;
-      default -> ElevatorConstants.HOME;
-    };
-    return run(() -> setRotations(switch (state) {
-      case L1 -> ElevatorConstants.L1;
-      case L2 -> ElevatorConstants.L2;
-      case L3 -> ElevatorConstants.L3;
-      case L4 -> ElevatorConstants.L4;
-      default -> ElevatorConstants.HOME;
-    })).until(() -> Math.abs(inputs.rightMotorPositionRotations - switch (state) {
-      case L1 -> ElevatorConstants.L1;
-      case L2 -> ElevatorConstants.L2;
-      case L3 -> ElevatorConstants.L3;
-      case L4 -> ElevatorConstants.L4;
-      default -> ElevatorConstants.HOME;
-    }) < 1.0);
+    targetPosition =
+        switch (state) {
+          case L1 -> ElevatorConstants.L1;
+          case L2 -> ElevatorConstants.L2;
+          case L3 -> ElevatorConstants.L3;
+          case L4 -> ElevatorConstants.L4;
+          default -> ElevatorConstants.HOME;
+        };
+    return run(() ->
+            setRotations(
+                switch (state) {
+                  case L1 -> ElevatorConstants.L1;
+                  case L2 -> ElevatorConstants.L2;
+                  case L3 -> ElevatorConstants.L3;
+                  case L4 -> ElevatorConstants.L4;
+                  default -> ElevatorConstants.HOME;
+                }))
+        .until(
+            () ->
+                Math.abs(
+                        inputs.rightMotorPositionRotations
+                            - switch (state) {
+                              case L1 -> ElevatorConstants.L1;
+                              case L2 -> ElevatorConstants.L2;
+                              case L3 -> ElevatorConstants.L3;
+                              case L4 -> ElevatorConstants.L4;
+                              default -> ElevatorConstants.HOME;
+                            })
+                    < 1.0);
   }
 
   /**
-   * Command to move the elevator up or down a specific number of rotations. Accurate within one rotation (~1.187 inches).
+   * Command to move the elevator up or down a specific number of rotations. Accurate within one
+   * rotation (~1.187 inches).
+   *
    * @param delta The number of rotations to move the elevator
    * @return Command to move the elevator up or down a specific number of rotations
    */
   public Command goToPositionDelta(double delta) {
-    return runOnce(() -> io.setPositionDelta(delta)).until(() -> io.getDistanceFromGoal() < 1.0)
+    return runOnce(() -> io.setPositionDelta(delta))
+        .until(() -> io.getDistanceFromGoal() < 1.0)
         .withName("Elevator to Position");
   }
 
   /**
    * Command to go to a specific position. Accurate within one rotation (~1.187 inches).
+   *
    * @param position The position to go to
    * @return Command to go to a specific position
    */
   public Command goToPosition(double position) {
     targetPosition = position;
-    return run(() -> setRotations(position)).until(
-            () -> Math.abs(inputs.rightMotorPositionRotations - position) < 1.0)
+    return run(() -> setRotations(position))
+        .until(() -> Math.abs(inputs.rightMotorPositionRotations - position) < 1.0)
         .withName("Elevator to Position");
   }
 
   /**
    * Command to stop the elevator.
+   *
    * @return Command to stop the elevator
    */
   public Command doNothing() {
@@ -146,9 +168,9 @@ public class Elevator extends SubsystemBase {
 
   /**
    * Home the elevator. Uses current limit checking to determine when the elevator has reached the
-   * bottom in lieu of a limit switch.
-   * This looks pretty cool.
-   * Reminds me of a 3D printer's homing sequence.
+   * bottom in lieu of a limit switch. This looks pretty cool. Reminds me of a 3D printer's homing
+   * sequence.
+   *
    * @return Command to home the elevator
    */
   public Command homeElevator() {
@@ -156,8 +178,8 @@ public class Elevator extends SubsystemBase {
         runOnce(() -> io.setSoftLimitsEnabled(false)),
         velocityCommand(() -> -0.25).until(() -> inputs.rightMotorCurrent > 1),
         runOnce(io::zero),
-        run(() -> setRotations(5)).until(
-            () -> Math.abs(inputs.rightMotorPositionRotations - 5) < 1.0),
+        run(() -> setRotations(5))
+            .until(() -> Math.abs(inputs.rightMotorPositionRotations - 5) < 1.0),
         velocityCommand(() -> -0.05).until(() -> inputs.rightMotorCurrent > 1.5),
         runOnce(io::zero),
         runOnce(() -> io.setOpenLoop(0.0)),

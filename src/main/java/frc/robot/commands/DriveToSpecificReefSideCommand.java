@@ -35,9 +35,7 @@ public class DriveToSpecificReefSideCommand extends Command {
   private int[] numbers;
   private boolean isLeftSide;
 
-  /**
-   * Creates a new DriveToNearestReefSideCommand.
-   */
+  /** Creates a new DriveToNearestReefSideCommand. */
   public DriveToSpecificReefSideCommand(
       Drive drive, Elevator elevator, Arm arm, Supplier<ElevatorState> elevatorState, Reef reef) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -48,19 +46,18 @@ public class DriveToSpecificReefSideCommand extends Command {
     addRequirements(drive);
     numbers =
         switch (reef) {
-          case A, B -> new int[]{7, 18};
-          case C, D -> new int[]{8, 17};
-          case E, F -> new int[]{9, 22};
-          case G, H -> new int[]{10, 21};
-          case I, J -> new int[]{11, 20};
-          case K, L -> new int[]{6, 19};
+          case A, B -> new int[] {7, 18};
+          case C, D -> new int[] {8, 17};
+          case E, F -> new int[] {9, 22};
+          case G, H -> new int[] {10, 21};
+          case I, J -> new int[] {11, 20};
+          case K, L -> new int[] {6, 19};
         };
     isLeftSide =
         switch (reef) {
           case A, C, E, G, I, K -> true;
           case B, D, F, H, J, L -> false;
         };
-
   }
 
   // Called when the command is initially scheduled.
@@ -87,13 +84,13 @@ public class DriveToSpecificReefSideCommand extends Command {
               new GoalEndState(0.0, closestAprilTagPose.getRotation()));
       pathToFront.preventFlipping = true;
       fullPath =
-
           ReefPositionCommands.INSTANCE
               .goToPosition(elevator, arm, ElevatorState.HOME)
               .alongWith(pathfindPath)
               .andThen(
-                  ReefPositionCommands.INSTANCE.goToPosition(elevator, arm, elevatorState.get())
-              .alongWith(AutoBuilder.followPath(pathToFront)));
+                  ReefPositionCommands.INSTANCE
+                      .goToPosition(elevator, arm, elevatorState.get())
+                      .alongWith(AutoBuilder.followPath(pathToFront)));
       fullPath.schedule();
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
@@ -102,8 +99,7 @@ public class DriveToSpecificReefSideCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -121,10 +117,11 @@ public class DriveToSpecificReefSideCommand extends Command {
 
   private Pose2d getClosestReefAprilTagPose() {
     HashMap<Integer, Pose2d> aprilTagsToAlignTo = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS;
-    int aprilTagNum = switch (Robot.getAlliance()) {
-      case Red -> numbers[0];
-      case Blue -> numbers[1];
-    };
+    int aprilTagNum =
+        switch (Robot.getAlliance()) {
+          case Red -> numbers[0];
+          case Blue -> numbers[1];
+        };
 
     Pose2d closestPose = aprilTagsToAlignTo.get(aprilTagNum);
 

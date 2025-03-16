@@ -35,5 +35,4 @@ public interface ArmIO {
   default void stopArm() {}
 
   default void setPositionToCurrent() {}
-
 }

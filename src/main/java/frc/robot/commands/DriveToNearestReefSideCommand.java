@@ -24,7 +24,6 @@ import frc.robot.subsystems.elevator.Elevator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class DriveToNearestReefSideCommand extends Command {
@@ -110,9 +109,9 @@ public class DriveToNearestReefSideCommand extends Command {
   private Pose2d getClosestReefAprilTagPose() {
     HashMap<Integer, Pose2d> aprilTagsToAlignTo =
         AprilTagPositions.WELDED_BLUE_CORAL_APRIL_TAG_POSITIONS;
-      if (Robot.getAlliance() == DriverStation.Alliance.Red) {
-        aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS;
-      }
+    if (Robot.getAlliance() == DriverStation.Alliance.Red) {
+      aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS;
+    }
 
     Pose2d currentPose = drive.getPose();
     Pose2d closestPose = new Pose2d();
