@@ -13,7 +13,6 @@
 package frc.robot
 
 import com.pathplanner.lib.auto.AutoBuilder
-import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.networktables.NetworkTable
@@ -32,12 +31,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.VisionConstants.robotToCamera0
 import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.Constants.VisionConstants.robotToCamera2
+import frc.robot.Constants.VisionConstants.robotToCamera3
 import frc.robot.commands.*
 import frc.robot.commands.DriveToSpecificCoralStationCommand.Side
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ArmIO
-import frc.robot.subsystems.arm.ArmIOSparkMax
 import frc.robot.subsystems.arm.ArmIOTalonFX
 import frc.robot.subsystems.arm.ArmIOTalonFXSim
 import frc.robot.subsystems.drive.*
@@ -74,7 +73,7 @@ class RobotContainer {
     private val buttonMacroController: CommandJoystick = CommandJoystick(3)
 
     // Dashboard inputs
-    private val autoChooser: LoggedDashboardChooser<Command>
+    private lateinit var autoChooser: LoggedDashboardChooser<Command>
 
     private var nextSuperstructureCommand: Constants.ElevatorConstants.ElevatorState =
         Constants.ElevatorConstants.ElevatorState.HOME
@@ -167,225 +166,17 @@ class RobotContainer {
             }
         }
 
-        // Set up auto routines
-        autoChooser = LoggedDashboardChooser("Auto Choices", AutoBuilder.buildAutoChooser())
-
-        // Set up SysId routines
-        // <editor-fold desc="SysId Routines">
-        autoChooser.addOption(
-            "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive)
-        )
-        autoChooser.addOption(
-            "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive)
-        )
-        autoChooser.addOption(
-            "Drive SysId (Quasistatic Forward)",
-            drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-        )
-        autoChooser.addOption(
-            "Drive SysId (Quasistatic Reverse)",
-            drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-        )
-        autoChooser.addOption(
-            "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward)
-        )
-        autoChooser.addOption(
-            "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-        )
-        autoChooser.addOption(
-            "Arm SysId (Quasistatic Forward)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-        )
-        autoChooser.addOption(
-            "Arm SysId (Quasistatic Reverse)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-        )
-        autoChooser.addOption(
-            "Arm SysId (Dynamic Forward)", arm.sysIdDynamic(SysIdRoutine.Direction.kForward)
-        )
-        autoChooser.addOption(
-            "Arm SysId (Dynamic Reverse)", arm.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-        )
-
-        autoChooser.addOption(
-            "Elevator SysId (Quasistatic Forward)",
-            elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-        )
-
-        autoChooser.addOption(
-            "Elevator SysId (Quasistatic Reverse)",
-            elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-        )
-
-        autoChooser.addOption(
-            "Elevator SysId (Dynamic Forward)",
-            elevator.sysIdDynamic(SysIdRoutine.Direction.kForward)
-        )
-
-        autoChooser.addOption(
-            "Elevator SysId (Dynamic Reverse)",
-            elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-        )
+        setUpAutoChooser()
 
         statusTopic.set("Robot Initialized")
 
         // Configure the button bindings
         configureButtonBindings()
 
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.A
-            ).withName("Reef A")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.B
-            ).withName("Reef B")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.C
-            ).withName("Reef C")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.D
-            ).withName("Reef D")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.E
-            ).withName("Reef E")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.F
-            ).withName("Reef F")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.G
-            ).withName("Reef G")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.H
-            ).withName("Reef H")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.I
-            ).withName("Reef I")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.J
-            ).withName("Reef J")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.K
-            ).withName("Reef K")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.L
-            ).withName("Reef L")
-        )
-
-        SmartDashboard.putData(
-            SuperstructureCommands.goToPosition(
-                elevator,
-                arm,
-                Constants.ElevatorConstants.ElevatorState.HOME
-            ).withName("Superstructure Home")
-        )
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L1
-        }).withName("Superstructure L1"))
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L2
-        }).withName("Superstructure L2"))
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L3
-        }).withName("Superstructure L3"))
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L4
-        }).withName("Superstructure L4"))
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.CORAL_PICKUP
-        }).withName("Superstructure Coral Pickup"))
-
-
-        SmartDashboard.putData(
-            DriveToSpecificCoralStationCommand(
-                drive, Side.LEFT, arm, elevator
-            ).withName("Drive to Left Coral Station")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificCoralStationCommand(
-                drive, Side.RIGHT, arm, elevator
-            ).withName("Drive to Right Coral Station")
-        )
-
-        SmartDashboard.putData(coralPickup().withName("Coral Pickup"))
-        SmartDashboard.putData(
-            elevator.goToPositionDelta(-10.0).alongWith(arm.moveArmAngleDelta(-30.0))
-                .alongWith(drive.backUpBy()).withName("Place Coral")
-        )
-        SmartDashboard.putData(
-            elevator.homeElevator().withName("Home Elevator")
-        )
-
-        SmartDashboard.putData(drive.followRepulsorField(AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]))
+        setUpDashboardCommands()
 
     }
+
 
     /**
      * Use this method to define your button->command mappings. Buttons can be created by
@@ -587,5 +378,222 @@ class RobotContainer {
         Logger.recordOutput(
             "FieldSimulation/Algae", *SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
         )
+    }
+
+    private fun setUpAutoChooser() {
+        // Set up auto routines
+        autoChooser = LoggedDashboardChooser("Auto Choices", AutoBuilder.buildAutoChooser())
+
+        // Set up SysId routines
+        // <editor-fold desc="SysId Routines">
+        autoChooser.addOption(
+            "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive)
+        )
+        autoChooser.addOption(
+            "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive)
+        )
+        autoChooser.addOption(
+            "Drive SysId (Quasistatic Forward)",
+            drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Drive SysId (Quasistatic Reverse)",
+            drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        )
+        autoChooser.addOption(
+            "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Quasistatic Forward)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Quasistatic Reverse)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Dynamic Forward)", arm.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        )
+        autoChooser.addOption(
+            "Arm SysId (Dynamic Reverse)", arm.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        )
+
+        autoChooser.addOption(
+            "Elevator SysId (Quasistatic Forward)",
+            elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+        )
+
+        autoChooser.addOption(
+            "Elevator SysId (Quasistatic Reverse)",
+            elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+        )
+
+        autoChooser.addOption(
+            "Elevator SysId (Dynamic Forward)",
+            elevator.sysIdDynamic(SysIdRoutine.Direction.kForward)
+        )
+
+        autoChooser.addOption(
+            "Elevator SysId (Dynamic Reverse)",
+            elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+        )
+    }
+
+    private fun setUpDashboardCommands() {
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.A
+            ).withName("Reef A")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.B
+            ).withName("Reef B")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.C
+            ).withName("Reef C")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.D
+            ).withName("Reef D")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.E
+            ).withName("Reef E")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.F
+            ).withName("Reef F")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.G
+            ).withName("Reef G")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.H
+            ).withName("Reef H")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.I
+            ).withName("Reef I")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.J
+            ).withName("Reef J")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.K
+            ).withName("Reef K")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificReefSideCommand(
+                drive,
+                elevator,
+                arm,
+                { nextSuperstructureCommand },
+                DriveToSpecificReefSideCommand.Reef.L
+            ).withName("Reef L")
+        )
+
+        SmartDashboard.putData(
+            SuperstructureCommands.goToPosition(
+                elevator,
+                arm,
+                Constants.ElevatorConstants.ElevatorState.HOME
+            ).withName("Superstructure Home")
+        )
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L1
+        }).withName("Superstructure L1"))
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L2
+        }).withName("Superstructure L2"))
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L3
+        }).withName("Superstructure L3"))
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L4
+        }).withName("Superstructure L4"))
+        SmartDashboard.putData(Commands.runOnce({
+            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.CORAL_PICKUP
+        }).withName("Superstructure Coral Pickup"))
+
+
+        SmartDashboard.putData(
+            DriveToSpecificCoralStationCommand(
+                drive, Side.LEFT, arm, elevator
+            ).withName("Drive to Left Coral Station")
+        )
+        SmartDashboard.putData(
+            DriveToSpecificCoralStationCommand(
+                drive, Side.RIGHT, arm, elevator
+            ).withName("Drive to Right Coral Station")
+        )
+
+        SmartDashboard.putData(coralPickup().withName("Coral Pickup"))
+        SmartDashboard.putData(
+            elevator.goToPositionDelta(-10.0).alongWith(arm.moveArmAngleDelta(-30.0))
+                .alongWith(drive.backUpBy()).withName("Place Coral")
+        )
+        SmartDashboard.putData(
+            elevator.homeElevator().withName("Home Elevator")
+        )
+
+        SmartDashboard.putData(drive.followRepulsorField(AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]))
     }
 }
