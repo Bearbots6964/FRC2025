@@ -124,7 +124,7 @@ public class DriveToNearestCoralStationCommand extends Command {
   }
 
   private double findDistanceBetween(Pose2d pose1, Pose2d pose2) {
-    return Math.sqrt(
-        Math.pow((pose2.getX() - pose1.getX()), 2) + Math.pow((pose2.getY() - pose1.getY()), 2));
+    return Math.hypot(
+        pose1.getX() - pose2.getX(), pose1.getY() - pose2.getY());
   }
 }
