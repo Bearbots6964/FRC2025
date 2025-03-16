@@ -183,37 +183,44 @@ object Constants {
             AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
         /**
-         * Camera for Pi `10.69.64.11`.
+         * Cameras for Pi `10.69.64.12`.
          */
-        var camera0Name: String = "right"
-        var camera2Name: String = "back"
+        var camera0Name: String = "front_right"
+        var camera1Name: String = "back_right"
 
         /**
-         * Camera for Pi `10.69.64.12`.
+         * Cameras for Pi `10.69.64.11`.
          */
-        var camera1Name: String = "left"
+        var camera2Name: String = "front_left"
+        var camera3Name: String = "back_left"
 
         // Robot to camera transforms
         // (Not used by Limelight, configure in web UI instead)
         var robotToCamera0: Transform3d = Transform3d(
             // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
             // (frame side length / 2) - (distance from frame perimeter to camera)
-            Units.Inches.of((29.5 / 2) - 1.75),
-            Units.Inches.of(-((29.5 / 2) - 3.5)),
-            Units.Inches.of(8.25),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(30.0)),
+            Units.Inches.of((29.5 / 2) - 1.3125),
+            Units.Inches.of(-((29.5 / 2) - 3.75)),
+            Units.Inches.of(8.125),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-14.0), Units.Degrees.of(-30.0)),
         )
         var robotToCamera1: Transform3d = Transform3d(
-            Units.Inches.of((29.5 / 2) - 1.75),
-            Units.Inches.of((29.5 / 2) - 3.5),
-            Units.Inches.of(8.25),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-30.0)),
+            Units.Inches.of(-((29.5 / 2) - 1.8125)),
+            Units.Inches.of(-((29.5 / 2) - 1.5)),
+            Units.Inches.of(8.0),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(230.0)),
         )
         var robotToCamera2: Transform3d = Transform3d(
-            Units.Inches.of(-1.25),
-            Units.Inches.of(0.0),
-            Units.Inches.of(46.0),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-10.0), Units.Degrees.of(180.0)),
+            Units.Inches.of((29.5 / 2) - 1.125),
+            Units.Inches.of((29.5 / 2) - 3.375),
+            Units.Inches.of(8.25),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-19.0), Units.Degrees.of(30.0)),
+        )
+        var robotToCamera3: Transform3d = Transform3d(
+            Units.Inches.of(-((29.5 / 2) - 1.8125)),
+            Units.Inches.of((29.5 / 2) - 1.5),
+            Units.Inches.of(8.0),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-19.0), Units.Degrees.of(140.0)),
         )
 
         // Basic filtering thresholds

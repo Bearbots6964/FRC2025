@@ -104,6 +104,7 @@ class RobotContainer {
                     VisionIOPhotonVision(Constants.VisionConstants.camera0Name, robotToCamera0),
                     VisionIOPhotonVision(Constants.VisionConstants.camera1Name, robotToCamera1),
                     VisionIOPhotonVision(Constants.VisionConstants.camera2Name, robotToCamera2),
+                    VisionIOPhotonVision(Constants.VisionConstants.camera3Name, robotToCamera3)
                 )
                 arm = Arm(
                     ArmIOTalonFX(
@@ -142,6 +143,8 @@ class RobotContainer {
                         Constants.VisionConstants.camera1Name, robotToCamera1
                     ) { driveSimulation!!.simulatedDriveTrainPose }, VisionIOPhotonVisionSim(
                         Constants.VisionConstants.camera2Name, robotToCamera2
+                    ) { driveSimulation!!.simulatedDriveTrainPose }, VisionIOPhotonVisionSim(
+                        Constants.VisionConstants.camera3Name, robotToCamera3
                     ) { driveSimulation!!.simulatedDriveTrainPose })
                 arm = Arm(
                     ArmIOTalonFXSim(
