@@ -13,6 +13,7 @@
 package frc.robot
 
 import com.pathplanner.lib.auto.AutoBuilder
+import com.pathplanner.lib.auto.NamedCommands
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.networktables.NetworkTable
@@ -186,6 +187,8 @@ class RobotContainer {
         }
 
         setUpAutoChooser()
+
+        setUpAutoCommands()
 
         statusTopic.set("Robot Initialized")
 
@@ -618,5 +621,13 @@ class RobotContainer {
         )
 
         SmartDashboard.putData(drive.followRepulsorField(AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]))
+    }
+
+    private fun setUpAutoCommands() {
+        NamedCommands.registerCommand("l1", SuperstructureCommands.l1(elevator, arm))
+        NamedCommands.registerCommand("l2", SuperstructureCommands.l2(elevator, arm))
+        NamedCommands.registerCommand("l3", SuperstructureCommands.l3(elevator, arm))
+        NamedCommands.registerCommand("l4", SuperstructureCommands.l4(elevator, arm))
+        NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm))
     }
 }
