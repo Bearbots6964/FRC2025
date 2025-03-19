@@ -54,11 +54,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     this.rightConfig = rightConfig;
     rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 150;
+    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 105;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 150;
+    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 105;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
 
     leftMotor = new TalonFX(Constants.ElevatorConstants.LEFT_MOTOR_CAN_ID);
