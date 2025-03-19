@@ -1,12 +1,12 @@
 package frc.robot
 
 import com.ctre.phoenix6.configs.*
-import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue
-import com.ctre.phoenix6.signals.InvertedValue
-import com.ctre.phoenix6.signals.NeutralModeValue
-import com.ctre.phoenix6.signals.SensorPhaseValue
+import com.ctre.phoenix6.signals.*
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.RobotConfig
+import com.pathplanner.lib.path.PathConstraints
+import com.revrobotics.spark.config.SparkBaseConfig
+import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.geometry.Rotation3d
@@ -44,21 +44,22 @@ object Constants {
         init {
             leftMotorConfig.ClosedLoopGeneral.ContinuousWrap = false
             leftMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake
-            leftMotorConfig.CurrentLimits.StatorCurrentLimit = 40.0
-            leftMotorConfig.CurrentLimits.SupplyCurrentLimit = 40.0
+            leftMotorConfig.CurrentLimits.StatorCurrentLimit = 20.0
+            leftMotorConfig.CurrentLimits.SupplyCurrentLimit = 20.0
 
             rightMotorConfig.ClosedLoopGeneral.ContinuousWrap = false
             rightMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake
-            rightMotorConfig.CurrentLimits.StatorCurrentLimit = 40.0
-            rightMotorConfig.CurrentLimits.SupplyCurrentLimit = 40.0
+            rightMotorConfig.CurrentLimits.StatorCurrentLimit = 20.0
+            rightMotorConfig.CurrentLimits.SupplyCurrentLimit = 20.0
+            rightMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
 
             val slot0Configs = rightMotorConfig.Slot0
-            slot0Configs.kS = 0.12893
-            slot0Configs.kV = 0.12063
-            slot0Configs.kA = 0.0018313
-            slot0Configs.kG = 0.092435
-            slot0Configs.kP = 0.8
+            slot0Configs.kS = 0.087054
+            slot0Configs.kV = 0.11971
+            slot0Configs.kA = 0.0031455
+            slot0Configs.kG = 0.10784
+            slot0Configs.kP = 0.8 // sysid suggests 0.067039
 
             val motionMagicConfigs = rightMotorConfig.MotionMagic
             motionMagicConfigs.MotionMagicCruiseVelocity = 100.0
@@ -68,87 +69,38 @@ object Constants {
 
         const val HOME = 5.0
         const val L1 = 5.0
-        const val L2 = 13.5
-        const val L3 = 50.0
-        const val L4 = 102.3 // TODO: Find actual value
-        const val CORAL_PICKUP = 40.0
+        const val L2 = 42.96
+        const val L3 = 90.0
+        const val L4 = 86 // TODO: Find actual value
+        const val PRE_CORAL_PICKUP = 37.0
+        const val CORAL_PICKUP = 0.0
+        const val BARGE_LAUNCH = 100.93
+        const val ALGAE_INTAKE = 0.0
+        const val UPPER_REEF_ALGAE = 11.3
+        const val LOWER_REEF_ALGAE = 0.0
 
         enum class ElevatorState {
-            HOME, L1, L2, L3, L4, CORAL_PICKUP
+            HOME, L1, L2, L3, L4, PRE_CORAL_PICKUP, CORAL_PICKUP, BARGE_LAUNCH, ALGAE_INTAKE, UPPER_REEF_ALGAE, LOWER_REEF_ALGAE
         }
 
-        const val SYSID_PROFILING_ENABLED = false
+        const val SYSID_PROFILING_ENABLED = true
     }
 
-    object PhysicalProperties {
-        object ProgrammingBase {
-            @JvmStatic
-            val mass: Mass = Units.Pounds.of(125.0)
-
-            @JvmStatic
-            val momentOfInteria: MomentOfInertia = Units.KilogramSquareMeters.of(2.0) // TODO
-
-            @JvmStatic
-            val wheelRadius: Distance = Units.Inches.of(1.913)
-
-            // We are using Kraken X60's. 15.5 ft/s without field-oriented control,
-            // and 15.0 ft/s without.
-            @JvmStatic
-            val maxVelocity: LinearVelocity = Units.FeetPerSecond.of(15.5)
-
-            @JvmStatic
-            val coefficentOfFriction = 0.8 // this will need to be changed.
-
-            // just a ballpark estimate for now.
-            // very much depends on whether we're on carpet or concrete.
-            object Config {
-
-                private val motor: DCMotor =
-                    DCMotor.getKrakenX60(1).withReduction(6.75) // per module
-                private val currentLimit: Current = Units.Amps.of(40.0)
-
-                private const val motorsPerModule = 1
-
-                val config = ModuleConfig(
-                    wheelRadius,
-                    maxVelocity,
-                    coefficentOfFriction,
-                    motor,
-                    currentLimit,
-                    motorsPerModule
-                )
-            }
-
-            private val moduleOffsets = arrayOf(
-                // front left
-                Translation2d(Units.Inches.of(12.125), Units.Inches.of(12.125)),
-                // front right
-                Translation2d(Units.Inches.of(12.125), Units.Inches.of(-12.125)),
-                // back left
-                Translation2d(Units.Inches.of(-12.125), Units.Inches.of(12.125)),
-                // back right
-                Translation2d(Units.Inches.of(-12.125), Units.Inches.of(-12.125)),
-            )
-
-            // construct the robot configuration.
-            // note the asterisk before the moduleOffsets array -
-            // that is the spread operator, allowing us to unwrap the array as a vararg
-            val robotConfig = RobotConfig(mass, momentOfInteria, Config.config, *moduleOffsets)
-        }
-
-        @JvmStatic
-        val activeBase = ProgrammingBase
-    }
 
     object ArmConstants {
         class ArmState {
             companion object {
-                const val HOME = 160.0
+                const val HOME = 224.0
                 const val L1 = 155.0
-                const val L2 = 160.0
-                const val L3 = 155.0
-                const val L4 = 165.0
+                const val L2 = -71.36
+                const val L3 = -60.0
+                const val L4 = 45.0
+                const val PRE_CORAL_PICKUP = HOME
                 const val CORAL_PICKUP = HOME
+                const val BARGE_LAUNCH = 77.0
+                const val ALGAE_INTAKE = -64.77
+                const val UPPER_REEF_ALGAE = 0.0
+                const val LOWER_REEF_ALGAE = 0.0
             }
         }
 
@@ -163,17 +115,94 @@ object Constants {
             ExternalFeedbackConfigs().withExternalFeedbackSensorSource(
                 ExternalFeedbackSensorSourceValue.PulseWidth
             ).withRotorToSensorRatio(60.0).withSensorPhase(SensorPhaseValue.Aligned)
-                .withQuadratureEdgesPerRotation(8192).withAbsoluteSensorOffset(0.060546875)
+                .withQuadratureEdgesPerRotation(8192).withAbsoluteSensorDiscontinuityPoint(0.7)
+                .withAbsoluteSensorOffset(0.27)
         ).withMotorOutput(
             MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive)
+        ).withSlot0(
+            Slot0Configs().withKP(40.0).withKS(0.51518).withKV(7.35).withKA(0.61).withKG(1.5)
+        ).withMotionMagic(
+            MotionMagicConfigs().withMotionMagicCruiseVelocity(1.25)
+                .withMotionMagicAcceleration(3.0).withMotionMagicJerk(6.0)
+        ).withCommutation(
+            CommutationConfigs().withMotorArrangement(MotorArrangementValue.NEO_JST)
+                .withAdvancedHallSupport(AdvancedHallSupportValue.Enabled)
         )
-            .withSlot0(Slot0Configs().withKP(10.0))
-            .withMotionMagic(
-                MotionMagicConfigs().withMotionMagicCruiseVelocity(5.0)
-                    .withMotionMagicAcceleration(2.0)
-            )
 
+    }
+
+    object FlywheelConstants {
+        @JvmStatic
+        val flywheelMotorID: Int = 7
+
+        @JvmStatic
+        val flywheelIntakePercent = 0.40
+
+        @JvmStatic
+        val sparkConfig = SparkMaxConfig().let {
+            it.idleMode(SparkBaseConfig.IdleMode.kBrake)
+            it.smartCurrentLimit(20) // set relatively low to protect motor against stalling,
+            // which seems to happen relatively frequently
+        }
+    }
+
+    object AlgaeIntakeConstants {
+        @JvmStatic
+        val armMotorID: Int = 4
+
+        @JvmStatic
+        val intakeMotorID: Int = 5
+
+        @JvmStatic
+        val leftFlywheelMotorID: Int = 9
+
+        @JvmStatic
+        val rightFlywheelMotorID: Int = 8
+
+        @JvmStatic
+        val flywheelRunningPercent: Double = 0.16
+
+        @JvmStatic
+        val intakeVelocity: Double = 1000.0
+
+        @JvmStatic
+        val armExtendedPosition: Double = 17.0
+
+        @JvmStatic
+        val armRetractedPosition: Double = -3.9
+
+        @JvmStatic
+        val armConfig = SparkMaxConfig().let {
+            it.idleMode(SparkBaseConfig.IdleMode.kBrake)
+            it.smartCurrentLimit(20)
+            it.closedLoop.p(0.04).d(1.0)
+            it
+        }
+
+        @JvmStatic
+        val intakeConfig = SparkMaxConfig().let {
+            it.idleMode(SparkBaseConfig.IdleMode.kCoast)
+            it.smartCurrentLimit(40)
+            it.closedLoop.velocityFF(0.0002)
+            it
+        }
+
+        @JvmStatic
+        val leftFlywheelConfig = SparkMaxConfig().let {
+            it.idleMode(SparkBaseConfig.IdleMode.kCoast)
+            it.smartCurrentLimit(20)
+            it.inverted(true)
+            it
+        }
+
+        @JvmStatic
+        val rightFlywheelConfig = SparkMaxConfig().let {
+            it.idleMode(SparkBaseConfig.IdleMode.kCoast)
+            it.smartCurrentLimit(20)
+            it.inverted(false)
+            it
+        }
     }
 
     object VisionConstants {
@@ -202,7 +231,7 @@ object Constants {
             Units.Inches.of((29.5 / 2) - 1.3125),
             Units.Inches.of(-((29.5 / 2) - 3.75)),
             Units.Inches.of(8.125),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-14.0), Units.Degrees.of(-30.0)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-14.0), Units.Degrees.of(30.0)),
         )
         var robotToCamera1: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
@@ -214,7 +243,7 @@ object Constants {
             Units.Inches.of((29.5 / 2) - 1.125),
             Units.Inches.of((29.5 / 2) - 3.375),
             Units.Inches.of(8.25),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-19.0), Units.Degrees.of(30.0)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-19.0), Units.Degrees.of(-30.0)),
         )
         var robotToCamera3: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
@@ -229,7 +258,7 @@ object Constants {
 
         // Standard deviation baselines, for 1 meter distance and 1 tag
         // (Adjusted automatically based on distance and # of tags)
-        var linearStdDevBaseline: Double = 0.5 // Meters
+        var linearStdDevBaseline: Double = 0.2 // Meters
         var angularStdDevBaseline: Double = 0.6 // Radians
 
         // Standard deviation multipliers for each camera
@@ -237,8 +266,9 @@ object Constants {
         @JvmStatic
         var cameraStdDevFactors: DoubleArray = doubleArrayOf(
             1.0,  // Camera 0
-            1.0, // Camera 1
-            3.0 // Camera 2
+            3.0, // Camera 1
+            1.0, // Camera 2
+            3.0 // Camera 3
         )
 
         // Multipliers to apply for MegaTag 2 observations
@@ -462,4 +492,64 @@ object Constants {
 
     @JvmField
     var BUMPER_THICKNESS_METERS: Double = edu.wpi.first.math.util.Units.inchesToMeters(3.5)
+
+    object PhysicalProperties {
+        object ProgrammingBase {
+            @JvmStatic
+            val mass: Mass = Units.Pounds.of(125.0)
+
+            @JvmStatic
+            val momentOfInteria: MomentOfInertia = Units.KilogramSquareMeters.of(2.0) // TODO
+
+            @JvmStatic
+            val wheelRadius: Distance = Units.Inches.of(1.913)
+
+            // We are using Kraken X60's. 15.5 ft/s without field-oriented control,
+            // and 15.0 ft/s without.
+            @JvmStatic
+            val maxVelocity: LinearVelocity = Units.FeetPerSecond.of(15.5)
+
+            @JvmStatic
+            val coefficentOfFriction = 0.8 // this will need to be changed.
+
+            // just a ballpark estimate for now.
+            // very much depends on whether we're on carpet or concrete.
+            object Config {
+
+                private val motor: DCMotor =
+                    DCMotor.getKrakenX60(1).withReduction(6.75) // per module
+                private val currentLimit: Current = Units.Amps.of(40.0)
+
+                private const val motorsPerModule = 1
+
+                val config = ModuleConfig(
+                    wheelRadius,
+                    maxVelocity,
+                    coefficentOfFriction,
+                    motor,
+                    currentLimit,
+                    motorsPerModule
+                )
+            }
+
+            private val moduleOffsets = arrayOf(
+                // front left
+                Translation2d(Units.Inches.of(12.125), Units.Inches.of(12.125)),
+                // front right
+                Translation2d(Units.Inches.of(12.125), Units.Inches.of(-12.125)),
+                // back left
+                Translation2d(Units.Inches.of(-12.125), Units.Inches.of(12.125)),
+                // back right
+                Translation2d(Units.Inches.of(-12.125), Units.Inches.of(-12.125)),
+            )
+
+            // construct the robot configuration.
+            // note the asterisk before the moduleOffsets array -
+            // that is the spread operator, allowing us to unwrap the array as a vararg
+            val robotConfig = RobotConfig(mass, momentOfInteria, Config.config, *moduleOffsets)
+        }
+
+        @JvmStatic
+        val activeBase = ProgrammingBase
+    }
 }
