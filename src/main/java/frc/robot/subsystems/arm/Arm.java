@@ -1,11 +1,14 @@
 package frc.robot.subsystems.arm;
 
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants;
+import frc.robot.subsystems.arm.FlywheelIO.FlywheelIOInputs;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -18,13 +21,14 @@ public class Arm extends SubsystemBase {
   public Arm(ArmIO io) {
     this.io = io;
 
+
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
+                Units.Volts.per(Units.Second).of(0.0625),
+                Units.Volts.of(0.2),
                 null,
-                null,
-                null,
-                (state) -> Logger.recordOutput("Arm/SysIDState", state.toString())),
+                (state) -> SignalLogger.writeString("Arm/SysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage -> runCharacterization(voltage.in(Units.Volts))), null, this));
   }
@@ -43,7 +47,7 @@ public class Arm extends SubsystemBase {
   }
 
   private void runCharacterization(double output) {
-    io.setArmOpenLoopVoltage(output);
+    io.setArmOpenLoop(output);
   }
 
   public Command sysIdDynamic(Direction direction) {
@@ -71,4 +75,5 @@ public class Arm extends SubsystemBase {
         .until(() -> io.getDistanceFromGoal() < 3.0)
         .withName("Move Arm Delta");
   }
+
 }

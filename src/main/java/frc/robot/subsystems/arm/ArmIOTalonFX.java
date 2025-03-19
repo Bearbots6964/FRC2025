@@ -49,6 +49,11 @@ public class ArmIOTalonFX implements ArmIO {
     pivotMotorCurrent = pivotMotor.getSupplyCurrent();
 
     targetPosition = pivotMotorPosition.getValue().in(Units.Degrees);
+
+    // if abs(motor position) > 1, mod by 1 or -1
+    if (Math.abs(pivotMotorPosition.getValue().in(Units.Rotations)) > 1) {
+      pivotMotor.setPosition(pivotMotorPosition.getValue().in(Units.Rotations) % (pivotMotorPosition.getValue().in(Units.Rotations) > 0 ? 1 : -1));
+    }
   }
 
   @Override
@@ -73,8 +78,7 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void setArmOpenLoop(double output) {
-    dutyCycleRequest.withOutput(output);
-    pivotMotor.setControl(voltageRequest);
+    pivotMotor.set(output);
   }
 
   @Override

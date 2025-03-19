@@ -17,7 +17,6 @@ import frc.robot.Constants;
 
 // TODO: MotionMagic
 public class ArmIOSparkMax implements ArmIO {
-
   protected SparkMax armMotor;
   protected SparkBaseConfig armConfiguration;
   protected SparkClosedLoopController armController;
