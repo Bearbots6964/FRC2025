@@ -53,6 +53,8 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -101,6 +103,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
       new CANBus(TunerConstants.getDrivetrainConstants().CANBusName).isNetworkFD() ? 250.0 : 100.0;
   static final Lock odometryLock = new ReentrantLock();
   private static final RobotConfig PP_CONFIG = PhysicalProperties.getActiveBase().getRobotConfig();
+  Field2d field = new Field2d();
 
   static {
     mapleSimConfig =
@@ -213,6 +216,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     lastSetpoint =
         new com.pathplanner.lib.util.swerve.SwerveSetpoint(
             new ChassisSpeeds(), getModuleStates(), DriveFeedforwards.zeros(4));
+
+    SmartDashboard.putData(field);
   }
 
   /** Returns an array of module translations. */
@@ -239,8 +244,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     }
     // Drive standard deviations as a result of wheel slippage
     var driveStdDevs = getDriveStdDevs();
-    Logger.recordOutput("Swerve/Odometry/Drive Std Devs", driveStdDevs);
+    Logger.recordOutput("Odometry/Drive Std Devs", driveStdDevs);
     poseEstimator.setDriveMeasurementStdDevs(driveStdDevs);
+    field.setRobotPose(getPose());
+    Logger.recordOutput("Swerve/Speed", Math.hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond));
     odometryLock.unlock();
 
     // Stop moving when disabled
