@@ -35,14 +35,14 @@ import frc.robot.Constants.VisionConstants.robotToCamera3
 import frc.robot.commands.*
 import frc.robot.commands.DriveToSpecificCoralStationCommand.Side
 import frc.robot.generated.TunerConstants
-import frc.robot.subsystems.arm.Arm
-import frc.robot.subsystems.arm.ArmIO
-import frc.robot.subsystems.arm.ArmIOTalonFX
-import frc.robot.subsystems.arm.ArmIOTalonFXSim
+import frc.robot.subsystems.arm.*
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.elevator.ElevatorIO
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX
+import frc.robot.subsystems.intake.AlgaeIntake
+import frc.robot.subsystems.intake.AlgaeIntakeIO
+import frc.robot.subsystems.intake.AlgaeIntakeIOSparkMax
 import frc.robot.subsystems.vision.*
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
@@ -63,6 +63,8 @@ class RobotContainer {
     private var vision: Vision
     private var arm: Arm
     private var elevator: Elevator
+    private var algaeIntake: AlgaeIntake
+    private var flywheel: Flywheel
 
     private var driveSimulation: SwerveDriveSimulation? = null
 
@@ -111,11 +113,21 @@ class RobotContainer {
                         Constants.ArmConstants.talonConfig
                     )
                 )
+                flywheel = Flywheel(FlywheelIOSparkMax(Constants.FlywheelConstants.sparkConfig))
 
                 elevator = Elevator(
                     ElevatorIOTalonFX(
                         Constants.ElevatorConstants.leftMotorConfig,
                         Constants.ElevatorConstants.rightMotorConfig
+                    )
+                )
+
+                algaeIntake = AlgaeIntake(
+                    AlgaeIntakeIOSparkMax(
+                        Constants.AlgaeIntakeConstants.armConfig,
+                        Constants.AlgaeIntakeConstants.intakeConfig,
+                        Constants.AlgaeIntakeConstants.leftFlywheelConfig,
+                        Constants.AlgaeIntakeConstants.rightFlywheelConfig
                     )
                 )
             }
@@ -149,9 +161,11 @@ class RobotContainer {
                 arm = Arm(
                     ArmIOTalonFXSim(
 
-                    )
-                )
+                    ))
+                flywheel = Flywheel(object : FlywheelIO {})
                 elevator = Elevator(object : ElevatorIO {})
+
+                algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
             }
 
             else -> {
@@ -166,6 +180,8 @@ class RobotContainer {
 
                 elevator = Elevator(object : ElevatorIO {})
                 arm = Arm(object : ArmIO {})
+                flywheel = Flywheel(object : FlywheelIO {})
+                algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
             }
         }
 
@@ -264,15 +280,16 @@ class RobotContainer {
         // </editor-fold>
 
         // Default commands for elevator and arm
-        elevator.defaultCommand = elevator.stop()
-        arm.defaultCommand = arm.stop()
+        elevator.defaultCommand = elevator.velocityCommand({ -operatorController.rightY })
+        arm.defaultCommand = arm.moveArm({ -operatorController.leftY })
+        //flywheel.defaultCommand = flywheel.stop()
 
-        Trigger { abs(operatorController.leftY) > 0.1 }.whileTrue(
-            arm.moveArm { -operatorController.leftY }
-        )
-        Trigger { abs(operatorController.rightY) > 0.1 }.whileTrue(
-            elevator.velocityCommand { -operatorController.rightY }
-        )
+        //Trigger { abs(operatorController.leftY) > 0.1 }.whileTrue(
+        //    arm.moveArm { -operatorController.leftY }
+        //)
+        //Trigger { abs(operatorController.rightY) > 0.1 }.whileTrue(
+        //    elevator.velocityCommand { -operatorController.rightY }
+        //)
 
         // Operator controller bindings
         operatorController.a().whileTrue(
@@ -297,6 +314,9 @@ class RobotContainer {
                 setOf(elevator, arm)
             )
         )
+
+        operatorController.leftBumper().whileTrue(flywheel.spinFlywheel(0.60))
+        operatorController.rightBumper().whileTrue(flywheel.spinFlywheel(-0.60))
 
         // Mark IV controller bindings
         markIVController.button(3).onTrue(SuperstructureCommands.l1(elevator, arm))
@@ -335,9 +355,9 @@ class RobotContainer {
         )
 
 
-        Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
-            SuperstructureCommands.home(elevator, arm)
-        )
+        //Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
+        //    SuperstructureCommands.home(elevator, arm)
+        //)
     }
 
     private fun coralPickup(): SequentialCommandGroup = elevator.goToPosition(60.0).andThen(
