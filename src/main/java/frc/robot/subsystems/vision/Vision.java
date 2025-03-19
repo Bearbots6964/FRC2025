@@ -102,7 +102,7 @@ public class Vision extends SubsystemBase {
         boolean rejectPose =
             observation.tagCount() == 0 // Must have at least one tag
                 || (observation.tagCount() == 1
-                    && observation.ambiguity() > INSTANCE.getMaxAmbiguity())
+                && observation.ambiguity() > INSTANCE.getMaxAmbiguity())
                 // Cannot be high ambiguity
                 || Math.abs(observation.pose().getZ()) > INSTANCE.getMaxZError()
                 // Must have realistic Z coordinate
@@ -136,6 +136,9 @@ public class Vision extends SubsystemBase {
           linearStdDev *= getCameraStdDevFactors()[cameraIndex];
           angularStdDev *= getCameraStdDevFactors()[cameraIndex];
         }
+        // Log standard deviations
+        Logger.recordOutput("Vision/Camera" + cameraIndex + "/LinearStdDev", linearStdDev);
+        Logger.recordOutput("Vision/Camera" + cameraIndex + "/AngularStdDev", angularStdDev);
 
         // Send vision observation
         consumer.accept(
