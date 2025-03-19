@@ -22,6 +22,7 @@ public class Flywheel extends SubsystemBase {
       io.stopFlywheel();
     }
   }
+
   public Command spinFlywheel(Double output) {
     return run(() -> io.setFlywheelOpenLoop(output)).withName("Spin Flywheel");
   }
@@ -32,6 +33,7 @@ public class Flywheel extends SubsystemBase {
         .finallyDo(() -> spinFlywheel(0.0))
         .withName("Intake Flywheel");
   }
+
   public Command stop() {
     return run(io::stopFlywheel).withName("Flywheel Stop");
   }

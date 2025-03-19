@@ -19,13 +19,21 @@ public class FlywheelIOSparkMax implements FlywheelIO {
     flywheelMotor =
         new SparkMax(
             Constants.FlywheelConstants.getFlywheelMotorID(), SparkLowLevel.MotorType.kBrushless);
-    tryUntilOk(flywheelMotor, 5, () -> flywheelMotor.configure(flywheelConfiguration, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    tryUntilOk(
+        flywheelMotor,
+        5,
+        () ->
+            flywheelMotor.configure(
+                flywheelConfiguration,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters));
   }
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
     inputs.flywheelAppliedCurrent = flywheelMotor.getOutputCurrent();
-    inputs.flywheelAppliedVoltage = flywheelMotor.getAppliedOutput() * flywheelMotor.getBusVoltage();
+    inputs.flywheelAppliedVoltage =
+        flywheelMotor.getAppliedOutput() * flywheelMotor.getBusVoltage();
     inputs.limitSwitchPressed = flywheelMotor.getForwardLimitSwitch().isPressed();
   }
 
@@ -38,5 +46,4 @@ public class FlywheelIOSparkMax implements FlywheelIO {
   public void stopFlywheel() {
     flywheelMotor.set(0);
   }
-
 }

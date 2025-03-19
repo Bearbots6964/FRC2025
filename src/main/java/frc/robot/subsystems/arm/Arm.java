@@ -7,8 +7,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.Constants;
-import frc.robot.subsystems.arm.FlywheelIO.FlywheelIOInputs;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -20,7 +18,6 @@ public class Arm extends SubsystemBase {
 
   public Arm(ArmIO io) {
     this.io = io;
-
 
     sysId =
         new SysIdRoutine(
@@ -75,5 +72,4 @@ public class Arm extends SubsystemBase {
         .until(() -> io.getDistanceFromGoal() < 3.0)
         .withName("Move Arm Delta");
   }
-
 }

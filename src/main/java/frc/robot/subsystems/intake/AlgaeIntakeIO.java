@@ -32,5 +32,4 @@ public interface AlgaeIntakeIO {
   default void setIntakeVelocity(double velocity) {}
 
   default void setFlywheelOpenLoop(double output) {}
-
 }

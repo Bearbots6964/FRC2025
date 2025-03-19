@@ -52,7 +52,9 @@ public class ArmIOTalonFX implements ArmIO {
 
     // if abs(motor position) > 1, mod by 1 or -1
     if (Math.abs(pivotMotorPosition.getValue().in(Units.Rotations)) > 1) {
-      pivotMotor.setPosition(pivotMotorPosition.getValue().in(Units.Rotations) % (pivotMotorPosition.getValue().in(Units.Rotations) > 0 ? 1 : -1));
+      pivotMotor.setPosition(
+          pivotMotorPosition.getValue().in(Units.Rotations)
+              % (pivotMotorPosition.getValue().in(Units.Rotations) > 0 ? 1 : -1));
     }
   }
 

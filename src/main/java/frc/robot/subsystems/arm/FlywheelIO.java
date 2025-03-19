@@ -15,5 +15,4 @@ public interface FlywheelIO {
   default void setFlywheelOpenLoop(double output) {}
 
   default void stopFlywheel() {}
-
 }

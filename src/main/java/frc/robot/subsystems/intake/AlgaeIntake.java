@@ -3,7 +3,6 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.intake.AlgaeIntakeIO.AlgaeIntakeIOInputs;
 import org.littletonrobotics.junction.Logger;
 
 public class AlgaeIntake extends SubsystemBase {
@@ -41,16 +40,17 @@ public class AlgaeIntake extends SubsystemBase {
   }
 
   public Command runIntake() {
-    return run(
-        () -> {
+    return run(() -> {
           setFlywheelOpenLoop(Constants.AlgaeIntakeConstants.getFlywheelRunningPercent());
           setIntakeVelocity(Constants.AlgaeIntakeConstants.getIntakeVelocity());
-          //setArmPosition(Constants.AlgaeIntakeConstants.getArmExtendedPosition());
-        }).finallyDo(() -> {
-          setIntakeOpenLoop(0);
-          setArmOpenLoop(0);
-          setFlywheelOpenLoop(0);
-    });
+          // setArmPosition(Constants.AlgaeIntakeConstants.getArmExtendedPosition());
+        })
+        .finallyDo(
+            () -> {
+              setIntakeOpenLoop(0);
+              setArmOpenLoop(0);
+              setFlywheelOpenLoop(0);
+            });
   }
 
   public Command stopIntake() {
@@ -61,15 +61,18 @@ public class AlgaeIntake extends SubsystemBase {
 
   public Command retractIntake() {
     return run(() -> {
-      setArmPosition(Constants.AlgaeIntakeConstants.getArmRetractedPosition());
-      setIntakeOpenLoop(-0.1);
-    })
-        .until(() -> inputs.armMotorPosition
-            < Constants.AlgaeIntakeConstants.getArmRetractedPosition() + 1.5).finallyDo(() -> {
+          setArmPosition(Constants.AlgaeIntakeConstants.getArmRetractedPosition());
+          setIntakeOpenLoop(-0.1);
+        })
+        .until(
+            () ->
+                inputs.armMotorPosition
+                    < Constants.AlgaeIntakeConstants.getArmRetractedPosition() + 1.5)
+        .finallyDo(
+            () -> {
               setIntakeOpenLoop(0.0);
               setFlywheelOpenLoop(0.0);
               setArmOpenLoop(0.0);
-        });
+            });
   }
-
 }

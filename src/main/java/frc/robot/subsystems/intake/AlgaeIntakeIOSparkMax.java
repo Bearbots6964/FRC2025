@@ -24,20 +24,47 @@ public class AlgaeIntakeIOSparkMax implements AlgaeIntakeIO {
   protected double targetArmPosition;
   protected double targetIntakeVelocity;
 
-  public AlgaeIntakeIOSparkMax(SparkBaseConfig armMotorConfig, SparkBaseConfig intakeMotorConfig,
-      SparkBaseConfig leftFlywheelConfig, SparkBaseConfig rightFlywheelConfig) {
+  public AlgaeIntakeIOSparkMax(
+      SparkBaseConfig armMotorConfig,
+      SparkBaseConfig intakeMotorConfig,
+      SparkBaseConfig leftFlywheelConfig,
+      SparkBaseConfig rightFlywheelConfig) {
     armMotor = new SparkMax(Constants.AlgaeIntakeConstants.getArmMotorID(), MotorType.kBrushless);
-    tryUntilOk(armMotor, 5, () -> armMotor.configure(armMotorConfig, ResetMode.kResetSafeParameters,
-                                                     PersistMode.kPersistParameters));
-    intakeMotor = new SparkFlex(Constants.AlgaeIntakeConstants.getIntakeMotorID(), MotorType.kBrushless);
-    tryUntilOk(intakeMotor, 5, () -> intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters,
-                                                         PersistMode.kPersistParameters));
-    leftFlywheel = new SparkMax(Constants.AlgaeIntakeConstants.getLeftFlywheelMotorID(), MotorType.kBrushless);
-    tryUntilOk(leftFlywheel, 5, () -> leftFlywheel.configure(leftFlywheelConfig, ResetMode.kResetSafeParameters,
-                                                         PersistMode.kPersistParameters));
-    rightFlywheel = new SparkMax(Constants.AlgaeIntakeConstants.getRightFlywheelMotorID(), MotorType.kBrushless);
-    tryUntilOk(rightFlywheel, 5, () -> rightFlywheel.configure(rightFlywheelConfig, ResetMode.kResetSafeParameters,
-                                                          PersistMode.kPersistParameters));
+    tryUntilOk(
+        armMotor,
+        5,
+        () ->
+            armMotor.configure(
+                armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    intakeMotor =
+        new SparkFlex(Constants.AlgaeIntakeConstants.getIntakeMotorID(), MotorType.kBrushless);
+    tryUntilOk(
+        intakeMotor,
+        5,
+        () ->
+            intakeMotor.configure(
+                intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    leftFlywheel =
+        new SparkMax(Constants.AlgaeIntakeConstants.getLeftFlywheelMotorID(), MotorType.kBrushless);
+    tryUntilOk(
+        leftFlywheel,
+        5,
+        () ->
+            leftFlywheel.configure(
+                leftFlywheelConfig,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters));
+    rightFlywheel =
+        new SparkMax(
+            Constants.AlgaeIntakeConstants.getRightFlywheelMotorID(), MotorType.kBrushless);
+    tryUntilOk(
+        rightFlywheel,
+        5,
+        () ->
+            rightFlywheel.configure(
+                rightFlywheelConfig,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters));
 
     armController = armMotor.getClosedLoopController();
     intakeController = intakeMotor.getClosedLoopController();
@@ -60,7 +87,9 @@ public class AlgaeIntakeIOSparkMax implements AlgaeIntakeIO {
     inputs.leftFlywheelVoltage = leftFlywheel.getAppliedOutput() * leftFlywheel.getBusVoltage();
     inputs.rightFlywheelCurrent = rightFlywheel.getOutputCurrent();
     inputs.rightFlywheelVoltage = rightFlywheel.getAppliedOutput() * rightFlywheel.getBusVoltage();
-    inputs.extended = armMotor.getEncoder().getPosition() > Constants.AlgaeIntakeConstants.getArmRetractedPosition() + 2;
+    inputs.extended =
+        armMotor.getEncoder().getPosition()
+            > Constants.AlgaeIntakeConstants.getArmRetractedPosition() + 2;
   }
 
   @Override
@@ -91,5 +120,4 @@ public class AlgaeIntakeIOSparkMax implements AlgaeIntakeIO {
     rightFlywheel.set(output); // one of these is already inverted,
     // so we don't need to worry about negative values
   }
-
 }

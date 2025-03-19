@@ -247,7 +247,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     Logger.recordOutput("Odometry/Drive Std Devs", driveStdDevs);
     poseEstimator.setDriveMeasurementStdDevs(driveStdDevs);
     field.setRobotPose(getPose());
-    Logger.recordOutput("Swerve/Speed", Math.hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond));
+    Logger.recordOutput(
+        "Swerve/Speed",
+        Math.hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond));
     odometryLock.unlock();
 
     // Stop moving when disabled
