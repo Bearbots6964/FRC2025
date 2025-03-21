@@ -15,6 +15,7 @@ package frc.robot
 import com.pathplanner.lib.auto.AutoBuilder
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.networktables.StringPublisher
@@ -26,16 +27,15 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
-import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.VisionConstants.robotToCamera0
 import frc.robot.Constants.VisionConstants.robotToCamera1
 import frc.robot.Constants.VisionConstants.robotToCamera2
 import frc.robot.Constants.VisionConstants.robotToCamera3
 import frc.robot.commands.*
-import frc.robot.commands.DriveToSpecificCoralStationCommand.Side
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.arm.*
+import frc.robot.subsystems.climber.*
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.elevator.ElevatorIO
@@ -44,11 +44,11 @@ import frc.robot.subsystems.intake.AlgaeIntake
 import frc.robot.subsystems.intake.AlgaeIntakeIO
 import frc.robot.subsystems.intake.AlgaeIntakeIOSparkMax
 import frc.robot.subsystems.vision.*
+import frc.robot.util.CommandQueue
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
-import kotlin.math.abs
 
 
 /**
@@ -65,6 +65,7 @@ class RobotContainer {
     private var elevator: Elevator
     private var algaeIntake: AlgaeIntake
     private var flywheel: Flywheel
+    private var climber: Climber
 
     private var driveSimulation: SwerveDriveSimulation? = null
 
@@ -73,6 +74,8 @@ class RobotContainer {
     private val operatorController = CommandXboxController(1)
     private val markIVController = CommandGenericHID(2)
     private val buttonMacroController: CommandJoystick = CommandJoystick(3)
+
+    private val autoQueue: CommandQueue = CommandQueue()
 
     // Dashboard inputs
     private lateinit var autoChooser: LoggedDashboardChooser<Command>
@@ -91,6 +94,7 @@ class RobotContainer {
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
         SmartDashboard.putData(CommandScheduler.getInstance())
+        SmartDashboard.putData("Auto Queue", autoQueue)
         when (Constants.currentMode) {
             Constants.Mode.REAL -> {
                 // Real robot, instantiate hardware IO implementations
@@ -130,6 +134,10 @@ class RobotContainer {
                         Constants.AlgaeIntakeConstants.rightFlywheelConfig
                     )
                 )
+                climber = Climber(
+                    WinchIOTalonFX(Constants.ClimberConstants.winchMotorConfig),
+                    ClimberPivotIOTalonFX(Constants.ClimberConstants.pivotMotorConfig)
+                )
             }
 
             Constants.Mode.SIM -> {
@@ -161,9 +169,11 @@ class RobotContainer {
                 arm = Arm(
                     ArmIOTalonFXSim(
 
-                    ))
+                    )
+                )
                 flywheel = Flywheel(object : FlywheelIO {})
                 elevator = Elevator(object : ElevatorIO {})
+                climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
 
                 algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
             }
@@ -182,6 +192,7 @@ class RobotContainer {
                 arm = Arm(object : ArmIO {})
                 flywheel = Flywheel(object : FlywheelIO {})
                 algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
+                climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
             }
         }
 
@@ -282,6 +293,7 @@ class RobotContainer {
         // Default commands for elevator and arm
         elevator.defaultCommand = elevator.velocityCommand({ -operatorController.rightY })
         arm.defaultCommand = arm.moveArm({ -operatorController.leftY })
+        climber.defaultCommand = climber.moveClimberToIntakePosition()
         //flywheel.defaultCommand = flywheel.stop()
 
         //Trigger { abs(operatorController.leftY) > 0.1 }.whileTrue(
@@ -463,17 +475,20 @@ class RobotContainer {
             "Elevator SysId (Dynamic Reverse)",
             elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
+
+        autoChooser.addOption(
+            let {
+                var a = ""
+                for (i in 0..1000) a += "1234567890"
+                a
+            }, Commands.none()
+        )
     }
 
     private fun setUpDashboardCommands() {
         SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.A
-            ).withName("Reef A")
+            PathfindingFactories.pathfindToSpecificReef(drive, PathfindingFactories.Reef.A)
+                .withName("Reef A")
         )
         SmartDashboard.putData(
             DriveToSpecificReefSideCommand(
@@ -577,9 +592,7 @@ class RobotContainer {
 
         SmartDashboard.putData(
             SuperstructureCommands.goToPosition(
-                elevator,
-                arm,
-                Constants.ElevatorConstants.ElevatorState.HOME
+                elevator, arm, Constants.ElevatorConstants.ElevatorState.HOME
             ).withName("Superstructure Home")
         )
         SmartDashboard.putData(Commands.runOnce({
@@ -601,12 +614,12 @@ class RobotContainer {
 
         SmartDashboard.putData(
             DriveToSpecificCoralStationCommand(
-                drive, Side.LEFT, arm, elevator
+                drive, PathfindingFactories.CoralStationSide.LEFT, arm, elevator
             ).withName("Drive to Left Coral Station")
         )
         SmartDashboard.putData(
             DriveToSpecificCoralStationCommand(
-                drive, Side.RIGHT, arm, elevator
+                drive, PathfindingFactories.CoralStationSide.RIGHT, arm, elevator
             ).withName("Drive to Right Coral Station")
         )
 
@@ -620,5 +633,72 @@ class RobotContainer {
         )
 
         SmartDashboard.putData(drive.followRepulsorField(AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]))
+
+
+        SmartDashboard.putData(algaeIntake.runIntake().withName("Run Intake"))
+        SmartDashboard.putData(algaeIntake.retractIntake().withName("Retract Intake"))
+
+
+        // add individual reef goto commands to queue
+        for (reef in PathfindingFactories.Reef.entries) {
+            SmartDashboard.putData(
+                autoQueue.addAsCommand({
+                    PathfindingFactories.pathfindToSpecificReef(drive, reef)
+                        .withName("Reef " + reef.name + " (Queued)")
+                }).withName("Queue Reef " + reef.name)
+            )
+        }
+        for (reef in PathfindingFactories.Reef.entries) {
+            SmartDashboard.putData(
+                autoQueue.addAsCommand({
+                    PathfindingFactories.pathfindToReefAlternate(drive, reef) {
+                        Translation2d(
+                            -driveController.leftY, -driveController.leftX
+                        )
+                    }.withName("Reef " + reef.name + " (Queued, alternate)")
+                }).withName("Queue Reef alternate " + reef.name)
+            )
+        }
+
+        for (reef in PathfindingFactories.Reef.entries) {
+            SmartDashboard.putData(
+                autoQueue.addAsCommand({
+                    PathfindingFactories.finalLineupToSpecificReef(drive, reef)
+                        .withName("Final Lineup to Reef " + reef.name + " (Queued)")
+                }).withName("Queue Final Lineup to Reef " + reef.name)
+            )
+        }
+        for (coralStation in PathfindingFactories.CoralStationSide.entries) {
+            SmartDashboard.putData(
+                autoQueue.addAsCommand({
+                    PathfindingFactories.pathfindToSpecificCoralStation(
+                        drive, coralStation
+                    ).withName("Drive to " + coralStation.name + " Coral Station (Queued)")
+                }).withName("Queue Drive to " + coralStation.name + " Coral Station")
+            )
+        }
+        for (coralStation in PathfindingFactories.CoralStationSide.entries) {
+            SmartDashboard.putData(
+                autoQueue.addAsCommand({
+                    PathfindingFactories.finalLineupToSpecificCoralStation(
+                        drive, coralStation
+                    ).withName("Final Lineup to " + coralStation.name + " Coral Station (Queued)")
+                }).withName("Queue Final Lineup to " + coralStation.name + " Coral Station")
+            )
+        }
+
+        for (position in Constants.ElevatorConstants.ElevatorState.entries) {
+
+            SmartDashboard.putData(
+                autoQueue.addAsCommand({
+                    SuperstructureCommands.goToPosition(
+                        elevator, arm, position
+                    ).withName("Superstructure to " + position.name + " Position (Queued)")
+                }).withName("Queue Superstructure " + position.name + " Position")
+            )
+        }
+
     }
+
+    fun stopQueue() = autoQueue.clearAll()
 }
