@@ -107,7 +107,7 @@ class Robot : LoggedRobot() {
         robotContainer = RobotContainer()
 
         // Schedule the warmup command. Significantly speeds up pathfinding after the first run.
-        PathfindingCommand.warmupCommand().schedule()
+        PathfindingCommand.warmupCommand().withName("Pathfinding Warmup").schedule()
 
         // Silence joystick connection warning
         DriverStation.silenceJoystickConnectionWarning(true)
@@ -133,7 +133,9 @@ class Robot : LoggedRobot() {
     }
 
     /** This function is called once when the robot is disabled.  */
-    override fun disabledInit() {}
+    override fun disabledInit() {
+        robotContainer.stopQueue()
+    }
 
     /** This function is called periodically when disabled.  */
     override fun disabledPeriodic() {}

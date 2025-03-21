@@ -102,7 +102,7 @@ object TunerConstants {
     private const val pigeonId = 14
 
     // These are only used for simulation
-    private val steerInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.004)
+    private val steerInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.05)
     private val driveInertia: MomentOfInertia = Units.KilogramSquareMeters.of(0.025)
 
     // Simulated voltage necessary to overcome friction

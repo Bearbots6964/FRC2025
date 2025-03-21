@@ -72,4 +72,8 @@ public class Arm extends SubsystemBase {
         .until(() -> io.getDistanceFromGoal() < 3.0)
         .withName("Move Arm Delta");
   }
+
+  public double getArmAngle() { // degrees
+    return inputs.armAxisAngle;
+  }
 }

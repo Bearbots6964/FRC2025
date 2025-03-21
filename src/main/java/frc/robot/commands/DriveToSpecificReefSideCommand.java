@@ -45,24 +45,25 @@ public class DriveToSpecificReefSideCommand extends Command {
     addRequirements(drive);
     numbers =
         switch (reef) {
-          case A, B -> new int[] {7, 18};
-          case C, D -> new int[] {8, 17};
-          case E, F -> new int[] {9, 22};
-          case G, H -> new int[] {10, 21};
-          case I, J -> new int[] {11, 20};
-          case K, L -> new int[] {6, 19};
+          case A, B, AB_ALGAE -> new int[] {7, 18};
+          case C, D, CD_ALGAE -> new int[] {8, 17};
+          case E, F, EF_ALGAE -> new int[] {9, 22};
+          case G, H, GH_ALGAE -> new int[] {10, 21};
+          case I, J, IJ_ALGAE -> new int[] {11, 20};
+          case K, L, KL_ALGAE -> new int[] {6, 19};
         };
     isLeftSide =
         switch (reef) {
           case A, C, E, G, I, K -> true;
-          case B, D, F, H, J, L -> false;
+          case B, D, F, H, J, L, KL_ALGAE, IJ_ALGAE, GH_ALGAE, EF_ALGAE, CD_ALGAE, AB_ALGAE ->
+              false;
         };
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    var closestAprilTagPose = getTargetPose();
+    var closestAprilTagPose = getSpecificReefSidePose();
     var pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoord(
@@ -114,7 +115,7 @@ public class DriveToSpecificReefSideCommand extends Command {
     return false;
   }
 
-  private Pose2d getTargetPose() {
+  private Pose2d getSpecificReefSidePose() {
     var aprilTagsToAlignTo = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS;
     int aprilTagNum =
         switch (Robot.getAlliance()) {
@@ -172,6 +173,12 @@ public class DriveToSpecificReefSideCommand extends Command {
     I,
     J,
     K,
-    L
+    L,
+    AB_ALGAE,
+    CD_ALGAE,
+    EF_ALGAE,
+    GH_ALGAE,
+    IJ_ALGAE,
+    KL_ALGAE
   }
 }

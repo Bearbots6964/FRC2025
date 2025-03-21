@@ -218,6 +218,33 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             new ChassisSpeeds(), getModuleStates(), DriveFeedforwards.zeros(4));
 
     SmartDashboard.putData(field);
+    SmartDashboard.putData(
+        "Swerve Drive",
+        builder -> {
+          builder.setSmartDashboardType("SwerveDrive");
+
+          builder.addDoubleProperty(
+              "Front Left Angle", () -> modules[0].getAngle().getRadians(), null);
+          builder.addDoubleProperty(
+              "Front Left Velocity", () -> modules[0].getVelocityMetersPerSec(), null);
+
+          builder.addDoubleProperty(
+              "Front Right Angle", () -> modules[1].getAngle().getRadians(), null);
+          builder.addDoubleProperty(
+              "Front Right Velocity", () -> modules[1].getVelocityMetersPerSec(), null);
+
+          builder.addDoubleProperty(
+              "Back Left Angle", () -> modules[2].getAngle().getRadians(), null);
+          builder.addDoubleProperty(
+              "Back Left Velocity", () -> modules[2].getVelocityMetersPerSec(), null);
+
+          builder.addDoubleProperty(
+              "Back Right Angle", () -> modules[3].getAngle().getRadians(), null);
+          builder.addDoubleProperty(
+              "Back Right Velocity", () -> modules[3].getVelocityMetersPerSec(), null);
+
+          builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
+        });
   }
 
   /** Returns an array of module translations. */
@@ -564,7 +591,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                   var sample =
                       repulsorFieldPlanner.sampleField(
                           poseEstimator.getEstimatedPosition().getTranslation(),
-                          maxLinearSpeedMetersPerSec * .9,
+                          maxLinearSpeedMetersPerSec * .25,
                           1.25);
 
                   // calculate feedforward and feedback
@@ -628,6 +655,13 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                   runVelocity(setpoint.robotRelativeSpeeds());
                   lastSetpoint = setpoint;
                 }))
+        .until(
+            () ->
+                poseEstimator
+                        .getEstimatedPosition()
+                        .getTranslation()
+                        .getDistance(goal.getTranslation())
+                    < 0.1)
         .withName("Repulsor Field");
   }
 

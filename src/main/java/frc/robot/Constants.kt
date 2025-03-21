@@ -32,6 +32,8 @@ object Constants {
 
 
     object ElevatorConstants {
+        const val safePosition = 48.2
+
         const val LEFT_MOTOR_CAN_ID = 3
         const val RIGHT_MOTOR_CAN_ID = 2
 
@@ -105,6 +107,8 @@ object Constants {
         }
 
 
+        const val safeAngle = -50.0
+
         @JvmStatic
         val armAxisMotorID: Int = 6
 
@@ -124,10 +128,13 @@ object Constants {
             Slot0Configs().withKP(40.0).withKS(0.51518).withKV(7.35).withKA(0.61).withKG(1.5)
         ).withMotionMagic(
             MotionMagicConfigs().withMotionMagicCruiseVelocity(1.25)
-                .withMotionMagicAcceleration(3.0).withMotionMagicJerk(6.0)
+                .withMotionMagicAcceleration(1.5).withMotionMagicJerk(4.0)
         ).withCommutation(
             CommutationConfigs().withMotorArrangement(MotorArrangementValue.NEO_JST)
                 .withAdvancedHallSupport(AdvancedHallSupportValue.Enabled)
+        ).withSoftwareLimitSwitch(
+            SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true).withForwardSoftLimitThreshold(Units.Degrees.of(225.0))
+                .withReverseSoftLimitEnable(true).withReverseSoftLimitThreshold(Units.Degrees.of(-60.0))
         )
 
     }
@@ -137,7 +144,7 @@ object Constants {
         val flywheelMotorID: Int = 7
 
         @JvmStatic
-        val flywheelIntakePercent = 0.40
+        val flywheelIntakePercent = 1.0
 
         @JvmStatic
         val sparkConfig = SparkMaxConfig().let {
@@ -275,6 +282,73 @@ object Constants {
         var linearStdDevMegatag2Factor: Double = 0.5 // More stable than full 3D solve
         var angularStdDevMegatag2Factor: Double =
             Double.POSITIVE_INFINITY // No rotation data available
+    }
+
+    object PathfindingConstants {
+        const val finalDistanceFromCoralStationMeters = 0.4260342 // 16.77 inches
+        const val pathfindingEndDistanceFromGoal = 0.3
+        const val finalDistanceFromReefMeters = 0.4768342
+        const val lateralDistanceFromReefMeters = 0.1686306
+
+        @JvmStatic
+        val pathfindingConstraints = PathConstraints(
+            3.0,
+            4.0,
+            edu.wpi.first.math.util.Units.degreesToRadians(540.0),
+            edu.wpi.first.math.util.Units.degreesToRadians(720.0)
+        )
+
+        @JvmStatic
+        val finalLineupConstraints = PathConstraints(0.6, 1.0, 2 * Math.PI, 4 * Math.PI)
+
+    }
+
+    object ClimberConstants {
+        @JvmStatic
+        val winchMotorID = 12
+        @JvmStatic
+        val pivotMotorID = 11
+        @JvmStatic
+        val pivotCageCatchPosition = 0.2
+
+        val pivotMotorConfig: TalonFXSConfiguration = TalonFXSConfiguration().let {
+            it.MotorOutput.NeutralMode = NeutralModeValue.Brake
+
+            it.CurrentLimits.SupplyCurrentLimit = 40.0
+            it.CurrentLimits.StatorCurrentLimit = 40.0
+
+            it.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST
+            it.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled
+
+            it.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.PulseWidth
+            it.ExternalFeedback.RotorToSensorRatio = 20.0
+            it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
+            it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.5
+            it.ExternalFeedback.AbsoluteSensorOffset = -0.47
+
+            it.MotionMagic.MotionMagicCruiseVelocity = 0.25
+            it.MotionMagic.MotionMagicAcceleration = 12.0
+
+            it.Slot0.kP = 16.0
+
+            it
+        }
+
+        val winchMotorConfig: TalonFXConfiguration = TalonFXConfiguration().let {
+            it.MotorOutput.NeutralMode = NeutralModeValue.Brake
+            it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
+
+            it.CurrentLimits.SupplyCurrentLimit = 20.0
+            it.CurrentLimits.StatorCurrentLimit = 20.0
+
+            it.MotionMagic.MotionMagicCruiseVelocity = 10.0
+            it.MotionMagic.MotionMagicAcceleration = 20.0
+
+            it.Slot0.kP = 0.5
+            it.Slot0.kS = 0.2
+
+            it
+        }
     }
 
 

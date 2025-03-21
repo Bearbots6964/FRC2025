@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTagPositions;
-import frc.robot.Constants.ElevatorConstants.ElevatorState;
 import frc.robot.Robot;
+import frc.robot.commands.PathfindingFactories.CoralStationSide;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
@@ -31,15 +31,11 @@ public class DriveToSpecificCoralStationCommand extends Command {
   private final Arm arm;
   private final Elevator elevator;
   private Command fullPath;
-  private Side side;
-
-  public enum Side {
-    LEFT,
-    RIGHT
-  }
+  private CoralStationSide side;
 
   /** Creates a new DriveToNearestReefSideCommand. */
-  public DriveToSpecificCoralStationCommand(Drive drive, Side side, Arm arm, Elevator elevator) {
+  public DriveToSpecificCoralStationCommand(
+      Drive drive, CoralStationSide side, Arm arm, Elevator elevator) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
     this.arm = arm;
@@ -51,14 +47,14 @@ public class DriveToSpecificCoralStationCommand extends Command {
 
   // Called when the command is initially scheduled.
   public void initialize() {
-    Pose2d closestAprilTagPose = getTargetPosition();
+    Pose2d closestAprilTagPose = getSpecificCoralStationPose();
     Command pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
                     closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
             new PathConstraints(
-                3.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+                1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
 
     try {
       // Load the path you want to follow using its name in the GUI
@@ -75,12 +71,7 @@ public class DriveToSpecificCoralStationCommand extends Command {
               new GoalEndState(
                   0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
       pathToFront.preventFlipping = true;
-      fullPath =
-          SuperstructureCommands.INSTANCE
-              .goToPosition(elevator, arm, ElevatorState.HOME)
-              .andThen(pathfindPath)
-              .andThen(SuperstructureCommands.INSTANCE.coralStationPosition(elevator, arm))
-              .andThen(AutoBuilder.followPath(pathToFront));
+      fullPath = pathfindPath.andThen(AutoBuilder.followPath(pathToFront));
       fullPath.schedule();
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
@@ -99,16 +90,16 @@ public class DriveToSpecificCoralStationCommand extends Command {
     return fullPath.isScheduled() && fullPath.isFinished();
   }
 
-  private Pose2d getTargetPosition() {
+  private Pose2d getSpecificCoralStationPose() {
     Pose2d tagPose;
     if (Robot.getAlliance() == Alliance.Red) {
       tagPose =
-          (side == Side.LEFT)
+          (side == CoralStationSide.LEFT)
               ? AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1)
               : AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2);
     } else {
       tagPose =
-          (side == Side.LEFT)
+          (side == CoralStationSide.LEFT)
               ? AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13)
               : AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12);
     }

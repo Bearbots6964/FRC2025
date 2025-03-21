@@ -62,7 +62,7 @@ public class Elevator extends SubsystemBase {
    * @return Command to move the elevator up or down based on a joystick input
    */
   public Command velocityCommand(DoubleSupplier joystick) {
-    return run(() -> io.setOpenLoop(joystick.getAsDouble()));
+    return run(() -> io.setOpenLoop(joystick.getAsDouble())).withName("Elevator Velocity Command");
   }
 
   /**
@@ -188,5 +188,9 @@ public class Elevator extends SubsystemBase {
 
   public void lockPosition() {
     targetPosition = inputs.rightMotorPositionRotations;
+  }
+
+  public double getPosition() {
+    return inputs.rightMotorPositionRotations;
   }
 }
