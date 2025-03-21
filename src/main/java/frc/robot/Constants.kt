@@ -32,6 +32,8 @@ object Constants {
 
 
     object ElevatorConstants {
+        const val safePosition = 48.2
+
         const val LEFT_MOTOR_CAN_ID = 3
         const val RIGHT_MOTOR_CAN_ID = 2
 
@@ -105,6 +107,8 @@ object Constants {
         }
 
 
+        const val safeAngle = -50.0
+
         @JvmStatic
         val armAxisMotorID: Int = 6
 
@@ -124,10 +128,13 @@ object Constants {
             Slot0Configs().withKP(40.0).withKS(0.51518).withKV(7.35).withKA(0.61).withKG(1.5)
         ).withMotionMagic(
             MotionMagicConfigs().withMotionMagicCruiseVelocity(1.25)
-                .withMotionMagicAcceleration(3.0).withMotionMagicJerk(6.0)
+                .withMotionMagicAcceleration(1.5).withMotionMagicJerk(4.0)
         ).withCommutation(
             CommutationConfigs().withMotorArrangement(MotorArrangementValue.NEO_JST)
                 .withAdvancedHallSupport(AdvancedHallSupportValue.Enabled)
+        ).withSoftwareLimitSwitch(
+            SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true).withForwardSoftLimitThreshold(Units.Degrees.of(225.0))
+                .withReverseSoftLimitEnable(true).withReverseSoftLimitThreshold(Units.Degrees.of(-60.0))
         )
 
     }
@@ -137,7 +144,7 @@ object Constants {
         val flywheelMotorID: Int = 7
 
         @JvmStatic
-        val flywheelIntakePercent = 0.40
+        val flywheelIntakePercent = 1.0
 
         @JvmStatic
         val sparkConfig = SparkMaxConfig().let {

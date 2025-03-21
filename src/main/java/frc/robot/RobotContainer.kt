@@ -315,8 +315,10 @@ class RobotContainer {
             )
         )
 
-        operatorController.leftBumper().whileTrue(flywheel.spinFlywheel(0.60))
-        operatorController.rightBumper().whileTrue(flywheel.spinFlywheel(-0.60))
+        operatorController.leftBumper()
+            .whileTrue(flywheel.spinFlywheel(Constants.FlywheelConstants.flywheelIntakePercent))
+        operatorController.rightBumper()
+            .whileTrue(flywheel.spinFlywheel(-Constants.FlywheelConstants.flywheelIntakePercent))
 
         // Mark IV controller bindings
         markIVController.button(3).onTrue(SuperstructureCommands.l1(elevator, arm))
