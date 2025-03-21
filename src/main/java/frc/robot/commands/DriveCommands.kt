@@ -105,7 +105,7 @@ object DriveCommands {
                 )
             },
             drive
-        )
+        ).withName("Joystick Drive")
     }
 
     /**
