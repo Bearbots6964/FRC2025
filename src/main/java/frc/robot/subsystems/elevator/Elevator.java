@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.SuperstructureConstants.ElevatorConstants;
+import frc.robot.Constants.SuperstructureConstants.SuperstructureState;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -99,34 +100,34 @@ public class Elevator extends SubsystemBase {
    * @param state The position to go to
    * @return Command to go to a specific position
    */
-  public Command goToPosition(ElevatorConstants.ElevatorState state) {
+  public Command goToPosition(SuperstructureState state) {
     targetPosition =
         switch (state) {
-          case L1 -> ElevatorConstants.L1;
-          case L2 -> ElevatorConstants.L2;
-          case L3 -> ElevatorConstants.L3;
-          case L4 -> ElevatorConstants.L4;
-          default -> ElevatorConstants.HOME;
+          case L1 -> ElevatorConstants.ElevatorState.L1;
+          case L2 -> ElevatorConstants.ElevatorState.L2;
+          case L3 -> ElevatorConstants.ElevatorState.L3;
+          case L4 -> ElevatorConstants.ElevatorState.L4;
+          default -> ElevatorConstants.ElevatorState.HOME;
         };
     return run(() ->
             setRotations(
                 switch (state) {
-                  case L1 -> ElevatorConstants.L1;
-                  case L2 -> ElevatorConstants.L2;
-                  case L3 -> ElevatorConstants.L3;
-                  case L4 -> ElevatorConstants.L4;
-                  default -> ElevatorConstants.HOME;
+                  case L1 -> ElevatorConstants.ElevatorState.L1;
+                  case L2 -> ElevatorConstants.ElevatorState.L2;
+                  case L3 -> ElevatorConstants.ElevatorState.L3;
+                  case L4 -> ElevatorConstants.ElevatorState.L4;
+                  default -> ElevatorConstants.ElevatorState.HOME;
                 }))
         .until(
             () ->
                 Math.abs(
                         inputs.rightMotorPositionRotations
                             - switch (state) {
-                              case L1 -> ElevatorConstants.L1;
-                              case L2 -> ElevatorConstants.L2;
-                              case L3 -> ElevatorConstants.L3;
-                              case L4 -> ElevatorConstants.L4;
-                              default -> ElevatorConstants.HOME;
+                              case L1 -> ElevatorConstants.ElevatorState.L1;
+                              case L2 -> ElevatorConstants.ElevatorState.L2;
+                              case L3 -> ElevatorConstants.ElevatorState.L3;
+                              case L4 -> ElevatorConstants.ElevatorState.L4;
+                              default -> ElevatorConstants.ElevatorState.HOME;
                             })
                     < 1.0);
   }

@@ -1,6 +1,7 @@
 package frc.robot
 
-import com.ctre.phoenix6.configs.*
+import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.configs.TalonFXSConfiguration
 import com.ctre.phoenix6.signals.*
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.RobotConfig
@@ -13,6 +14,8 @@ import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Transform3d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.system.plant.DCMotor
+import edu.wpi.first.math.util.Units.degreesToRadians
+import edu.wpi.first.math.util.Units.inchesToMeters
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.*
 import edu.wpi.first.wpilibj.RobotBase
@@ -24,74 +27,109 @@ import frc.robot.util.Polygon
  * All String, Boolean, and numeric (Int, Long, Float, Double) constants should use
  * `const` definitions. Other constant types should use `val` definitions.
  */
-
 object Constants {
-    object OperatorConstants {
-        const val DRIVER_FULL_AUTO = true
-    }
+    /**
+     * Constants object for the superstructure (elevator, arm, claw intake).
+     */
+    object SuperstructureConstants {
+        /**
+         * Constants object for the elevator.
+         * Currently, the elevator is composed of a Thrifty Bot elevator kit with two Kraken X60 motors.
+         */
+        object ElevatorConstants {
+            /**
+             * Position of the elevator
+             * at which the arm cannot possibly get stuck on the elevator crossbeam or algae intake.
+             * Rotations.
+             */
+            const val armClearancePosition = 48.2
 
+            /**
+             * CAN ID of the left elevator motor.
+             */
+            const val LEFT_MOTOR_CAN_ID = 3
 
-    object ElevatorConstants {
-        const val safePosition = 48.2
+            /**
+             * CAN ID of the right elevator motor.
+             */
+            const val RIGHT_MOTOR_CAN_ID = 2
 
-        const val LEFT_MOTOR_CAN_ID = 3
-        const val RIGHT_MOTOR_CAN_ID = 2
+            /**
+             * Talon FX configuration for the left elevator motor.
+             */
+            @JvmStatic
+            val leftMotorConfig: TalonFXConfiguration = TalonFXConfiguration().let {
+                // The Kotlin `let` scope function is really useful here,
+                // as it allows us
+                // to configure the object over multiple lines
+                // without having to use an initializer block.
+                it.ClosedLoopGeneral.ContinuousWrap = false
+                it.MotorOutput.NeutralMode = NeutralModeValue.Brake
+                it.CurrentLimits.StatorCurrentLimit = 20.0
+                it.CurrentLimits.SupplyCurrentLimit = 20.0
 
-        @JvmStatic
-        val leftMotorConfig: TalonFXConfiguration = TalonFXConfiguration()
+                it // Implicit return.
+                // This is really the only downside to using this, as it can look random.
+            }
 
-        @JvmStatic
-        val rightMotorConfig: TalonFXConfiguration = TalonFXConfiguration()
+            /**
+             * Talon FX configuration for the right elevator motor.
+             */
+            @JvmStatic
+            val rightMotorConfig: TalonFXConfiguration = TalonFXConfiguration().let {
+                it.ClosedLoopGeneral.ContinuousWrap = false
+                it.MotorOutput.NeutralMode = NeutralModeValue.Brake
+                it.CurrentLimits.StatorCurrentLimit = 20.0
+                it.CurrentLimits.SupplyCurrentLimit = 20.0
+                it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
-        init {
-            leftMotorConfig.ClosedLoopGeneral.ContinuousWrap = false
-            leftMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake
-            leftMotorConfig.CurrentLimits.StatorCurrentLimit = 20.0
-            leftMotorConfig.CurrentLimits.SupplyCurrentLimit = 20.0
+                it.Slot0.kS = 0.087054
+                it.Slot0.kV = 0.11971
+                it.Slot0.kA = 0.0031455
+                it.Slot0.kG = 0.10784
+                it.Slot0.kP = 0.8 // sysid suggests 0.067039
 
-            rightMotorConfig.ClosedLoopGeneral.ContinuousWrap = false
-            rightMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake
-            rightMotorConfig.CurrentLimits.StatorCurrentLimit = 20.0
-            rightMotorConfig.CurrentLimits.SupplyCurrentLimit = 20.0
-            rightMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
+                it.MotionMagic.MotionMagicCruiseVelocity = 100.0
+                it.MotionMagic.MotionMagicAcceleration = 200.0
+                it.MotionMagic.MotionMagicJerk = 1000.0
 
+                it
+            }
 
-            val slot0Configs = rightMotorConfig.Slot0
-            slot0Configs.kS = 0.087054
-            slot0Configs.kV = 0.11971
-            slot0Configs.kA = 0.0031455
-            slot0Configs.kG = 0.10784
-            slot0Configs.kP = 0.8 // sysid suggests 0.067039
+            /**
+             * Elevator height states.
+             */
+            object ElevatorState {
+                const val HOME = 5.0
+                const val L1 = 5.0
+                const val L2 = 42.96
+                const val L3 = 90.0
+                const val L4 = 86 // TODO: Find actual value
+                const val PRE_CORAL_PICKUP = 37.0
+                const val CORAL_PICKUP = 0.0
+                const val BARGE_LAUNCH = 100.93
+                const val ALGAE_INTAKE = 0.0
+                const val UPPER_REEF_ALGAE = 11.3
+                const val LOWER_REEF_ALGAE = 0.0
+            }
 
-            val motionMagicConfigs = rightMotorConfig.MotionMagic
-            motionMagicConfigs.MotionMagicCruiseVelocity = 100.0
-            motionMagicConfigs.MotionMagicAcceleration = 200.0
-            motionMagicConfigs.MotionMagicJerk = 1000.0
+            /**
+             * Whether SysID profiling is enabled for the elevator. Should probably be false.
+             */
+            const val SYSID_PROFILING_ENABLED = false
         }
 
-        const val HOME = 5.0
-        const val L1 = 5.0
-        const val L2 = 42.96
-        const val L3 = 90.0
-        const val L4 = 86 // TODO: Find actual value
-        const val PRE_CORAL_PICKUP = 37.0
-        const val CORAL_PICKUP = 0.0
-        const val BARGE_LAUNCH = 100.93
-        const val ALGAE_INTAKE = 0.0
-        const val UPPER_REEF_ALGAE = 11.3
-        const val LOWER_REEF_ALGAE = 0.0
-
-        enum class ElevatorState {
-            HOME, L1, L2, L3, L4, PRE_CORAL_PICKUP, CORAL_PICKUP, BARGE_LAUNCH, ALGAE_INTAKE, UPPER_REEF_ALGAE, LOWER_REEF_ALGAE
-        }
-
-        const val SYSID_PROFILING_ENABLED = true
-    }
-
-
-    object ArmConstants {
-        class ArmState {
-            companion object {
+        /**
+         * Constants object for the arm.
+         * As of now,
+         * this is driven by a Neo motor
+         * hooked up to a Talon FXS with a REV Through Bore Encoder jury-rigged in.
+         */
+        object ArmConstants {
+            /**
+             * Arm position states.
+             */
+            object ArmState {
                 const val HOME = 224.0
                 const val L1 = 155.0
                 const val L2 = -71.36
@@ -104,81 +142,201 @@ object Constants {
                 const val UPPER_REEF_ALGAE = 0.0
                 const val LOWER_REEF_ALGAE = 0.0
             }
+
+
+            /**
+             * Safe angle for the arm to be at when the elevator needs to move up..
+             */
+            const val safeAngle = -50.0
+
+            /**
+             * CAN ID of the arm motor.
+             */
+            @JvmStatic
+            val armAxisMotorID: Int = 6
+
+            /**
+             * Talon FXS configuration for the arm motor.
+             */
+            @JvmStatic
+            val talonConfig: TalonFXSConfiguration = TalonFXSConfiguration().let {
+                it.CurrentLimits.StatorCurrentLimit = 50.0
+                it.CurrentLimits.StatorCurrentLimitEnable = true
+
+                it.ExternalFeedback.ExternalFeedbackSensorSource =
+                    ExternalFeedbackSensorSourceValue.PulseWidth
+                it.ExternalFeedback.RotorToSensorRatio = 60.0
+                it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
+                it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.7
+                it.ExternalFeedback.AbsoluteSensorOffset = 0.27
+                it.ExternalFeedback.SensorPhase = SensorPhaseValue.Aligned
+
+                it.MotorOutput.NeutralMode = NeutralModeValue.Brake
+                it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
+
+                it.Slot0.kP = 40.0
+                it.Slot0.kS = 0.51518
+                it.Slot0.kV = 7.35
+                it.Slot0.kA = 0.61
+                it.Slot0.kG = 1.5
+
+                it.MotionMagic.MotionMagicCruiseVelocity = 1.25
+                it.MotionMagic.MotionMagicAcceleration = 1.5
+                it.MotionMagic.MotionMagicJerk = 4.0
+
+                it.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled
+                it.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST
+
+                it.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
+                it.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+                    Units.Degrees.of(225.0).`in`(Units.Revolutions)
+                it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
+                it.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+                    Units.Degrees.of(-60.0).`in`(Units.Revolutions)
+
+                it // funny kotlin return
+            }
         }
 
+        /**
+         * Constants object for the claw intake.
+         * Currently a Neo 550 hooked up to a Spark Max.
+         */
+        object ClawIntakeConstants {
+            /**
+             * CAN ID of the claw motor.
+             */
+            @JvmStatic
+            val clawMotorID: Int = 7
 
-        const val safeAngle = -50.0
+            /**
+             * Percent output of the claw motor when intaking.
+             */
+            @JvmStatic
+            val clawIntakePercent = 1.0
 
-        @JvmStatic
-        val armAxisMotorID: Int = 6
+            /**
+             * Motor controller configuration for the claw motor.
+             */
+            @JvmStatic
+            val sparkConfig: SparkBaseConfig = SparkMaxConfig().let {
+                it.idleMode(SparkBaseConfig.IdleMode.kBrake)
+                it.smartCurrentLimit(20) // Set relatively low to protect motor against stalling,
+                // which seems to happen relatively frequently.
+                // It stalls anyway,
+                // but the whistle can be safely ignored;
+                // Neos have been shown
+                // to survive a 220-second stall at 40 amps with no performance degradation nor motor damage.
+                // A match is only 150 seconds long, so we are more than okay.
 
-        @JvmStatic
-        val talonConfig: TalonFXSConfiguration = TalonFXSConfiguration().withCurrentLimits(
-            CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true)
-        ).withExternalFeedback(
-            ExternalFeedbackConfigs().withExternalFeedbackSensorSource(
-                ExternalFeedbackSensorSourceValue.PulseWidth
-            ).withRotorToSensorRatio(60.0).withSensorPhase(SensorPhaseValue.Aligned)
-                .withQuadratureEdgesPerRotation(8192).withAbsoluteSensorDiscontinuityPoint(0.7)
-                .withAbsoluteSensorOffset(0.27)
-        ).withMotorOutput(
-            MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.Clockwise_Positive)
-        ).withSlot0(
-            Slot0Configs().withKP(40.0).withKS(0.51518).withKV(7.35).withKA(0.61).withKG(1.5)
-        ).withMotionMagic(
-            MotionMagicConfigs().withMotionMagicCruiseVelocity(1.25)
-                .withMotionMagicAcceleration(1.5).withMotionMagicJerk(4.0)
-        ).withCommutation(
-            CommutationConfigs().withMotorArrangement(MotorArrangementValue.NEO_JST)
-                .withAdvancedHallSupport(AdvancedHallSupportValue.Enabled)
-        ).withSoftwareLimitSwitch(
-            SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true).withForwardSoftLimitThreshold(Units.Degrees.of(225.0))
-                .withReverseSoftLimitEnable(true).withReverseSoftLimitThreshold(Units.Degrees.of(-60.0))
-        )
+                // no implicit return is needed here because smartCurrentLimit returns itself
+            }
+        }
 
-    }
-
-    object FlywheelConstants {
-        @JvmStatic
-        val flywheelMotorID: Int = 7
-
-        @JvmStatic
-        val flywheelIntakePercent = 1.0
-
-        @JvmStatic
-        val sparkConfig = SparkMaxConfig().let {
-            it.idleMode(SparkBaseConfig.IdleMode.kBrake)
-            it.smartCurrentLimit(20) // set relatively low to protect motor against stalling,
-            // which seems to happen relatively frequently
+        /**
+         * Enum representing the various positions the superstructure can be in.
+         */
+        enum class SuperstructureState {
+            HOME {
+                override fun toString(): String {
+                    return "Home"
+                }
+            },
+            L1 {
+                override fun toString(): String {
+                    return "Level 1"
+                }
+            },
+            L2 {
+                override fun toString(): String {
+                    return "Level 2"
+                }
+            },
+            L3 {
+                override fun toString(): String {
+                    return "Level 3"
+                }
+            },
+            L4 {
+                override fun toString(): String {
+                    return "Level 4"
+                }
+            },
+            PRE_CORAL_PICKUP {
+                override fun toString(): String {
+                    return "Pre Coral Pickup"
+                }
+            },
+            CORAL_PICKUP {
+                override fun toString(): String {
+                    return "Coral Pickup"
+                }
+            },
+            BARGE_LAUNCH {
+                override fun toString(): String {
+                    return "Barge Algae Launch"
+                }
+            },
+            ALGAE_INTAKE {
+                override fun toString(): String {
+                    return "Front Algae Intake"
+                }
+            },
+            UPPER_REEF_ALGAE {
+                override fun toString(): String {
+                    return "Upper Reef Algae"
+                }
+            },
+            LOWER_REEF_ALGAE {
+                override fun toString(): String {
+                    return "Lower Reef Algae"
+                }
+            }
         }
     }
 
+    /**
+     * Constants object for the algae intake.
+     * Currently consists of a Neo 550 for actuation of the intake,
+     * a Neo Vortex for the actual intake wheels,
+     * and two Neo 550's on the side to help bump the algae in.
+     * (One is currently off of the robot right now,
+     * as the motor was hitting and breaking the wire chain.)
+     */
     object AlgaeIntakeConstants {
+        /** CAN ID of the arm motor. */
         @JvmStatic
         val armMotorID: Int = 4
 
+        /** CAN ID of the intake motor. */
         @JvmStatic
         val intakeMotorID: Int = 5
 
+        /** CAN ID of the left flywheel motor. */
         @JvmStatic
         val leftFlywheelMotorID: Int = 9
 
+        /** CAN ID of the right flywheel motor. */
         @JvmStatic
         val rightFlywheelMotorID: Int = 8
 
+        /** Percent output of the flywheel motor when running. */
         @JvmStatic
         val flywheelRunningPercent: Double = 0.16
 
+        /** Velocity of the intake motor. */
         @JvmStatic
         val intakeVelocity: Double = 1000.0
 
+        /** Position of the arm when extended. */
         @JvmStatic
         val armExtendedPosition: Double = 17.0
 
+        /** Position of the arm when retracted. */
         @JvmStatic
         val armRetractedPosition: Double = -3.9
 
+        /** Configuration for the arm motor. */
         @JvmStatic
         val armConfig = SparkMaxConfig().let {
             it.idleMode(SparkBaseConfig.IdleMode.kBrake)
@@ -187,6 +345,7 @@ object Constants {
             it
         }
 
+        /** Configuration for the intake motor. */
         @JvmStatic
         val intakeConfig = SparkMaxConfig().let {
             it.idleMode(SparkBaseConfig.IdleMode.kCoast)
@@ -195,6 +354,7 @@ object Constants {
             it
         }
 
+        /** Configuration for the left flywheel motor. */
         @JvmStatic
         val leftFlywheelConfig = SparkMaxConfig().let {
             it.idleMode(SparkBaseConfig.IdleMode.kCoast)
@@ -203,6 +363,7 @@ object Constants {
             it
         }
 
+        /** Configuration for the right flywheel motor. */
         @JvmStatic
         val rightFlywheelConfig = SparkMaxConfig().let {
             it.idleMode(SparkBaseConfig.IdleMode.kCoast)
@@ -216,23 +377,23 @@ object Constants {
         // AprilTag layout
         @JvmStatic
         var aprilTagLayout: AprilTagFieldLayout =
-            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
+            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField) // defaultField uses the welded field perimeter
 
         /**
          * Cameras for Pi `10.69.64.12`.
          */
-        var camera0Name: String = "front_right"
-        var camera1Name: String = "back_right"
+        var frontRightCameraName: String = "front_right"
+        var backRightCameraName: String = "back_right"
 
         /**
          * Cameras for Pi `10.69.64.11`.
          */
-        var camera2Name: String = "front_left"
-        var camera3Name: String = "back_left"
+        var frontLeftCameraName: String = "front_left"
+        var backLeftCameraName: String = "back_left"
 
         // Robot to camera transforms
         // (Not used by Limelight, configure in web UI instead)
-        var robotToCamera0: Transform3d = Transform3d(
+        var robotToFrontRightCamera: Transform3d = Transform3d(
             // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
             // (frame side length / 2) - (distance from frame perimeter to camera)
             Units.Inches.of((29.5 / 2) - 1.3125),
@@ -240,19 +401,19 @@ object Constants {
             Units.Inches.of(8.125),
             Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-14.0), Units.Degrees.of(30.0)),
         )
-        var robotToCamera1: Transform3d = Transform3d(
+        var robotToBackRightCamera: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
             Units.Inches.of(-((29.5 / 2) - 1.5)),
             Units.Inches.of(8.0),
             Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(230.0)),
         )
-        var robotToCamera2: Transform3d = Transform3d(
+        var robotToFrontLeftCamera: Transform3d = Transform3d(
             Units.Inches.of((29.5 / 2) - 1.125),
             Units.Inches.of((29.5 / 2) - 3.375),
             Units.Inches.of(8.25),
             Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-19.0), Units.Degrees.of(-30.0)),
         )
-        var robotToCamera3: Transform3d = Transform3d(
+        var robotToBackLeftCamera: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
             Units.Inches.of((29.5 / 2) - 1.5),
             Units.Inches.of(8.0),
@@ -272,10 +433,10 @@ object Constants {
         // (Adjust to trust some cameras more than others)
         @JvmStatic
         var cameraStdDevFactors: DoubleArray = doubleArrayOf(
-            1.0,  // Camera 0
-            3.0, // Camera 1
-            1.0, // Camera 2
-            3.0 // Camera 3
+            1.0, // Front right camera
+            3.0, // Back right camera
+            1.0, // Front left camera
+            3.0  // Back left camera
         )
 
         // Multipliers to apply for MegaTag 2 observations
@@ -285,32 +446,70 @@ object Constants {
     }
 
     object PathfindingConstants {
+        /**
+         * Final distance from the coral station in meters.
+         */
         const val finalDistanceFromCoralStationMeters = 0.4260342 // 16.77 inches
+
+        /**
+         * Distance from the goal at which pathfinding should end.
+         */
         const val pathfindingEndDistanceFromGoal = 0.3
+
+        /**
+         * Final distance from the reef in meters.
+         */
         const val finalDistanceFromReefMeters = 0.4768342
+
+        /**
+         * Lateral distance from the reef in meters.
+         */
         const val lateralDistanceFromReefMeters = 0.1686306
 
+        /**
+         * Pathfinding constraints for the robot.
+         */
         @JvmStatic
         val pathfindingConstraints = PathConstraints(
-            3.0,
-            4.0,
-            edu.wpi.first.math.util.Units.degreesToRadians(540.0),
-            edu.wpi.first.math.util.Units.degreesToRadians(720.0)
+            3.0, 4.0, degreesToRadians(540.0), degreesToRadians(720.0)
         )
 
+        /**
+         * Constraints for the final lineup of the robot.
+         */
         @JvmStatic
         val finalLineupConstraints = PathConstraints(0.6, 1.0, 2 * Math.PI, 4 * Math.PI)
-
     }
 
     object ClimberConstants {
+        /**
+         * CAN ID of the winch motor.
+         */
         @JvmStatic
         val winchMotorID = 12
+
+        /**
+         * CAN ID of the pivot motor.
+         */
         @JvmStatic
         val pivotMotorID = 11
+
+        /**
+         * Position of the pivot motor when the cage can catch the climber.
+         */
         @JvmStatic
         val pivotCageCatchPosition = 0.2
 
+        /**
+         * Position of the pivot motor when fully retracted and climbed.
+         */
+        @JvmStatic
+        val pivotClimbedPosition = -0.15
+
+
+        /**
+         * Talon FXS configuration for the pivot motor.
+         */
         val pivotMotorConfig: TalonFXSConfiguration = TalonFXSConfiguration().let {
             it.MotorOutput.NeutralMode = NeutralModeValue.Brake
 
@@ -320,7 +519,8 @@ object Constants {
             it.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST
             it.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled
 
-            it.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.PulseWidth
+            it.ExternalFeedback.ExternalFeedbackSensorSource =
+                ExternalFeedbackSensorSourceValue.PulseWidth
             it.ExternalFeedback.RotorToSensorRatio = 20.0
             it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
             it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.5
@@ -334,6 +534,9 @@ object Constants {
             it
         }
 
+        /**
+         * Talon FX configuration for the winch motor.
+         */
         val winchMotorConfig: TalonFXConfiguration = TalonFXConfiguration().let {
             it.MotorOutput.NeutralMode = NeutralModeValue.Brake
             it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
@@ -351,7 +554,9 @@ object Constants {
         }
     }
 
-
+    /**
+     * What AdvantageKit should do while in a simulation.
+     */
     private val simMode: Mode = Mode.SIM
 
     @JvmStatic
@@ -368,6 +573,9 @@ object Constants {
         REPLAY
     }
 
+    /**
+     * Enum representing zones of the field.
+     */
     enum class Zone {
         LOWER_CORAL_STATION {
             override fun toString(): String {
@@ -517,6 +725,11 @@ object Constants {
                 reefPoint5, outerReefPoint5, outerReefPoint6, reefPoint6
             )
         )
+        private val reef = Polygon(
+            listOf(
+                reefPoint1, reefPoint2, reefPoint3, reefPoint4, reefPoint5, reefPoint6
+            )
+        )
 
         fun getZone(point: Translation2d): Zone {
             if (lowerCoralStation.contains(point)) {
@@ -541,6 +754,10 @@ object Constants {
 
         }
 
+        fun inReef(point: Translation2d): Boolean {
+            return reef.contains(point)
+        }
+
 
     }
 
@@ -559,13 +776,13 @@ object Constants {
     )
 
     @JvmField
-    var FRAME_WIDTH_METERS: Double = edu.wpi.first.math.util.Units.inchesToMeters(29.5)
+    var FRAME_WIDTH_METERS: Double = inchesToMeters(29.5)
 
     @JvmField
-    var FRAME_LENGTH_METERS: Double = edu.wpi.first.math.util.Units.inchesToMeters(29.5)
+    var FRAME_LENGTH_METERS: Double = inchesToMeters(29.5)
 
     @JvmField
-    var BUMPER_THICKNESS_METERS: Double = edu.wpi.first.math.util.Units.inchesToMeters(3.5)
+    var BUMPER_THICKNESS_METERS: Double = inchesToMeters(3.5)
 
     object PhysicalProperties {
         object ProgrammingBase {

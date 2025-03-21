@@ -7,7 +7,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
-import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants;
 
 public class ClawIntakeIOSparkMax implements ClawIntakeIO {
   protected SparkMax flywheelMotor;
@@ -18,7 +18,7 @@ public class ClawIntakeIOSparkMax implements ClawIntakeIO {
 
     flywheelMotor =
         new SparkMax(
-            Constants.FlywheelConstants.getFlywheelMotorID(), SparkLowLevel.MotorType.kBrushless);
+            SuperstructureConstants.ClawIntakeConstants.getClawMotorID(), SparkLowLevel.MotorType.kBrushless);
     tryUntilOk(
         flywheelMotor,
         5,

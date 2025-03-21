@@ -3,7 +3,7 @@ package frc.robot.subsystems.arm;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class ClawIntake extends SubsystemBase {
@@ -28,7 +28,7 @@ public class ClawIntake extends SubsystemBase {
   }
 
   public Command intakeFlywheel() {
-    return run(() -> io.setFlywheelOpenLoop(Constants.FlywheelConstants.getFlywheelIntakePercent()))
+    return run(() -> io.setFlywheelOpenLoop(SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent()))
         .until(() -> inputs.limitSwitchPressed)
         .finallyDo(() -> spinFlywheel(0.0))
         .withName("Intake ClawIntake");
