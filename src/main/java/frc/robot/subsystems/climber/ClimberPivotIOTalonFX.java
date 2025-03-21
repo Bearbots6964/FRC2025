@@ -2,12 +2,10 @@ package frc.robot.subsystems.climber;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.Debouncer;
@@ -26,7 +24,8 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
 
   private final MotionMagicVoltage motionMagicPositionRequest = new MotionMagicVoltage(0.0);
   private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0.0);
-  private final MotionMagicVelocityTorqueCurrentFOC motionMagicVelocityRequest = new MotionMagicVelocityTorqueCurrentFOC(0.0);
+  private final MotionMagicVelocityTorqueCurrentFOC motionMagicVelocityRequest =
+      new MotionMagicVelocityTorqueCurrentFOC(0.0);
 
   private final StatusSignal<Angle> pivotMotorPosition;
   private final StatusSignal<AngularVelocity> pivotMotorVelocity;
@@ -50,7 +49,9 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
 
   @Override
   public void updateInputs(ClimberPivotIOInputs inputs) {
-    var pivotStatus = BaseStatusSignal.refreshAll(pivotMotorPosition, pivotMotorVelocity, pivotMotorCurrent, pivotMotorVoltage);
+    var pivotStatus =
+        BaseStatusSignal.refreshAll(
+            pivotMotorPosition, pivotMotorVelocity, pivotMotorCurrent, pivotMotorVoltage);
     inputs.pivotConnected = pivotMotorConnectedDebouncer.calculate(pivotStatus.isOK());
     inputs.pivotPositionDegrees = pivotMotorPosition.getValue().in(Units.Degrees);
     inputs.pivotVelocityDegreesPerSecond = pivotMotorVelocity.getValue().in(Units.DegreesPerSecond);
@@ -96,5 +97,4 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
   public void setWinchBrakeMode(NeutralModeValue mode) {
     pivotMotor.setNeutralMode(mode);
   }
-
 }

@@ -55,7 +55,8 @@ public class DriveToSpecificReefSideCommand extends Command {
     isLeftSide =
         switch (reef) {
           case A, C, E, G, I, K -> true;
-          case B, D, F, H, J, L, KL_ALGAE, IJ_ALGAE, GH_ALGAE, EF_ALGAE, CD_ALGAE, AB_ALGAE -> false;
+          case B, D, F, H, J, L, KL_ALGAE, IJ_ALGAE, GH_ALGAE, EF_ALGAE, CD_ALGAE, AB_ALGAE ->
+              false;
         };
   }
 

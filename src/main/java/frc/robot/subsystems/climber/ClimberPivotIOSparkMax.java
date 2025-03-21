@@ -27,15 +27,15 @@ public class ClimberPivotIOSparkMax implements ClimberPivotIO {
   public ClimberPivotIOSparkMax(SparkBaseConfig configuration) {
     this.pivotConfig = configuration;
 
-    pivotMotor = new SparkMax(Constants.ClimberConstants.getPivotMotorID(), SparkLowLevel.MotorType.kBrushless);
+    pivotMotor =
+        new SparkMax(
+            Constants.ClimberConstants.getPivotMotorID(), SparkLowLevel.MotorType.kBrushless);
     tryUntilOk(
         pivotMotor,
         5,
         () ->
             pivotMotor.configure(
-                pivotConfig,
-                ResetMode.kResetSafeParameters,
-                PersistMode.kPersistParameters));
+                pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
 
     encoder = pivotMotor.getAbsoluteEncoder();
     controller = pivotMotor.getClosedLoopController();
@@ -43,7 +43,8 @@ public class ClimberPivotIOSparkMax implements ClimberPivotIO {
 
   @Override
   public void updateInputs(ClimberPivotIOInputs inputs) {
-    inputs.pivotConnected = pivotMotorConnectedDebouncer.calculate(pivotMotor.getLastError() != REVLibError.kOk);
+    inputs.pivotConnected =
+        pivotMotorConnectedDebouncer.calculate(pivotMotor.getLastError() != REVLibError.kOk);
     inputs.pivotPositionDegrees = encoder.getPosition();
     inputs.pivotVelocityDegreesPerSecond = encoder.getVelocity();
     inputs.pivotAppliedVolts = pivotMotor.getAppliedOutput() * pivotMotor.getBusVoltage();

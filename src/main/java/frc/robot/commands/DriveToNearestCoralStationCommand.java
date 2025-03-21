@@ -9,17 +9,14 @@ package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTagPositions;
-import frc.robot.Constants;
 import frc.robot.Constants.PathfindingConstants;
 import frc.robot.Robot;
 import frc.robot.subsystems.arm.Arm;
@@ -51,9 +48,11 @@ public class DriveToNearestCoralStationCommand extends Command {
     var pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
-                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -PathfindingConstants.pathfindingEndDistanceFromGoal)
+                    closestAprilTagPose,
+                    closestAprilTagPose.getRotation().getDegrees(),
+                    -PathfindingConstants.pathfindingEndDistanceFromGoal)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
-           PathfindingConstants.getPathfindingConstraints());
+            PathfindingConstants.getPathfindingConstraints());
 
     try {
       // Load the path you want to follow using its name in the GUI
@@ -117,7 +116,9 @@ public class DriveToNearestCoralStationCommand extends Command {
     }
 
     return translateCoordinates(
-        closestPose, closestPose.getRotation().getDegrees(), -PathfindingConstants.finalDistanceFromCoralStationMeters);
+        closestPose,
+        closestPose.getRotation().getDegrees(),
+        -PathfindingConstants.finalDistanceFromCoralStationMeters);
   }
 
   private Pose2d translateCoordinates(Pose2d originalPose, double degreesRotate, double distance) {

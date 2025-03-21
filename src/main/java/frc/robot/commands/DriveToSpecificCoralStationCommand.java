@@ -33,10 +33,9 @@ public class DriveToSpecificCoralStationCommand extends Command {
   private Command fullPath;
   private CoralStationSide side;
 
-  /**
-   * Creates a new DriveToNearestReefSideCommand.
-   */
-  public DriveToSpecificCoralStationCommand(Drive drive, CoralStationSide side, Arm arm, Elevator elevator) {
+  /** Creates a new DriveToNearestReefSideCommand. */
+  public DriveToSpecificCoralStationCommand(
+      Drive drive, CoralStationSide side, Arm arm, Elevator elevator) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
     this.arm = arm;
@@ -52,7 +51,7 @@ public class DriveToSpecificCoralStationCommand extends Command {
     Command pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
-                closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
+                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.5)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
             new PathConstraints(
                 1.0, 2.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
@@ -72,9 +71,7 @@ public class DriveToSpecificCoralStationCommand extends Command {
               new GoalEndState(
                   0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
       pathToFront.preventFlipping = true;
-      fullPath =
-          pathfindPath
-              .andThen(AutoBuilder.followPath(pathToFront));
+      fullPath = pathfindPath.andThen(AutoBuilder.followPath(pathToFront));
       fullPath.schedule();
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
@@ -117,5 +114,4 @@ public class DriveToSpecificCoralStationCommand extends Command {
 
     return new Pose2d(newXCoord, newYCoord, originalPose.getRotation());
   }
-
 }

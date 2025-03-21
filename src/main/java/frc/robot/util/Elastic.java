@@ -74,33 +74,27 @@ public final class Elastic {
     /**
      * -- GETTER --
      *
+     * <p>-- SETTER -- Updates the level of this notification
      *
-     * -- SETTER --
-     *  Updates the level of this notification
-     *
-     @return the level of this notification
-      * @param level the level to set the notification to
+     * @return the level of this notification
+     * @param level the level to set the notification to
      */
     @JsonProperty("level")
     private NotificationLevel level;
 
     /**
-     * -- GETTER --
-     *  Gets the title of this notification
+     * -- GETTER -- Gets the title of this notification
      *
+     * <p>-- SETTER -- Updates the title of this notification
      *
-     * -- SETTER --
-     *  Updates the title of this notification
-     *
-     @return the title of this notification
-      * @param title the title to set the notification to
+     * @return the title of this notification
+     * @param title the title to set the notification to
      */
     @JsonProperty("title")
     private String title;
 
     /**
-     * -- SETTER --
-     *  Updates the description of this notification
+     * -- SETTER -- Updates the description of this notification
      *
      * @param description the description to set the notification to
      */
@@ -108,44 +102,36 @@ public final class Elastic {
     private String description;
 
     /**
-     * -- GETTER --
-     *  Gets the display time of the notification in milliseconds
+     * -- GETTER -- Gets the display time of the notification in milliseconds
      *
+     * <p>-- SETTER -- Updates the display time of the notification in milliseconds
      *
-     * -- SETTER --
-     *  Updates the display time of the notification in milliseconds
-     *
-     @return the number of milliseconds the notification is displayed for
-      * @param displayTimeMillis the number of milliseconds to display the notification for
+     * @return the number of milliseconds the notification is displayed for
+     * @param displayTimeMillis the number of milliseconds to display the notification for
      */
     @JsonProperty("displayTime")
     private int displayTimeMillis;
 
     /**
-     * -- GETTER --
-     *  Gets the width of the notification
+     * -- GETTER -- Gets the width of the notification
      *
+     * <p>-- SETTER -- Updates the width of the notification
      *
-     * -- SETTER --
-     *  Updates the width of the notification
-     *
-     @return the width of the notification
-      * @param width the width to set the notification to
+     * @return the width of the notification
+     * @param width the width to set the notification to
      */
     @JsonProperty("width")
     private double width;
 
     /**
-     * -- GETTER --
-     *  Gets the height of the notification
+     * -- GETTER -- Gets the height of the notification
      *
+     * <p>-- SETTER -- Updates the height of the notification
      *
-     * -- SETTER --
-     *  Updates the height of the notification
-     *  <p>If the height is set to -1, the height will be determined automatically by the dashboard
+     * <p>If the height is set to -1, the height will be determined automatically by the dashboard
      *
-     @return the height of the notification
-      * @param height the height to set the notification to
+     * @return the height of the notification
+     * @param height the height to set the notification to
      */
     @JsonProperty("height")
     private double height;

@@ -34,5 +34,4 @@ public interface ClimberPivotIO {
   default void stopPivot() {}
 
   default void setWinchBrakeMode(NeutralModeValue mode) {}
-
 }

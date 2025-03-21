@@ -24,7 +24,8 @@ public class WinchIOTalonFX implements WinchIO {
 
   private final MotionMagicVoltage motionMagicPositionRequest = new MotionMagicVoltage(0.0);
   private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0.0);
-  private final MotionMagicVelocityTorqueCurrentFOC motionMagicVelocityRequest = new MotionMagicVelocityTorqueCurrentFOC(0.0);
+  private final MotionMagicVelocityTorqueCurrentFOC motionMagicVelocityRequest =
+      new MotionMagicVelocityTorqueCurrentFOC(0.0);
 
   private final StatusSignal<Angle> winchMotorPosition;
   private final StatusSignal<AngularVelocity> winchMotorVelocity;
@@ -48,7 +49,9 @@ public class WinchIOTalonFX implements WinchIO {
 
   @Override
   public void updateInputs(WinchIOInputs inputs) {
-    var winchStatus = BaseStatusSignal.refreshAll(winchMotorPosition, winchMotorVelocity, winchMotorCurrent, winchMotorVoltage);
+    var winchStatus =
+        BaseStatusSignal.refreshAll(
+            winchMotorPosition, winchMotorVelocity, winchMotorCurrent, winchMotorVoltage);
     inputs.winchConnected = winchMotorConnectedDebouncer.calculate(winchStatus.isOK());
     inputs.winchPositionDegrees = winchMotorPosition.getValue().in(Units.Degrees);
     inputs.winchVelocityDegreesPerSecond = winchMotorVelocity.getValue().in(Units.DegreesPerSecond);
@@ -94,5 +97,4 @@ public class WinchIOTalonFX implements WinchIO {
   public void setWinchBrakeMode(NeutralModeValue mode) {
     winchMotor.setNeutralMode(mode);
   }
-
 }
