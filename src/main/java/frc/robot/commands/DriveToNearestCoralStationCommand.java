@@ -16,8 +16,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTagPositions;
+import frc.robot.Constants;
+import frc.robot.Constants.PathfindingConstants;
+import frc.robot.Robot;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
@@ -43,14 +47,13 @@ public class DriveToNearestCoralStationCommand extends Command {
 
   // Called when the command is initially scheduled.
   public void initialize() {
-    var closestAprilTagPose = getClosestReefAprilTagPose();
+    var closestAprilTagPose = getClosestCoralStationAprilTagPose();
     var pathfindPath =
         AutoBuilder.pathfindToPose(
             translateCoordinates(
-                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -0.3)
+                    closestAprilTagPose, closestAprilTagPose.getRotation().getDegrees(), -PathfindingConstants.pathfindingEndDistanceFromGoal)
                 .transformBy(new Transform2d(0, 0, new Rotation2d(Math.PI))),
-            new PathConstraints(
-                3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)));
+           PathfindingConstants.getPathfindingConstraints());
 
     try {
       // Load the path you want to follow using its name in the GUI
@@ -60,9 +63,9 @@ public class DriveToNearestCoralStationCommand extends Command {
                   translateCoordinates(
                       closestAprilTagPose,
                       closestAprilTagPose.getRotation().getDegrees() + 180,
-                      0.3),
+                      PathfindingConstants.pathfindingEndDistanceFromGoal),
                   closestAprilTagPose),
-              new PathConstraints(0.6, 1.0, 2 * Math.PI, 4 * Math.PI),
+              PathfindingConstants.getFinalLineupConstraints(),
               null,
               new GoalEndState(
                   0.0, closestAprilTagPose.getRotation().rotateBy(new Rotation2d(Math.PI))));
@@ -90,12 +93,15 @@ public class DriveToNearestCoralStationCommand extends Command {
     return fullPath.isScheduled() && fullPath.isFinished();
   }
 
-  private Pose2d getClosestReefAprilTagPose() {
+  private Pose2d getClosestCoralStationAprilTagPose() {
     HashMap<Integer, Pose2d> aprilTagsToAlignTo = new HashMap<>();
-    aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
-    aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
-    aprilTagsToAlignTo.put(12, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12));
-    aprilTagsToAlignTo.put(13, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13));
+    if (Robot.getAlliance() == Alliance.Red) {
+      aprilTagsToAlignTo.put(1, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(1));
+      aprilTagsToAlignTo.put(2, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(2));
+    } else {
+      aprilTagsToAlignTo.put(12, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(12));
+      aprilTagsToAlignTo.put(13, AprilTagPositions.WELDED_APRIL_TAG_POSITIONS.get(13));
+    }
 
     var currentPose = drive.getPose();
     var closestPose = new Pose2d();
@@ -111,7 +117,7 @@ public class DriveToNearestCoralStationCommand extends Command {
     }
 
     return translateCoordinates(
-        closestPose, closestPose.getRotation().getDegrees(), -Units.inchesToMeters(16.773));
+        closestPose, closestPose.getRotation().getDegrees(), -PathfindingConstants.finalDistanceFromCoralStationMeters);
   }
 
   private Pose2d translateCoordinates(Pose2d originalPose, double degreesRotate, double distance) {

@@ -284,6 +284,25 @@ object Constants {
             Double.POSITIVE_INFINITY // No rotation data available
     }
 
+    object PathfindingConstants {
+        const val finalDistanceFromCoralStationMeters = 0.4260342 // 16.77 inches
+        const val pathfindingEndDistanceFromGoal = 0.3
+        const val finalDistanceFromReefMeters = 0.4768342
+        const val lateralDistanceFromReefMeters = 0.1686306
+
+        @JvmStatic
+        val pathfindingConstraints = PathConstraints(
+            3.0,
+            4.0,
+            edu.wpi.first.math.util.Units.degreesToRadians(540.0),
+            edu.wpi.first.math.util.Units.degreesToRadians(720.0)
+        )
+
+        @JvmStatic
+        val finalLineupConstraints = PathConstraints(0.6, 1.0, 2 * Math.PI, 4 * Math.PI)
+
+    }
+
     object ClimberConstants {
         @JvmStatic
         val winchMotorID = 12
