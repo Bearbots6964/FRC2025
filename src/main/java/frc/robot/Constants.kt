@@ -284,6 +284,54 @@ object Constants {
             Double.POSITIVE_INFINITY // No rotation data available
     }
 
+    object ClimberConstants {
+        @JvmStatic
+        val winchMotorID = 12
+        @JvmStatic
+        val pivotMotorID = 11
+        @JvmStatic
+        val pivotCageCatchPosition = 0.2
+
+        val pivotMotorConfig: TalonFXSConfiguration = TalonFXSConfiguration().let {
+            it.MotorOutput.NeutralMode = NeutralModeValue.Brake
+
+            it.CurrentLimits.SupplyCurrentLimit = 40.0
+            it.CurrentLimits.StatorCurrentLimit = 40.0
+
+            it.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST
+            it.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled
+
+            it.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.PulseWidth
+            it.ExternalFeedback.RotorToSensorRatio = 20.0
+            it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
+            it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.5
+            it.ExternalFeedback.AbsoluteSensorOffset = -0.47
+
+            it.MotionMagic.MotionMagicCruiseVelocity = 0.25
+            it.MotionMagic.MotionMagicAcceleration = 12.0
+
+            it.Slot0.kP = 16.0
+
+            it
+        }
+
+        val winchMotorConfig: TalonFXConfiguration = TalonFXConfiguration().let {
+            it.MotorOutput.NeutralMode = NeutralModeValue.Brake
+            it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
+
+            it.CurrentLimits.SupplyCurrentLimit = 20.0
+            it.CurrentLimits.StatorCurrentLimit = 20.0
+
+            it.MotionMagic.MotionMagicCruiseVelocity = 10.0
+            it.MotionMagic.MotionMagicAcceleration = 20.0
+
+            it.Slot0.kP = 0.5
+            it.Slot0.kS = 0.2
+
+            it
+        }
+    }
+
 
     private val simMode: Mode = Mode.SIM
 
