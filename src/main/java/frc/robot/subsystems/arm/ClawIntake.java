@@ -28,7 +28,9 @@ public class ClawIntake extends SubsystemBase {
   }
 
   public Command intakeFlywheel() {
-    return run(() -> io.setFlywheelOpenLoop(SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent()))
+    return run(() ->
+            io.setFlywheelOpenLoop(
+                SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent()))
         .until(() -> inputs.limitSwitchPressed)
         .finallyDo(() -> spinFlywheel(0.0))
         .withName("Intake ClawIntake");

@@ -36,7 +36,11 @@ public class DriveToSpecificReefSideCommand extends Command {
 
   /** Creates a new DriveToNearestReefSideCommand. */
   public DriveToSpecificReefSideCommand(
-      Drive drive, Elevator elevator, Arm arm, Supplier<SuperstructureState> elevatorState, Reef reef) {
+      Drive drive,
+      Elevator elevator,
+      Arm arm,
+      Supplier<SuperstructureState> elevatorState,
+      Reef reef) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
     this.elevator = elevator;

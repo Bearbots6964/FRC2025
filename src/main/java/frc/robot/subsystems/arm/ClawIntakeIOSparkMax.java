@@ -18,7 +18,8 @@ public class ClawIntakeIOSparkMax implements ClawIntakeIO {
 
     flywheelMotor =
         new SparkMax(
-            SuperstructureConstants.ClawIntakeConstants.getClawMotorID(), SparkLowLevel.MotorType.kBrushless);
+            SuperstructureConstants.ClawIntakeConstants.getClawMotorID(),
+            SparkLowLevel.MotorType.kBrushless);
     tryUntilOk(
         flywheelMotor,
         5,

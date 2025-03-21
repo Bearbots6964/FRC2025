@@ -28,7 +28,8 @@ public class ArmIOSparkMax implements ArmIO {
 
     armMotor =
         new SparkMax(
-            SuperstructureConstants.ArmConstants.getArmAxisMotorID(), SparkLowLevel.MotorType.kBrushless);
+            SuperstructureConstants.ArmConstants.getArmAxisMotorID(),
+            SparkLowLevel.MotorType.kBrushless);
     armController = armMotor.getClosedLoopController();
     armEncoder = armMotor.getAbsoluteEncoder();
 
