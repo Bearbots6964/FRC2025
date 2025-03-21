@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.7934861417480535,
-        "y": 7.5327033151555725
+        "x": 0.767755526459003,
+        "y": 7.521325791052809
       },
       "isLocked": false,
       "linkedName": "Upper Coral Station"
     },
     {
       "anchor": {
-        "x": 3.543216088530305,
-        "y": 5.0129459244864325
+        "x": 3.6596641998786428,
+        "y": 5.0976128937362075
       },
       "prevControl": {
-        "x": 3.7509343616271407,
-        "y": 4.825691606141758
+        "x": 3.8621287572181027,
+        "y": 4.923220067940057
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Reef 6 RIGHT"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
     "rotation": -58.75500000000001
   },
   "reversed": false,
-  "folder": "Coral Cycling Auto",
+  "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -53.51

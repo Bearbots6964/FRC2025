@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.7607271153441814,
-        "y": 7.528210930531669
+        "x": 3.4399443258223217,
+        "y": 4.513490064460483
       },
       "isLocked": false,
       "linkedName": "Upper Coral Station"
     },
     {
       "anchor": {
-        "x": 3.6596641998786428,
-        "y": 5.0976128937362075
+        "x": 3.1198525503084253,
+        "y": 4.1882473276807115
       },
       "prevControl": {
-        "x": 3.892726971697434,
-        "y": 4.9014607418901495
+        "x": 2.9517165726790004,
+        "y": 4.48894180356253
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef 6 RIGHT"
+      "linkedName": "Reef 7 LEFT"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -58.75500000000001
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "New Folder",

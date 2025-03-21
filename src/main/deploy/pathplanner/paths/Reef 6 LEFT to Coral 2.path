@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.084,
-        "y": 5.319164049470579
+        "x": 3.9416928179852375,
+        "y": 5.265279219986556
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.264221437831617,
-        "y": 5.86904663224405
+        "x": 3.1219142558168547,
+        "y": 5.815161802760026
       },
       "isLocked": false,
-      "linkedName": "Reef A and B"
+      "linkedName": "Reef 6 LEFT"
     },
     {
       "anchor": {
@@ -45,7 +45,7 @@
     "rotation": -53.51
   },
   "reversed": false,
-  "folder": "Coral Cycling Auto",
+  "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -58.75500000000001

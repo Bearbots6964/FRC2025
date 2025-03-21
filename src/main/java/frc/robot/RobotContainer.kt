@@ -13,6 +13,7 @@
 package frc.robot
 
 import com.pathplanner.lib.auto.AutoBuilder
+import com.pathplanner.lib.auto.NamedCommands
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
@@ -197,6 +198,8 @@ class RobotContainer {
         }
 
         setUpAutoChooser()
+
+        addNamedCommands()
 
         statusTopic.set("Robot Initialized")
 
@@ -698,6 +701,11 @@ class RobotContainer {
             )
         }
 
+    }
+
+    fun addNamedCommands() {
+        NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm))
+        NamedCommands.registerCommand("l4", SuperstructureCommands.l4(elevator, arm))
     }
 
     fun stopQueue() = autoQueue.clearAll()

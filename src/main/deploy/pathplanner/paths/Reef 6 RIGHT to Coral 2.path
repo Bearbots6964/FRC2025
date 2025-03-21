@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.543,
-        "y": 5.013
+        "x": 3.6596641998786428,
+        "y": 5.0976128937362075
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.107298760320077,
-        "y": 5.431053563771607
+        "x": 2.9638434120186075,
+        "y": 5.7209197140699715
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Reef 6 RIGHT"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 7.0685205078125
       },
       "prevControl": {
-        "x": 1.486155333530243,
-        "y": 6.895222812334337
+        "x": 1.5293719036540099,
+        "y": 6.867546880694699
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": -53.51
   },
   "reversed": false,
-  "folder": "Coral Cycling Auto",
+  "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -58.75500000000001
