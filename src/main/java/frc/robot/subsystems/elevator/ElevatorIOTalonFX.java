@@ -17,7 +17,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -61,8 +61,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 105;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
 
-    leftMotor = new TalonFX(Constants.ElevatorConstants.LEFT_MOTOR_CAN_ID);
-    rightMotor = new TalonFX(Constants.ElevatorConstants.RIGHT_MOTOR_CAN_ID);
+    leftMotor = new TalonFX(SuperstructureConstants.ElevatorConstants.LEFT_MOTOR_CAN_ID);
+    rightMotor = new TalonFX(SuperstructureConstants.ElevatorConstants.RIGHT_MOTOR_CAN_ID);
 
     tryUntilOk(5, () -> leftMotor.getConfigurator().apply(leftConfig, 0.25));
     tryUntilOk(5, () -> rightMotor.getConfigurator().apply(rightConfig, 0.25));

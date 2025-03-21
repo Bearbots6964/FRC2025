@@ -15,7 +15,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants;
 
 public class ArmIOTalonFX implements ArmIO {
 
@@ -39,7 +39,7 @@ public class ArmIOTalonFX implements ArmIO {
   public ArmIOTalonFX(TalonFXSConfiguration configuration) {
     this.pivotConfig = configuration;
 
-    pivotMotor = new TalonFXS(Constants.ArmConstants.getArmAxisMotorID());
+    pivotMotor = new TalonFXS(SuperstructureConstants.ArmConstants.getArmAxisMotorID());
 
     tryUntilOk(5, () -> pivotMotor.getConfigurator().apply(pivotConfig, 0.25));
 

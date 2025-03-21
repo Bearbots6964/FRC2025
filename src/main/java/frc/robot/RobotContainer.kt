@@ -29,10 +29,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.robot.Constants.VisionConstants.robotToCamera0
-import frc.robot.Constants.VisionConstants.robotToCamera1
-import frc.robot.Constants.VisionConstants.robotToCamera2
-import frc.robot.Constants.VisionConstants.robotToCamera3
+import frc.robot.Constants.SuperstructureConstants.ElevatorConstants.ElevatorState
+import frc.robot.Constants.VisionConstants.robotToFrontRightCamera
+import frc.robot.Constants.VisionConstants.robotToBackRightCamera
+import frc.robot.Constants.VisionConstants.robotToFrontLeftCamera
+import frc.robot.Constants.VisionConstants.robotToBackLeftCamera
 import frc.robot.commands.*
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.arm.*
@@ -65,7 +66,7 @@ class RobotContainer {
     private var arm: Arm
     private var elevator: Elevator
     private var algaeIntake: AlgaeIntake
-    private var flywheel: Flywheel
+    private var clawIntake: ClawIntake
     private var climber: Climber
 
     private var driveSimulation: SwerveDriveSimulation? = null
@@ -81,8 +82,8 @@ class RobotContainer {
     // Dashboard inputs
     private lateinit var autoChooser: LoggedDashboardChooser<Command>
 
-    private var nextSuperstructureCommand: Constants.ElevatorConstants.ElevatorState =
-        Constants.ElevatorConstants.ElevatorState.HOME
+    private var nextSuperstructureCommand: Constants.SuperstructureConstants.SuperstructureState =
+        Constants.SuperstructureConstants.SuperstructureState.HOME
 
 
     companion object {
@@ -108,22 +109,24 @@ class RobotContainer {
                 ) { _: Pose2d? -> }
                 this.vision = Vision(
                     drive,
-                    VisionIOPhotonVision(Constants.VisionConstants.camera0Name, robotToCamera0),
-                    VisionIOPhotonVision(Constants.VisionConstants.camera1Name, robotToCamera1),
-                    VisionIOPhotonVision(Constants.VisionConstants.camera2Name, robotToCamera2),
-                    VisionIOPhotonVision(Constants.VisionConstants.camera3Name, robotToCamera3)
+                    VisionIOPhotonVision(Constants.VisionConstants.frontRightCameraName, robotToFrontRightCamera),
+                    VisionIOPhotonVision(Constants.VisionConstants.backRightCameraName, robotToBackRightCamera),
+                    VisionIOPhotonVision(Constants.VisionConstants.frontLeftCameraName, robotToFrontLeftCamera),
+                    VisionIOPhotonVision(Constants.VisionConstants.backLeftCameraName, robotToBackLeftCamera)
                 )
                 arm = Arm(
                     ArmIOTalonFX(
-                        Constants.ArmConstants.talonConfig
+                        Constants.SuperstructureConstants.ArmConstants.talonConfig
                     )
                 )
-                flywheel = Flywheel(FlywheelIOSparkMax(Constants.FlywheelConstants.sparkConfig))
+                clawIntake = ClawIntake(
+                    ClawIntakeIOSparkMax(Constants.SuperstructureConstants.ClawIntakeConstants.sparkConfig)
+                )
 
                 elevator = Elevator(
                     ElevatorIOTalonFX(
-                        Constants.ElevatorConstants.leftMotorConfig,
-                        Constants.ElevatorConstants.rightMotorConfig
+                        Constants.SuperstructureConstants.ElevatorConstants.leftMotorConfig,
+                        Constants.SuperstructureConstants.ElevatorConstants.rightMotorConfig
                     )
                 )
 
@@ -159,20 +162,21 @@ class RobotContainer {
                 ) { robotPose: Pose2d? -> driveSimulation!!.setSimulationWorldPose(robotPose) }
                 vision = Vision(
                     drive, VisionIOPhotonVisionSim(
-                        Constants.VisionConstants.camera0Name, robotToCamera0
+                        Constants.VisionConstants.frontRightCameraName, robotToFrontRightCamera
                     ) { driveSimulation!!.simulatedDriveTrainPose }, VisionIOPhotonVisionSim(
-                        Constants.VisionConstants.camera1Name, robotToCamera1
+                        Constants.VisionConstants.backRightCameraName, robotToBackRightCamera
                     ) { driveSimulation!!.simulatedDriveTrainPose }, VisionIOPhotonVisionSim(
-                        Constants.VisionConstants.camera2Name, robotToCamera2
+                        Constants.VisionConstants.frontLeftCameraName, robotToFrontLeftCamera
                     ) { driveSimulation!!.simulatedDriveTrainPose }, VisionIOPhotonVisionSim(
-                        Constants.VisionConstants.camera3Name, robotToCamera3
+                        Constants.VisionConstants.backLeftCameraName, robotToBackLeftCamera
                     ) { driveSimulation!!.simulatedDriveTrainPose })
                 arm = Arm(
                     ArmIOTalonFXSim(
 
                     )
                 )
-                flywheel = Flywheel(object : FlywheelIO {})
+                clawIntake =
+                    ClawIntake(object : ClawIntakeIO {})
                 elevator = Elevator(object : ElevatorIO {})
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
 
@@ -191,7 +195,8 @@ class RobotContainer {
 
                 elevator = Elevator(object : ElevatorIO {})
                 arm = Arm(object : ArmIO {})
-                flywheel = Flywheel(object : FlywheelIO {})
+                clawIntake =
+                    ClawIntake(object : ClawIntakeIO {})
                 algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
             }
@@ -265,7 +270,7 @@ class RobotContainer {
 
         // Arm control after coral placed
         driveController.rightTrigger().onTrue(
-            (if (SuperstructureCommands.reefPosition != Constants.ElevatorConstants.ElevatorState.L4) elevator.goToPositionDelta(
+            (if (SuperstructureCommands.reefPosition != Constants.SuperstructureConstants.SuperstructureState.L4) elevator.goToPositionDelta(
                 -10.0
             )
             else elevator.goToPositionDelta(10.0)).withName("Move Elevator Down")
@@ -297,7 +302,7 @@ class RobotContainer {
         elevator.defaultCommand = elevator.velocityCommand({ -operatorController.rightY })
         arm.defaultCommand = arm.moveArm({ -operatorController.leftY })
         climber.defaultCommand = climber.moveClimberToIntakePosition()
-        //flywheel.defaultCommand = flywheel.stop()
+        //clawIntake.defaultCommand = clawIntake.stop()
 
         //Trigger { abs(operatorController.leftY) > 0.1 }.whileTrue(
         //    arm.moveArm { -operatorController.leftY }
@@ -308,19 +313,19 @@ class RobotContainer {
 
         // Operator controller bindings
         operatorController.a().whileTrue(
-            elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME)
+            elevator.goToPosition(Constants.SuperstructureConstants.SuperstructureState.HOME)
                 .alongWith(arm.moveArmToAngle(170.0)).andThen({
-                    nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.HOME
+                    nextSuperstructureCommand = Constants.SuperstructureConstants.SuperstructureState.HOME
                 })
         )
         operatorController.b().whileTrue(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L2
+            nextSuperstructureCommand = Constants.SuperstructureConstants.SuperstructureState.L2
         }))
         operatorController.x().whileTrue(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L3
+            nextSuperstructureCommand = Constants.SuperstructureConstants.SuperstructureState.L3
         }))
         operatorController.y().whileTrue(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L4
+            nextSuperstructureCommand = Constants.SuperstructureConstants.SuperstructureState.L4
         }))
         operatorController.rightTrigger().whileTrue(coralPickup())
         operatorController.leftTrigger().onTrue(
@@ -331,9 +336,9 @@ class RobotContainer {
         )
 
         operatorController.leftBumper()
-            .whileTrue(flywheel.spinFlywheel(Constants.FlywheelConstants.flywheelIntakePercent))
+            .whileTrue(clawIntake.spinFlywheel(Constants.SuperstructureConstants.ClawIntakeConstants.clawIntakePercent))
         operatorController.rightBumper()
-            .whileTrue(flywheel.spinFlywheel(-Constants.FlywheelConstants.flywheelIntakePercent))
+            .whileTrue(clawIntake.spinFlywheel(-Constants.SuperstructureConstants.ClawIntakeConstants.clawIntakePercent))
 
         // Mark IV controller bindings
         markIVController.button(3).onTrue(SuperstructureCommands.l1(elevator, arm))
@@ -363,12 +368,12 @@ class RobotContainer {
             )
         )
         buttonMacroController.button(7).onTrue(
-            elevator.goToPosition(Constants.ElevatorConstants.ElevatorState.HOME)
-                .alongWith(arm.moveArmToAngle(Constants.ArmConstants.ArmState.HOME))
+            elevator.goToPosition(Constants.SuperstructureConstants.SuperstructureState.HOME)
+                .alongWith(arm.moveArmToAngle(Constants.SuperstructureConstants.ArmConstants.ArmState.HOME))
         )
         buttonMacroController.button(8).onTrue(
-            elevator.goToPosition(Constants.ElevatorConstants.CORAL_PICKUP)
-                .alongWith(arm.moveArmToAngle(Constants.ArmConstants.ArmState.CORAL_PICKUP))
+            elevator.goToPosition(ElevatorState.CORAL_PICKUP)
+                .alongWith(arm.moveArmToAngle(Constants.SuperstructureConstants.ArmConstants.ArmState.CORAL_PICKUP))
         )
 
 
@@ -489,130 +494,19 @@ class RobotContainer {
     }
 
     private fun setUpDashboardCommands() {
-        SmartDashboard.putData(
-            PathfindingFactories.pathfindToSpecificReef(drive, PathfindingFactories.Reef.A)
-                .withName("Reef A")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.B
-            ).withName("Reef B")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.C
-            ).withName("Reef C")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.D
-            ).withName("Reef D")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.E
-            ).withName("Reef E")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.F
-            ).withName("Reef F")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.G
-            ).withName("Reef G")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.H
-            ).withName("Reef H")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.I
-            ).withName("Reef I")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.J
-            ).withName("Reef J")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.K
-            ).withName("Reef K")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificReefSideCommand(
-                drive,
-                elevator,
-                arm,
-                { nextSuperstructureCommand },
-                DriveToSpecificReefSideCommand.Reef.L
-            ).withName("Reef L")
-        )
+        for (reef in PathfindingFactories.Reef.entries) {
+            SmartDashboard.putData(
+                PathfindingFactories.pathfindToSpecificReef(drive, reef)
+                    .withName("Reef " + reef.name)
+            )
+        }
 
-        SmartDashboard.putData(
-            SuperstructureCommands.goToPosition(
-                elevator, arm, Constants.ElevatorConstants.ElevatorState.HOME
-            ).withName("Superstructure Home")
-        )
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L1
-        }).withName("Superstructure L1"))
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L2
-        }).withName("Superstructure L2"))
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L3
-        }).withName("Superstructure L3"))
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.L4
-        }).withName("Superstructure L4"))
-        SmartDashboard.putData(Commands.runOnce({
-            nextSuperstructureCommand = Constants.ElevatorConstants.ElevatorState.CORAL_PICKUP
-        }).withName("Superstructure Coral Pickup"))
+        for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
+            SmartDashboard.putData(
+                SuperstructureCommands.goToPosition(elevator, arm, position)
+                    .withName("Superstructure to " + position.name + " Position")
+            )
+        }
 
 
         SmartDashboard.putData(
@@ -690,7 +584,7 @@ class RobotContainer {
             )
         }
 
-        for (position in Constants.ElevatorConstants.ElevatorState.entries) {
+        for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
 
             SmartDashboard.putData(
                 autoQueue.addAsCommand({
