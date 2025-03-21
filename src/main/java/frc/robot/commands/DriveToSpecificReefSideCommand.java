@@ -16,7 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTagPositions;
-import frc.robot.Constants.ElevatorConstants.ElevatorState;
+import frc.robot.Constants.SuperstructureConstants.SuperstructureState;
 import frc.robot.Robot;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
@@ -29,14 +29,18 @@ public class DriveToSpecificReefSideCommand extends Command {
   private final Drive drive;
   private final Elevator elevator;
   private final Arm arm;
-  private final Supplier<ElevatorState> elevatorState;
+  private final Supplier<SuperstructureState> elevatorState;
   private Command fullPath;
   private int[] numbers;
   private boolean isLeftSide;
 
   /** Creates a new DriveToNearestReefSideCommand. */
   public DriveToSpecificReefSideCommand(
-      Drive drive, Elevator elevator, Arm arm, Supplier<ElevatorState> elevatorState, Reef reef) {
+      Drive drive,
+      Elevator elevator,
+      Arm arm,
+      Supplier<SuperstructureState> elevatorState,
+      Reef reef) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
     this.elevator = elevator;
@@ -85,7 +89,7 @@ public class DriveToSpecificReefSideCommand extends Command {
       pathToFront.preventFlipping = true;
       fullPath =
           SuperstructureCommands.INSTANCE
-              .goToPosition(elevator, arm, ElevatorState.HOME)
+              .goToPosition(elevator, arm, SuperstructureState.HOME)
               .alongWith(pathfindPath)
               .andThen(
                   SuperstructureCommands.INSTANCE

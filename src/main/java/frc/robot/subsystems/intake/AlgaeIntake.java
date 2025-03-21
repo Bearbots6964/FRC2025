@@ -43,7 +43,7 @@ public class AlgaeIntake extends SubsystemBase {
     return run(() -> {
           setFlywheelOpenLoop(Constants.AlgaeIntakeConstants.getFlywheelRunningPercent());
           setIntakeVelocity(Constants.AlgaeIntakeConstants.getIntakeVelocity());
-          // setArmPosition(Constants.AlgaeIntakeConstants.getArmExtendedPosition());
+          setArmPosition(Constants.AlgaeIntakeConstants.getArmExtendedPosition());
         })
         .finallyDo(
             () -> {

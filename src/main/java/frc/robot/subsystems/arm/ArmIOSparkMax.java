@@ -13,7 +13,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.units.Units;
-import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants;
 
 // TODO: MotionMagic
 public class ArmIOSparkMax implements ArmIO {
@@ -28,7 +28,8 @@ public class ArmIOSparkMax implements ArmIO {
 
     armMotor =
         new SparkMax(
-            Constants.ArmConstants.getArmAxisMotorID(), SparkLowLevel.MotorType.kBrushless);
+            SuperstructureConstants.ArmConstants.getArmAxisMotorID(),
+            SparkLowLevel.MotorType.kBrushless);
     armController = armMotor.getClosedLoopController();
     armEncoder = armMotor.getAbsoluteEncoder();
 

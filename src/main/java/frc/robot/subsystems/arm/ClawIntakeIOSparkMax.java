@@ -7,18 +7,19 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
-import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants;
 
-public class FlywheelIOSparkMax implements FlywheelIO {
+public class ClawIntakeIOSparkMax implements ClawIntakeIO {
   protected SparkMax flywheelMotor;
   protected SparkBaseConfig flywheelConfiguration;
 
-  public FlywheelIOSparkMax(SparkBaseConfig flywheelConfiguration) {
+  public ClawIntakeIOSparkMax(SparkBaseConfig flywheelConfiguration) {
     this.flywheelConfiguration = flywheelConfiguration;
 
     flywheelMotor =
         new SparkMax(
-            Constants.FlywheelConstants.getFlywheelMotorID(), SparkLowLevel.MotorType.kBrushless);
+            SuperstructureConstants.ClawIntakeConstants.getClawMotorID(),
+            SparkLowLevel.MotorType.kBrushless);
     tryUntilOk(
         flywheelMotor,
         5,

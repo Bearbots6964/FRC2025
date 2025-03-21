@@ -3,20 +3,20 @@ package frc.robot.subsystems.arm;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants;
 import org.littletonrobotics.junction.Logger;
 
-public class Flywheel extends SubsystemBase {
-  private final FlywheelIO io;
+public class ClawIntake extends SubsystemBase {
+  private final ClawIntakeIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
 
-  public Flywheel(FlywheelIO io) {
+  public ClawIntake(ClawIntakeIO io) {
     this.io = io;
   }
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Flywheel", inputs);
+    Logger.processInputs("ClawIntake", inputs);
 
     if (DriverStation.isDisabled()) {
       io.stopFlywheel();
@@ -24,17 +24,19 @@ public class Flywheel extends SubsystemBase {
   }
 
   public Command spinFlywheel(Double output) {
-    return run(() -> io.setFlywheelOpenLoop(output)).withName("Spin Flywheel");
+    return run(() -> io.setFlywheelOpenLoop(output)).withName("Spin ClawIntake");
   }
 
   public Command intakeFlywheel() {
-    return run(() -> io.setFlywheelOpenLoop(Constants.FlywheelConstants.getFlywheelIntakePercent()))
+    return run(() ->
+            io.setFlywheelOpenLoop(
+                SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent()))
         .until(() -> inputs.limitSwitchPressed)
         .finallyDo(() -> spinFlywheel(0.0))
-        .withName("Intake Flywheel");
+        .withName("Intake ClawIntake");
   }
 
   public Command stop() {
-    return run(io::stopFlywheel).withName("Flywheel Stop");
+    return run(io::stopFlywheel).withName("ClawIntake Stop");
   }
 }

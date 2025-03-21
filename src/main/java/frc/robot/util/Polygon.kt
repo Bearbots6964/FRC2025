@@ -1,15 +1,23 @@
 package frc.robot.util
 
+import com.pathplanner.lib.util.FlippingUtil
 import edu.wpi.first.math.geometry.Rectangle2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.units.Measure
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.Distance
+import edu.wpi.first.wpilibj.DriverStation
+import frc.robot.Robot
 
 class Polygon(private val vertices: List<Translation2d>) {
     
     private var boundingBox: Rectangle2d
     init {
+        if (Robot.alliance == DriverStation.Alliance.Red) {
+            vertices.forEach {
+                FlippingUtil.flipFieldPosition(it)
+            }
+        }
         var left = Units.Feet.of(1e6) // arbitrary large number
         var right = Units.Feet.of(-1e6)
         var top = Units.Feet.of(1e6)
