@@ -64,7 +64,7 @@ class RobotContainer {
     private var arm: Arm
     private var elevator: Elevator
     private var algaeIntake: AlgaeIntake
-    private var flywheel: Flywheel
+    private var clawIntake: ClawIntake
     private var climber: Climber
 
     private var driveSimulation: SwerveDriveSimulation? = null
@@ -117,7 +117,9 @@ class RobotContainer {
                         Constants.ArmConstants.talonConfig
                     )
                 )
-                flywheel = Flywheel(FlywheelIOSparkMax(Constants.FlywheelConstants.sparkConfig))
+                clawIntake = ClawIntake(
+                    ClawIntakeIOSparkMax(Constants.SuperstructureConstants.ClawIntakeConstants.sparkConfig)
+                )
 
                 elevator = Elevator(
                     ElevatorIOTalonFX(
@@ -171,7 +173,8 @@ class RobotContainer {
 
                     )
                 )
-                flywheel = Flywheel(object : FlywheelIO {})
+                clawIntake =
+                    ClawIntake(object : ClawIntakeIO {})
                 elevator = Elevator(object : ElevatorIO {})
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
 
@@ -190,7 +193,8 @@ class RobotContainer {
 
                 elevator = Elevator(object : ElevatorIO {})
                 arm = Arm(object : ArmIO {})
-                flywheel = Flywheel(object : FlywheelIO {})
+                clawIntake =
+                    ClawIntake(object : ClawIntakeIO {})
                 algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
             }
@@ -294,7 +298,7 @@ class RobotContainer {
         elevator.defaultCommand = elevator.velocityCommand({ -operatorController.rightY })
         arm.defaultCommand = arm.moveArm({ -operatorController.leftY })
         climber.defaultCommand = climber.moveClimberToIntakePosition()
-        //flywheel.defaultCommand = flywheel.stop()
+        //clawIntake.defaultCommand = clawIntake.stop()
 
         //Trigger { abs(operatorController.leftY) > 0.1 }.whileTrue(
         //    arm.moveArm { -operatorController.leftY }
@@ -328,9 +332,9 @@ class RobotContainer {
         )
 
         operatorController.leftBumper()
-            .whileTrue(flywheel.spinFlywheel(Constants.FlywheelConstants.flywheelIntakePercent))
+            .whileTrue(clawIntake.spinFlywheel(Constants.SuperstructureConstants.ClawIntakeConstants.clawIntakePercent))
         operatorController.rightBumper()
-            .whileTrue(flywheel.spinFlywheel(-Constants.FlywheelConstants.flywheelIntakePercent))
+            .whileTrue(clawIntake.spinFlywheel(-Constants.SuperstructureConstants.ClawIntakeConstants.clawIntakePercent))
 
         // Mark IV controller bindings
         markIVController.button(3).onTrue(SuperstructureCommands.l1(elevator, arm))

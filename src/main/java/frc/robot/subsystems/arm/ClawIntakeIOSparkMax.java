@@ -9,11 +9,11 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import frc.robot.Constants;
 
-public class FlywheelIOSparkMax implements FlywheelIO {
+public class ClawIntakeIOSparkMax implements ClawIntakeIO {
   protected SparkMax flywheelMotor;
   protected SparkBaseConfig flywheelConfiguration;
 
-  public FlywheelIOSparkMax(SparkBaseConfig flywheelConfiguration) {
+  public ClawIntakeIOSparkMax(SparkBaseConfig flywheelConfiguration) {
     this.flywheelConfiguration = flywheelConfiguration;
 
     flywheelMotor =
