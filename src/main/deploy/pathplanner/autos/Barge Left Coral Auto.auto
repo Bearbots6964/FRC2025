@@ -5,136 +5,69 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Barge to Reef 6 LEFT"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "l4"
-                }
-              }
-            ]
+            "pathName": "Barge to Reef 6 LEFT"
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Reef 6 LEFT to Coral 2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "home"
-                }
-              }
-            ]
+            "name": "deposit"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Coral 2 to Reef 6 RIGHT"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "l4"
-                }
-              }
-            ]
+            "pathName": "Reef 6 LEFT to Coral 2"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Reef 6 RIGHT to Coral 2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "home"
-                }
-              }
-            ]
+            "pathName": "Coral 2 to Reef 6 RIGHT"
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Coral 2 to Reef 7 LEFT"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "l4"
-                }
-              }
-            ]
+            "name": "deposit"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Reef 7 LEFT to Coral 1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "home"
-                }
-              }
-            ]
+            "pathName": "Reef 6 RIGHT to Coral 2"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Coral 1 to Reef 7 RIGHT"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "l4"
-                }
-              }
-            ]
+            "pathName": "Coral 2 to Reef 7 LEFT"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "deposit"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef 7 LEFT to Coral 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Coral 1 to Reef 7 RIGHT"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "deposit"
           }
         }
       ]

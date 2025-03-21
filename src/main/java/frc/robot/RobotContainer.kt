@@ -600,6 +600,10 @@ class RobotContainer {
     fun addNamedCommands() {
         NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm))
         NamedCommands.registerCommand("l4", SuperstructureCommands.l4(elevator, arm))
+        NamedCommands.registerCommand("deposit", run{
+            arm.moveArmToAngle(arm.armAngle - 10).alongWith(clawIntake.spinFlywheel(1.0))
+        })
+        NamedCommands.registerCommand("pre-coral pickup", SuperstructureCommands.preCoralPickup(elevator, arm))
     }
 
     fun stopQueue() = autoQueue.clearAll()
