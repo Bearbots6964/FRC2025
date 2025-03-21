@@ -28,6 +28,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
@@ -70,6 +71,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.RepulsorFieldPlanner;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -479,6 +482,12 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    * @return A command that pathfinds and then follows the path.
    */
   public Command pathfindThenFollowPath(PathPlannerPath path) {
+    var poses = new ArrayList<Pose2d>();
+    for (var state: path.generateTrajectory(getChassisSpeeds(), getRotation(), PP_CONFIG).getStates()) {
+      poses.add(state.pose);
+    }
+    field.getObject("Path").setPoses(poses);
+
     var constraints = new PathConstraints(4.0, 4.0, 3 * Math.PI, 3.5 * Math.PI);
     return AutoBuilder.pathfindThenFollowPath(path, constraints)
         .withName("Pathfind then Follow Path");
