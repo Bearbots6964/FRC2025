@@ -94,7 +94,7 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
   }
 
   @Override
-  public void setWinchBrakeMode(NeutralModeValue mode) {
+  public void setPivotBrakeMode(NeutralModeValue mode) {
     pivotMotor.setNeutralMode(mode);
   }
 }

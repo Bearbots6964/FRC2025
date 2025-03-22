@@ -328,6 +328,10 @@ class RobotContainer {
         operatorController.rightBumper()
             .whileTrue(clawIntake.spinFlywheel(-Constants.SuperstructureConstants.ClawIntakeConstants.clawIntakePercent))
 
+        operatorController.leftStick().whileTrue(climber.moveClimberToCageCatchPosition())
+        operatorController.rightStick().onTrue(climber.climb())
+        operatorController.start().whileTrue(climber.moveClimberOpenLoop({ -0.5 }, { 0.0 }))
+
         // Mark IV controller bindings
         markIVController.button(3).onTrue(SuperstructureCommands.l1(elevator, arm))
         markIVController.button(1).onTrue(SuperstructureCommands.l2(elevator, arm))
