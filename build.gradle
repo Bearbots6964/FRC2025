@@ -47,7 +47,7 @@ deploy {
 
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
                     // https://www.chiefdelphi.com/t/2024-wpilib-feedback/464322/141
-                    final MAX_JAVA_HEAP_SIZE_MB = 100
+                    final MAX_JAVA_HEAP_SIZE_MB = 105
                     jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
 
                     // Set the minimum heap size to the maximum heap size to avoid resizing
@@ -56,12 +56,16 @@ deploy {
                     jvmArgs.add("-XX:GCTimeRatio=5")
                     jvmArgs.add("-XX:+UseSerialGC")
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote=true")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
-                    jvmArgs.add("-Djava.rmi.server.hostname=10.69.64.2") // Replace TE.AM with team number
+
+                    // That's right, we're touching the JVM. Freaky
+                    jvmArgs.add("-XX:+AlwaysPreTouch")
+
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote=true")
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
+                    //jvmArgs.add("-Djava.rmi.server.hostname=10.69.64.2") // Replace TE.AM with team number
                 }
 
                 // Static files artifact
