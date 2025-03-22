@@ -242,15 +242,6 @@ class RobotContainer {
         driveController.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
 
         // Pathfinding commands
-        driveController.y().onTrue(
-            DriveToNearestReefSideCommand(
-                drive, driveController.leftBumper().asBoolean, elevator, arm
-            ) { nextSuperstructureCommand })
-
-        driveController.y().and(driveController.leftBumper()).onTrue(
-            DriveToNearestReefSideCommand(
-                drive, true, elevator, arm
-            ) { nextSuperstructureCommand })
 
         // Reduced speed drive when B button is pressed
         driveController.b().onTrue(
@@ -261,12 +252,6 @@ class RobotContainer {
                 { -driveController.rightX })
         )
 
-        // Coral Station handler
-        driveController.rightBumper().onTrue(
-            DriveToNearestCoralStationCommand(
-                drive, arm, elevator
-            )
-        )
 
         // Arm control after coral placed
         driveController.rightTrigger().onTrue(
@@ -509,16 +494,6 @@ class RobotContainer {
         }
 
 
-        SmartDashboard.putData(
-            DriveToSpecificCoralStationCommand(
-                drive, PathfindingFactories.CoralStationSide.LEFT, arm, elevator
-            ).withName("Drive to Left Coral Station")
-        )
-        SmartDashboard.putData(
-            DriveToSpecificCoralStationCommand(
-                drive, PathfindingFactories.CoralStationSide.RIGHT, arm, elevator
-            ).withName("Drive to Right Coral Station")
-        )
 
         SmartDashboard.putData(coralPickup().withName("Coral Pickup"))
         SmartDashboard.putData(
