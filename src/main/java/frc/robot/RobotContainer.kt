@@ -315,8 +315,11 @@ class RobotContainer {
         operatorController.rightTrigger().whileTrue(coralPickup())
         operatorController.leftTrigger().onTrue(
             Commands.defer(
-                { SuperstructureCommands.goToPosition(elevator, arm, nextSuperstructureCommand) },
-                setOf(elevator, arm)
+                {
+                    SuperstructureCommands.goToPosition(
+                        elevator, arm, climber, nextSuperstructureCommand
+                    )
+                }, setOf(elevator, arm, climber)
             )
         )
 
@@ -488,7 +491,7 @@ class RobotContainer {
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
             SmartDashboard.putData(
-                SuperstructureCommands.goToPosition(elevator, arm, position)
+                SuperstructureCommands.goToPosition(elevator, arm, climber, position)
                     .withName("Superstructure to " + position.name + " Position")
             )
         }
@@ -548,6 +551,15 @@ class RobotContainer {
                     ).withName("Drive to " + coralStation.name + " Coral Station (Queued)")
                 }).withName("Queue Drive to " + coralStation.name + " Coral Station")
             )
+            SmartDashboard.putData(
+                autoQueue.addAsCommand({
+                    PathfindingFactories.pathfindToCoralStationAlternate(
+                        drive,
+                        coralStation,
+                        { Translation2d(-driveController.leftY, -driveController.leftX) })
+                        .withName("Drive to " + coralStation.name + " Coral Station (Queued, alternate)")
+                }).withName("Queue Drive to " + coralStation.name + " Coral Station (alternate)")
+            )
         }
         for (coralStation in PathfindingFactories.CoralStationSide.entries) {
             SmartDashboard.putData(
@@ -564,7 +576,7 @@ class RobotContainer {
             SmartDashboard.putData(
                 autoQueue.addAsCommand({
                     SuperstructureCommands.goToPosition(
-                        elevator, arm, position
+                        elevator, arm, climber, position
                     ).withName("Superstructure to " + position.name + " Position (Queued)")
                 }).withName("Queue Superstructure " + position.name + " Position")
             )
@@ -573,7 +585,7 @@ class RobotContainer {
     }
 
     fun addNamedCommands() {
-        NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm))
+        NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm, climber))
         NamedCommands.registerCommand("l4", SuperstructureCommands.l4(elevator, arm))
         NamedCommands.registerCommand("deposit", run{
             arm.moveArmToAngle(arm.armAngle - 10).alongWith(clawIntake.spinFlywheel(1.0))

@@ -8,6 +8,7 @@ import frc.robot.Constants.SuperstructureConstants.ElevatorConstants.ElevatorSta
 import frc.robot.Constants.SuperstructureConstants.SuperstructureState
 import frc.robot.RobotContainer
 import frc.robot.subsystems.arm.Arm
+import frc.robot.subsystems.climber.Climber
 import frc.robot.subsystems.elevator.Elevator
 
 object SuperstructureCommands {
@@ -56,11 +57,12 @@ object SuperstructureCommands {
         ).withName("Superstructure to Coral Station Position")
     }
 
-    fun home(e: Elevator, a: Arm): Command {
+    fun home(e: Elevator, a: Arm, c: Climber): Command {
         RobotContainer.statusTopic.set("Home")
         return ensureSuperstructureSafety(e, a).andThen(
             e.goToPosition(ElevatorState.HOME)
-                .alongWith(a.moveArmToAngle(ArmConstants.ArmState.HOME))
+                .alongWith(a.moveArmToAngle(ArmConstants.ArmState.HOME)).alongWith(c.moveClimberToCageCatchPosition())
+                .andThen(c.moveClimberToIntakePosition())
         ).withName("Superstructure to Home Position")
     }
 
@@ -114,14 +116,14 @@ object SuperstructureCommands {
     }
 
 
-    fun goToPosition(e: Elevator, a: Arm, s: SuperstructureState): Command {
+    fun goToPosition(e: Elevator, a: Arm, c: Climber, s: SuperstructureState): Command {
         return when (s) {
             SuperstructureState.L1 -> l1(e, a)
             SuperstructureState.L2 -> l2(e, a)
             SuperstructureState.L3 -> l3(e, a)
             SuperstructureState.L4 -> l4(e, a)
             SuperstructureState.CORAL_PICKUP -> coralStationPosition(e, a)
-            SuperstructureState.HOME -> home(e, a)
+            SuperstructureState.HOME -> home(e, a, c)
             SuperstructureState.PRE_CORAL_PICKUP -> preCoralPickup(e, a)
             SuperstructureState.BARGE_LAUNCH -> bargeLaunch(e, a)
             SuperstructureState.ALGAE_INTAKE -> algaeIntake(e, a)
