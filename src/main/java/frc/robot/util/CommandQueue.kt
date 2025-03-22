@@ -65,7 +65,7 @@ class CommandQueue : Sendable {
      * @return A [Command] that, when run once, will initiate the execution of the added commands if the queue is idle.
      */
     fun addAsCommand(vararg command: () -> Command): Command = Commands.runOnce({
-        if (state == CommandQueueState.IDLE) {
+        if ((state == CommandQueueState.IDLE) || (state == CommandQueueState.INTERRUPTED)) {
             queue.addAll(command)
             state = CommandQueueState.RUNNING
             fireCommand()

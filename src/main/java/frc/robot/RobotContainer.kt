@@ -96,7 +96,6 @@ class RobotContainer {
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
         SmartDashboard.putData(CommandScheduler.getInstance())
-        SmartDashboard.putData("Auto Queue", autoQueue)
         when (Constants.currentMode) {
             Constants.Mode.REAL -> {
                 // Real robot, instantiate hardware IO implementations
