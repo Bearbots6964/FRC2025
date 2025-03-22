@@ -2,10 +2,10 @@ import edu.wpi.first.gradlerio.GradleRIOPlugin
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2025.3.1"
+    id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "com.peterabeles.gversion" version "1.10.3"
-    id 'org.jetbrains.kotlin.jvm'
     id "io.freefair.lombok" version "8.13"
+    id "org.jetbrains.kotlin.jvm" version "2.1.20"
     id 'idea'
 }
 
@@ -16,6 +16,13 @@ java {
 kotlin {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }
 
 project.compileKotlin.dependsOn(createVersionFile)
@@ -40,7 +47,7 @@ deploy {
 
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
                     // https://www.chiefdelphi.com/t/2024-wpilib-feedback/464322/141
-                    final MAX_JAVA_HEAP_SIZE_MB = 100
+                    final MAX_JAVA_HEAP_SIZE_MB = 105
                     jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
 
                     // Set the minimum heap size to the maximum heap size to avoid resizing
@@ -49,12 +56,16 @@ deploy {
                     jvmArgs.add("-XX:GCTimeRatio=5")
                     jvmArgs.add("-XX:+UseSerialGC")
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote=true")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
-                    jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
-                    jvmArgs.add("-Djava.rmi.server.hostname=10.69.64.2") // Replace TE.AM with team number
+
+                    // That's right, we're touching the JVM. Freaky
+                    jvmArgs.add("-XX:+AlwaysPreTouch")
+
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote=true")
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
+                    //jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
+                    //jvmArgs.add("-Djava.rmi.server.hostname=10.69.64.2") // Replace TE.AM with team number
                 }
 
                 // Static files artifact
@@ -81,6 +92,7 @@ def includeDesktopSupport = true
 // Configuration for AdvantageKit
 repositories {
     mavenLocal()
+    mavenCentral()
 }
 
 task(replayWatch, type: JavaExec) {
@@ -115,6 +127,9 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '2.1.10'
+
 }
 compileKotlin {
 }

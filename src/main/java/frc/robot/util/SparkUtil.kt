@@ -21,7 +21,7 @@ import java.util.function.Supplier
 
 object SparkUtil {
     /** Stores whether any error was has been detected by other utility methods.  */
-    var sparkStickyFault: Boolean = false
+    private var sparkStickyFault: Boolean = false
 
     /** Processes a value from a Spark only if the value is valid.  */
     fun ifOk(spark: SparkBase, supplier: DoubleSupplier, consumer: DoubleConsumer) {

@@ -20,6 +20,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
@@ -31,7 +34,9 @@ public class Module {
   private final Alert driveDisconnectedAlert;
   private final Alert turnDisconnectedAlert;
   private final Alert turnEncoderDisconnectedAlert;
-  private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
+
+  /** -- GETTER -- Returns the module positions received this cycle. */
+  @Getter private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(ModuleIO io, int index, SwerveModuleConstants constants) {
     this.io = io;
@@ -58,7 +63,10 @@ public class Module {
       // we can do some further browsing
       // and figure out *why* dividing by 7 fixes everything,
       // but in the interim, this works perfectly and fixes all our odometry problems.
-      double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius / 7.0;
+      double positionMeters =
+          inputs.odometryDrivePositionsRad[i]
+              * constants.WheelRadius
+              / ((Constants.getCurrentMode() == Mode.REAL) ? 7.0 : 1.0);
       Rotation2d angle = inputs.odometryTurnPositions[i];
       odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
     }
@@ -115,11 +123,6 @@ public class Module {
   /** Returns the module state (turn angle and drive velocity). */
   public SwerveModuleState getState() {
     return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
-  }
-
-  /** Returns the module positions received this cycle. */
-  public SwerveModulePosition[] getOdometryPositions() {
-    return odometryPositions;
   }
 
   /** Returns the timestamps of the samples received this cycle. */
