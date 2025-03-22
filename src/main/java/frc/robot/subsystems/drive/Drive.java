@@ -53,7 +53,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -104,7 +103,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
       new CANBus(TunerConstants.getDrivetrainConstants().CANBusName).isNetworkFD() ? 250.0 : 100.0;
   static final Lock odometryLock = new ReentrantLock();
   private static final RobotConfig PP_CONFIG = PhysicalProperties.getActiveBase().getRobotConfig();
-  Field2d field = new Field2d();
 
   static {
     mapleSimConfig =
@@ -218,7 +216,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         new com.pathplanner.lib.util.swerve.SwerveSetpoint(
             new ChassisSpeeds(), getModuleStates(), DriveFeedforwards.zeros(4));
 
-    SmartDashboard.putData(field);
     SmartDashboard.putData(
         "Swerve Drive",
         builder -> {
@@ -274,7 +271,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     var driveStdDevs = getDriveStdDevs();
     Logger.recordOutput("Odometry/Drive Std Devs", driveStdDevs);
     poseEstimator.setDriveMeasurementStdDevs(driveStdDevs);
-    field.setRobotPose(getPose());
     Logger.recordOutput(
         "Swerve/Speed",
         Math.hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond));
@@ -480,13 +476,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    * @return A command that pathfinds and then follows the path.
    */
   public Command pathfindThenFollowPath(PathPlannerPath path) {
-    var poses = new ArrayList<Pose2d>();
-    for (var state :
-        path.generateTrajectory(getChassisSpeeds(), getRotation(), PP_CONFIG).getStates()) {
-      poses.add(state.pose);
-    }
-    field.getObject("Path").setPoses(poses);
-
     var constraints = new PathConstraints(4.0, 4.0, 3 * Math.PI, 3.5 * Math.PI);
     return AutoBuilder.pathfindThenFollowPath(path, constraints)
         .withName("Pathfind then Follow Path");
