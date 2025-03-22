@@ -316,8 +316,9 @@ public class RepulsorFieldPlanner {
               .5,
               .5)
           // Barge center truss
-//          new LineObstacle(
-//              new Translation2d(3.5, 0), new Translation2d(3.5, Constants.FIELD_WIDTH_METERS), 1, 1),
+          //          new LineObstacle(
+          //              new Translation2d(3.5, 0), new Translation2d(3.5,
+          // Constants.FIELD_WIDTH_METERS), 1, 1),
           );
 
   /**

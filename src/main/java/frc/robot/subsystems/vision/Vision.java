@@ -7,13 +7,11 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,8 +43,8 @@ public class Vision extends SubsystemBase {
     // Initialize disconnected alerts
     this.disconnectedAlerts = new Alert[io.length];
     for (int i = 0; i < inputs.length; i++) {
-      disconnectedAlerts[i] = new Alert("Vision camera " + i + " is disconnected.",
-                                        AlertType.kWarning);
+      disconnectedAlerts[i] =
+          new Alert("Vision camera " + i + " is disconnected.", AlertType.kWarning);
     }
   }
 
@@ -55,9 +53,9 @@ public class Vision extends SubsystemBase {
    *
    * @param cameraIndex The index of the camera to use.
    */
-//  public Rotation2d getTargetX(int cameraIndex) {
-//    return inputs[cameraIndex].latestTargetObservation.tx();
-//  }
+  //  public Rotation2d getTargetX(int cameraIndex) {
+  //    return inputs[cameraIndex].latestTargetObservation.tx();
+  //  }
 
   @Override
   public void periodic() {
@@ -78,10 +76,10 @@ public class Vision extends SubsystemBase {
     // Log summary data (less frequently if needed)
     Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
     Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
-    Logger.recordOutput("Vision/Summary/RobotPosesAccepted",
-                        allRobotPosesAccepted.toArray(new Pose3d[0]));
-    Logger.recordOutput("Vision/Summary/RobotPosesRejected",
-                        allRobotPosesRejected.toArray(new Pose3d[0]));
+    Logger.recordOutput(
+        "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
+    Logger.recordOutput(
+        "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
   }
 
   private void processCameraData(int cameraIndex) {
@@ -101,15 +99,19 @@ public class Vision extends SubsystemBase {
       Pose3d pose = observation.pose();
 
       // Check whether to reject pose
-      boolean rejectPose = observation.tagCount() == 0 // Must have at least one tag
-          || (observation.tagCount() == 1 && observation.ambiguity() > INSTANCE.getMaxAmbiguity())
-          // Cannot be high ambiguity
-          || Math.abs(pose.getZ()) > INSTANCE.getMaxZError()
-          // Must have realistic Z coordinate
+      boolean rejectPose =
+          observation.tagCount() == 0 // Must have at least one tag
+              || (observation.tagCount() == 1
+                  && observation.ambiguity() > INSTANCE.getMaxAmbiguity())
+              // Cannot be high ambiguity
+              || Math.abs(pose.getZ()) > INSTANCE.getMaxZError()
+              // Must have realistic Z coordinate
 
-          // Must be within the field boundaries
-          || pose.getX() < 0.0 || pose.getX() > getAprilTagLayout().getFieldLength()
-          || pose.getY() < 0.0 || pose.getY() > getAprilTagLayout().getFieldWidth();
+              // Must be within the field boundaries
+              || pose.getX() < 0.0
+              || pose.getX() > getAprilTagLayout().getFieldLength()
+              || pose.getY() < 0.0
+              || pose.getY() > getAprilTagLayout().getFieldWidth();
 
       // Add pose to log
       robotPoses.add(pose);
@@ -127,7 +129,6 @@ public class Vision extends SubsystemBase {
       double linearStdDev = INSTANCE.getLinearStdDevBaseline() * stdDevFactor;
       double angularStdDev = INSTANCE.getAngularStdDevBaseline() * stdDevFactor;
 
-
       double[] cameraStdDevFactors = getCameraStdDevFactors();
       if (cameraIndex < cameraStdDevFactors.length) {
         linearStdDev *= cameraStdDevFactors[cameraIndex];
@@ -135,19 +136,23 @@ public class Vision extends SubsystemBase {
       }
 
       // Send vision observation
-      consumer.accept(pose.toPose2d(), observation.timestamp(),
-                      VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+      consumer.accept(
+          pose.toPose2d(),
+          observation.timestamp(),
+          VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
     }
 
     // Log camera data
-    Logger.recordOutput("Vision/Camera" + cameraIndex + "/TagPoses",
-                        tagPoses.toArray(new Pose3d[0]));
-    Logger.recordOutput("Vision/Camera" + cameraIndex + "/RobotPoses",
-                        robotPoses.toArray(new Pose3d[0]));
-    Logger.recordOutput("Vision/Camera" + cameraIndex + "/RobotPosesAccepted",
-                        robotPosesAccepted.toArray(new Pose3d[0]));
-    Logger.recordOutput("Vision/Camera" + cameraIndex + "/RobotPosesRejected",
-                        robotPosesRejected.toArray(new Pose3d[0]));
+    Logger.recordOutput(
+        "Vision/Camera" + cameraIndex + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
+    Logger.recordOutput(
+        "Vision/Camera" + cameraIndex + "/RobotPoses", robotPoses.toArray(new Pose3d[0]));
+    Logger.recordOutput(
+        "Vision/Camera" + cameraIndex + "/RobotPosesAccepted",
+        robotPosesAccepted.toArray(new Pose3d[0]));
+    Logger.recordOutput(
+        "Vision/Camera" + cameraIndex + "/RobotPosesRejected",
+        robotPosesRejected.toArray(new Pose3d[0]));
 
     allTagPoses.addAll(tagPoses);
     allRobotPoses.addAll(robotPoses);
@@ -158,7 +163,9 @@ public class Vision extends SubsystemBase {
   @FunctionalInterface
   public interface VisionConsumer {
 
-    void accept(Pose2d visionRobotPoseMeters, double timestampSeconds,
+    void accept(
+        Pose2d visionRobotPoseMeters,
+        double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs);
   }
 }

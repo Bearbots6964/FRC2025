@@ -38,25 +38,26 @@ public class Climber extends SubsystemBase {
 
   public Command moveClimberOpenLoop(DoubleSupplier winchOutput, DoubleSupplier pivotOutput) {
     return run(() -> {
-      winchIO.setWinchOpenLoop(winchOutput.getAsDouble());
-      pivotIO.setPivotOpenLoop(pivotOutput.getAsDouble());
-    })
+          winchIO.setWinchOpenLoop(winchOutput.getAsDouble());
+          pivotIO.setPivotOpenLoop(pivotOutput.getAsDouble());
+        })
         .withName("Move Climber");
   }
 
   public Command moveClimberVelocity(DoubleSupplier winchOutput, DoubleSupplier pivotOutput) {
     return run(() -> {
-      winchIO.setWinchVelocity(winchOutput.getAsDouble());
-      pivotIO.setPivotVelocity(pivotOutput.getAsDouble());
-    })
+          winchIO.setWinchVelocity(winchOutput.getAsDouble());
+          pivotIO.setPivotVelocity(pivotOutput.getAsDouble());
+        })
         .withName("Move Climber");
   }
 
   public Command moveClimberToIntakePosition() {
-    return runOnce(() -> {
-      winchIO.setWinchBrakeMode(NeutralModeValue.Coast);
-      winchIO.stopWinch();
-    })
+    return runOnce(
+            () -> {
+              winchIO.setWinchBrakeMode(NeutralModeValue.Coast);
+              winchIO.stopWinch();
+            })
         .andThen(run(() -> pivotIO.setPivotPosition(-0.06)))
         .withName("Move Climber to Intake Position");
   }
@@ -69,22 +70,30 @@ public class Climber extends SubsystemBase {
 
   public Command climb() {
     return runOnce(
-        () -> {
-          pivotIO.setPivotBrakeMode(NeutralModeValue.Brake);
-          winchIO.setWinchBrakeMode(NeutralModeValue.Brake);
-          pivotIO.stopPivot();
-          Elastic.sendNotification(
-              new Notification(NotificationLevel.INFO, "Info", "Godspeed, soldier."));
-        })
+            () -> {
+              pivotIO.setPivotBrakeMode(NeutralModeValue.Brake);
+              winchIO.setWinchBrakeMode(NeutralModeValue.Brake);
+              pivotIO.stopPivot();
+              Elastic.sendNotification(
+                  new Notification(NotificationLevel.INFO, "Info", "Godspeed, soldier."));
+            })
         .andThen(
             run(() -> winchIO.setWinchOpenLoop(0.60))
                 .until(
-                    () -> pivotIO.getPivotPosition() > ClimberConstants.getPivotClimbedPosition())).andThen(run(() -> { pivotIO.stopPivot(); pivotIO.setPivotBrakeMode(NeutralModeValue.Brake); winchIO.stopWinch();}))
-        .finallyDo(() -> {
-          pivotIO.stopPivot();
-          pivotIO.setPivotBrakeMode(NeutralModeValue.Brake);
-          winchIO.stopWinch();
-        })
+                    () -> pivotIO.getPivotPosition() > ClimberConstants.getPivotClimbedPosition()))
+        .andThen(
+            run(
+                () -> {
+                  pivotIO.stopPivot();
+                  pivotIO.setPivotBrakeMode(NeutralModeValue.Brake);
+                  winchIO.stopWinch();
+                }))
+        .finallyDo(
+            () -> {
+              pivotIO.stopPivot();
+              pivotIO.setPivotBrakeMode(NeutralModeValue.Brake);
+              winchIO.stopWinch();
+            })
         .withName("Climb");
   }
 }

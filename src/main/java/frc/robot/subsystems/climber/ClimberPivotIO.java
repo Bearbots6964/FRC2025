@@ -31,7 +31,7 @@ public interface ClimberPivotIO {
     return 0;
   }
 
-  default void  stopPivot() {}
+  default void stopPivot() {}
 
   default void setPivotBrakeMode(NeutralModeValue mode) {}
 }
