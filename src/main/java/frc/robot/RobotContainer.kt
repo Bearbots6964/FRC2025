@@ -30,10 +30,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.SuperstructureConstants.ElevatorConstants.ElevatorState
-import frc.robot.Constants.VisionConstants.robotToFrontRightCamera
+import frc.robot.Constants.VisionConstants.robotToBackLeftCamera
 import frc.robot.Constants.VisionConstants.robotToBackRightCamera
 import frc.robot.Constants.VisionConstants.robotToFrontLeftCamera
-import frc.robot.Constants.VisionConstants.robotToBackLeftCamera
+import frc.robot.Constants.VisionConstants.robotToFrontRightCamera
 import frc.robot.commands.*
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.arm.*
@@ -107,11 +107,15 @@ class RobotContainer {
                     ModuleIOTalonFXReal(TunerConstants.BackRight)
                 ) { _: Pose2d? -> }
                 this.vision = Vision(
-                    drive,
-                    VisionIOPhotonVision(Constants.VisionConstants.frontRightCameraName, robotToFrontRightCamera),
-                    VisionIOPhotonVision(Constants.VisionConstants.backRightCameraName, robotToBackRightCamera),
-                    VisionIOPhotonVision(Constants.VisionConstants.frontLeftCameraName, robotToFrontLeftCamera),
-                    VisionIOPhotonVision(Constants.VisionConstants.backLeftCameraName, robotToBackLeftCamera)
+                    drive, VisionIOPhotonVision(
+                        Constants.VisionConstants.frontRightCameraName, robotToFrontRightCamera
+                    ), VisionIOPhotonVision(
+                        Constants.VisionConstants.backRightCameraName, robotToBackRightCamera
+                    ), VisionIOPhotonVision(
+                        Constants.VisionConstants.frontLeftCameraName, robotToFrontLeftCamera
+                    ), VisionIOPhotonVision(
+                        Constants.VisionConstants.backLeftCameraName, robotToBackLeftCamera
+                    )
                 )
                 arm = Arm(
                     ArmIOTalonFX(
@@ -174,8 +178,7 @@ class RobotContainer {
 
                     )
                 )
-                clawIntake =
-                    ClawIntake(object : ClawIntakeIO {})
+                clawIntake = ClawIntake(object : ClawIntakeIO {})
                 elevator = Elevator(object : ElevatorIO {})
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
 
@@ -194,8 +197,7 @@ class RobotContainer {
 
                 elevator = Elevator(object : ElevatorIO {})
                 arm = Arm(object : ArmIO {})
-                clawIntake =
-                    ClawIntake(object : ClawIntakeIO {})
+                clawIntake = ClawIntake(object : ClawIntakeIO {})
                 algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
             }
@@ -286,7 +288,7 @@ class RobotContainer {
         elevator.defaultCommand = elevator.velocityCommand({ -operatorController.rightY })
         arm.defaultCommand = arm.moveArm({ -operatorController.leftY })
         climber.defaultCommand = climber.moveClimberToIntakePosition()
-        //clawIntake.defaultCommand = clawIntake.stop()
+        clawIntake.defaultCommand = clawIntake.stop()
 
         //Trigger { abs(operatorController.leftY) > 0.1 }.whileTrue(
         //    arm.moveArm { -operatorController.leftY }
@@ -299,7 +301,8 @@ class RobotContainer {
         operatorController.a().whileTrue(
             elevator.goToPosition(Constants.SuperstructureConstants.SuperstructureState.HOME)
                 .alongWith(arm.moveArmToAngle(170.0)).andThen({
-                    nextSuperstructureCommand = Constants.SuperstructureConstants.SuperstructureState.HOME
+                    nextSuperstructureCommand =
+                        Constants.SuperstructureConstants.SuperstructureState.HOME
                 })
         )
         operatorController.b().whileTrue(Commands.runOnce({
@@ -590,10 +593,12 @@ class RobotContainer {
     fun addNamedCommands() {
         NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm, climber))
         NamedCommands.registerCommand("l4", SuperstructureCommands.l4(elevator, arm))
-        NamedCommands.registerCommand("deposit", run{
+        NamedCommands.registerCommand("deposit", run {
             arm.moveArmToAngle(arm.armAngle - 10).alongWith(clawIntake.spinFlywheel(1.0))
         })
-        NamedCommands.registerCommand("pre-coral pickup", SuperstructureCommands.preCoralPickup(elevator, arm))
+        NamedCommands.registerCommand(
+            "pre-coral pickup", SuperstructureCommands.preCoralPickup(elevator, arm)
+        )
     }
 
     fun stopQueue() = autoQueue.clearAll()

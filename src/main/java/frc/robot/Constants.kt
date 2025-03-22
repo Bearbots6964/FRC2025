@@ -130,7 +130,7 @@ object Constants {
              * Arm position states.
              */
             object ArmState {
-                const val HOME = 224.0
+                const val HOME = 223.5
                 const val L1 = 155.0
                 const val L2 = -71.36
                 const val L3 = -60.0
@@ -189,7 +189,7 @@ object Constants {
 
                 it.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
                 it.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-                    Units.Degrees.of(225.0).`in`(Units.Revolutions)
+                    Units.Degrees.of(223.5).`in`(Units.Revolutions)
                 it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
                 it.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
                     Units.Degrees.of(-60.0).`in`(Units.Revolutions)
@@ -449,7 +449,7 @@ object Constants {
         /**
          * Final distance from the coral station in meters.
          */
-        const val finalDistanceFromCoralStationMeters = 0.4260342 // 16.77 inches
+        const val finalDistanceFromCoralStationMeters = 0.3937 // 16.77 inches
 
         /**
          * Distance from the goal at which pathfinding should end.
@@ -471,7 +471,7 @@ object Constants {
          */
         @JvmStatic
         val pathfindingConstraints = PathConstraints(
-            3.0, 4.0, degreesToRadians(540.0), degreesToRadians(720.0)
+            1.0, 1.0, degreesToRadians(540.0), degreesToRadians(720.0)
         )
 
         /**
@@ -498,13 +498,13 @@ object Constants {
          * Position of the pivot motor when the cage can catch the climber.
          */
         @JvmStatic
-        val pivotCageCatchPosition = 0.2
+        val pivotCageCatchPosition = -0.125
 
         /**
          * Position of the pivot motor when fully retracted and climbed.
          */
         @JvmStatic
-        val pivotClimbedPosition = -0.15
+        val pivotClimbedPosition = 54.0
 
 
         /**
@@ -525,6 +525,11 @@ object Constants {
             it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
             it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.5
             it.ExternalFeedback.AbsoluteSensorOffset = -0.47
+
+            it.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
+            it.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units.Degrees.of(60.0).`in`(Units.Rotations)
+            it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
+            it.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Units.Degrees.of(-45.0).`in`(Units.Rotations)
 
             it.MotionMagic.MotionMagicCruiseVelocity = 0.25
             it.MotionMagic.MotionMagicAcceleration = 12.0
