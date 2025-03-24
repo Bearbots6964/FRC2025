@@ -58,15 +58,13 @@ public class Module {
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
-      // TODO: Shit is absolutely fucked. The 7.0 was determined to work.
-      // If we want to,
-      // we can do some further browsing
-      // and figure out *why* dividing by 7 fixes everything,
-      // but in the interim, this works perfectly and fixes all our odometry problems.
+      // Update on the situation,
+      // I did more experimenting and I think what ended up happening is the gear ratios got left out of calculations,
+      // so dividing by that ratio seems to solve our problems.
       double positionMeters =
           inputs.odometryDrivePositionsRad[i]
               * constants.WheelRadius
-              / ((Constants.getCurrentMode() == Mode.REAL) ? 7.0 : 1.0);
+              / ((Constants.getCurrentMode() == Mode.REAL) ? 6.746031746031747 : 1.0);
       Rotation2d angle = inputs.odometryTurnPositions[i];
       odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
     }
