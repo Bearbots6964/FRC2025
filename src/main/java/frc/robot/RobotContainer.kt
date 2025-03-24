@@ -79,10 +79,11 @@ class RobotContainer {
     // Controller
     private val driveController = CommandXboxController(0)
     private val operatorController = CommandXboxController(1)
-    private val markIVController = CommandGenericHID(2)
+    val markIVController = CommandGenericHID(2)
     private val buttonMacroController: CommandJoystick = CommandJoystick(3)
 
     private val autoQueue: CommandQueue = CommandQueue()
+    private val otherCommandQueue: CommandQueue = CommandQueue().withName("Other Command Queue")
 
     // Dashboard inputs
     private lateinit var autoChooser: LoggedDashboardChooser<Command>
@@ -112,11 +113,17 @@ class RobotContainer {
 
         @JvmStatic
         val statusTopic: StringPublisher = statusTable.getStringTopic("RobotStatus").publish()
+
+
     }
+
 
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
+        autoQueue.setName("Auto Queue")
         SmartDashboard.putData(CommandScheduler.getInstance())
+        SmartDashboard.putData("Auto Queue", autoQueue)
+        SmartDashboard.putData("Other Command Queue", otherCommandQueue)
         when (Constants.currentMode) {
             Constants.Mode.REAL -> {
                 // Real robot, instantiate hardware IO implementations
@@ -261,7 +268,7 @@ class RobotContainer {
         )
 
         // Switch to X pattern when X button is pressed
-        driveController.x().onTrue(Commands.runOnce({ drive.stopWithX() }, drive))
+        driveController.x().onTrue(Commands.runOnce({ autoQueue.start() }))
 
         // Pathfinding commands
 
@@ -306,8 +313,8 @@ class RobotContainer {
         // </editor-fold>
 
         // Default commands for elevator and arm
-        elevator.defaultCommand = elevator.velocityCommand({ -operatorController.rightY })
-        arm.defaultCommand = arm.moveArm({ -operatorController.leftY })
+        elevator.defaultCommand = elevator.stop()
+        arm.defaultCommand = arm.stop()
         climber.defaultCommand = climber.moveClimberToIntakePosition()
         clawIntake.defaultCommand = clawIntake.stop()
 
@@ -320,66 +327,62 @@ class RobotContainer {
 
         // Operator controller bindings
         operatorController.a().whileTrue(
-            elevator.goToPosition(Constants.SuperstructureConstants.SuperstructureState.HOME)
-                .alongWith(arm.moveArmToAngle(170.0)).andThen({
-                    nextSuperstructureCommand =
-                        Constants.SuperstructureConstants.SuperstructureState.HOME
-                })
+                SuperstructureCommands.home(elevator, arm, climber)
         )
         operatorController.b().whileTrue(Commands.runOnce({
-            nextSuperstructureCommand = Constants.SuperstructureConstants.SuperstructureState.L2
+            otherCommandQueue.cancelCurrent()
         }))
-        operatorController.x().whileTrue(Commands.runOnce({
-            nextSuperstructureCommand = Constants.SuperstructureConstants.SuperstructureState.L3
+        operatorController.x().onTrue(Commands.runOnce({
+            otherCommandQueue.start()
         }))
         operatorController.y().whileTrue(Commands.runOnce({
             nextSuperstructureCommand = Constants.SuperstructureConstants.SuperstructureState.L4
         }))
-        operatorController.rightTrigger().whileTrue(coralPickup())
+        operatorController.rightTrigger().whileTrue(
+            elevator.velocityCommand({ -operatorController.rightY }).alongWith(
+                arm.moveArm({ -operatorController.leftY }),
+            ),
+        )
         operatorController.leftTrigger().onTrue(
-            Commands.defer(
-                {
-                    SuperstructureCommands.goToPosition(
-                        elevator, arm, climber, nextSuperstructureCommand
-                    )
-                }, setOf(elevator, arm, climber)
-            )
+            Commands.runOnce({ clawIntake.setIntakeGrabbed(true) }),
+        ).onFalse(
+            Commands.runOnce({ clawIntake.setIntakeGrabbed(false) }),
         )
 
         operatorController.leftBumper()
-            .whileTrue(clawIntake.spinFlywheel(Constants.SuperstructureConstants.ClawIntakeConstants.clawIntakePercent))
+            .whileTrue(clawIntake.spinFlywheel(Constants.SuperstructureConstants.ClawIntakeConstants.clawIntakePercent * 1.5))
         operatorController.rightBumper()
             .whileTrue(clawIntake.spinFlywheel(-Constants.SuperstructureConstants.ClawIntakeConstants.clawIntakePercent))
 
-        operatorController.leftStick().whileTrue(climber.moveClimberToCageCatchPosition())
+        operatorController.leftStick().whileTrue(climber.moveClimberToCageCatchPositionNoStop())
         operatorController.rightStick().onTrue(climber.climb())
         operatorController.start().whileTrue(climber.moveClimberOpenLoop({ -0.5 }, { 0.0 }))
 
         // Mark IV controller bindings
-        markIVController.button(3).onTrue(SuperstructureCommands.l1(elevator, arm))
-        markIVController.button(1).onTrue(SuperstructureCommands.l2(elevator, arm))
-        markIVController.button(2).onTrue(SuperstructureCommands.l3(elevator, arm))
-        markIVController.button(4).onTrue(SuperstructureCommands.l4(elevator, arm))
+        markIVController.button(3).onTrue(SuperstructureCommands.l1(elevator, arm, climber))
+        markIVController.button(1).onTrue(SuperstructureCommands.l2(elevator, arm, climber))
+        markIVController.button(2).onTrue(SuperstructureCommands.l3(elevator, arm, climber))
+        markIVController.button(4).onTrue(SuperstructureCommands.l4(elevator, arm, climber))
 
         // Button macro joystick pad bindings
         buttonMacroController.button(9).onTrue(
             SuperstructureCommands.l1(
-                elevator, arm
+                elevator, arm, climber,
             )
         )
         buttonMacroController.button(10).onTrue(
             SuperstructureCommands.l2(
-                elevator, arm
+                elevator, arm, climber
             )
         )
         buttonMacroController.button(11).onTrue(
             SuperstructureCommands.l3(
-                elevator, arm
+                elevator, arm, climber
             )
         )
         buttonMacroController.button(12).onTrue(
             SuperstructureCommands.l4(
-                elevator, arm
+                elevator, arm, climber
             )
         )
         buttonMacroController.button(7).onTrue(
@@ -509,17 +512,11 @@ class RobotContainer {
     }
 
     private fun setUpDashboardCommands() {
-        for (reef in PathfindingFactories.Reef.entries) {
-            SmartDashboard.putData(
-                PathfindingFactories.pathfindToSpecificReef(drive, reef)
-                    .withName("Reef " + reef.name)
-            )
-        }
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
             SmartDashboard.putData(
                 SuperstructureCommands.goToPosition(elevator, arm, climber, position)
-                    .withName("Superstructure to " + position.name + " Position")
+                    .withName("Superstructure to " + position.name + " Position").ignoringDisable(true)
             )
         }
 
@@ -542,52 +539,48 @@ class RobotContainer {
 
 
         // add individual reef goto commands to queue
+        //for (reef in PathfindingFactories.Reef.entries) {
+        //    SmartDashboard.putData(
+        //        autoQueue.addAsCommand({
+        //            PathfindingFactories.pathfindToSpecificReef(drive, reef)
+        //                .withName("Reef " + reef.name + " (Queued)")
+        //        }).withName("Queue Reef " + reef.name)
+        //    )
+        //}
         for (reef in PathfindingFactories.Reef.entries) {
             SmartDashboard.putData(
-                autoQueue.addAsCommand({
-                    PathfindingFactories.pathfindToSpecificReef(drive, reef)
-                        .withName("Reef " + reef.name + " (Queued)")
-                }).withName("Queue Reef " + reef.name)
-            )
-        }
-        for (reef in PathfindingFactories.Reef.entries) {
-            SmartDashboard.putData(
-                autoQueue.addAsCommand({
-                    PathfindingFactories.pathfindToReefAlternate(drive, reef) {
-                        Translation2d(
-                            -driveController.leftY, -driveController.leftX
-                        )
-                    }.withName("Reef " + reef.name + " (Queued, alternate)")
-                }).withName("Queue Reef alternate " + reef.name)
+                autoQueue.addButDoNotStartAsCommand({
+                    PathfindingFactories.pathfindToReefAlternate(
+                        drive, reef, driveTranslationalControlSupplier
+                    ).withName("Reef " + reef.name + " (Queued, alternate)")
+                }).withName("Queue Reef alternate " + reef.name).ignoringDisable(true)
             )
         }
 
-        for (reef in PathfindingFactories.Reef.entries) {
-            SmartDashboard.putData(
-                autoQueue.addAsCommand({
-                    PathfindingFactories.finalLineupToSpecificReef(drive, reef)
-                        .withName("Final Lineup to Reef " + reef.name + " (Queued)")
-                }).withName("Queue Final Lineup to Reef " + reef.name)
-            )
-        }
+        //for (reef in PathfindingFactories.Reef.entries) {
+        //    SmartDashboard.putData(
+        //        autoQueue.addAsCommand({
+        //            PathfindingFactories.finalLineupToSpecificReef(drive, reef)
+        //                .withName("Final Lineup to Reef " + reef.name + " (Queued)")
+        //        }).withName("Queue Final Lineup to Reef " + reef.name)
+        //    )
+        //}
         for (coralStation in PathfindingFactories.CoralStationSide.entries) {
+//            SmartDashboard.putData(
+//                autoQueue.addAsCommand({
+//                    PathfindingFactories.pathfindToSpecificCoralStation(
+//                        drive, coralStation
+//                    ).withName("Drive to " + coralStation.name + " Coral Station (Queued)")
+//                }).withName("Queue Drive to " + coralStation.name + " Coral Station")
+//            )
             SmartDashboard.putData(
-                autoQueue.addAsCommand({
-                    PathfindingFactories.pathfindToSpecificCoralStation(
-                        drive, coralStation
-                    ).withName("Drive to " + coralStation.name + " Coral Station (Queued)")
-                }).withName("Queue Drive to " + coralStation.name + " Coral Station")
-            )
-            SmartDashboard.putData(
-                autoQueue.addAsCommand({
+                autoQueue.addButDoNotStartAsCommand({
                     PathfindingFactories.pathfindToCoralStationAlternate(
-                        drive,
-                        coralStation,
-                        { Translation2d(-driveController.leftY, -driveController.leftX) })
-                        .withName("Drive to " + coralStation.name + " Coral Station (Queued, alternate)")
-                }).withName("Queue Drive to " + coralStation.name + " Coral Station (alternate)")
+                        drive, coralStation, driveTranslationalControlSupplier
+                    ).withName("Drive to $coralStation Coral Station (Queued, alternate)")
+                }).withName("Queue Drive to $coralStation Coral Station (alternate)").ignoringDisable(true)
             )
-        }
+        }/*
         for (coralStation in PathfindingFactories.CoralStationSide.entries) {
             SmartDashboard.putData(
                 autoQueue.addAsCommand({
@@ -597,30 +590,57 @@ class RobotContainer {
                 }).withName("Queue Final Lineup to " + coralStation.name + " Coral Station")
             )
         }
+        */
+
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
-
-            SmartDashboard.putData(
-                autoQueue.addAsCommand({
+            val commands: Command =
+                if (position == Constants.SuperstructureConstants.SuperstructureState.L1 || position == Constants.SuperstructureConstants.SuperstructureState.L2 || position == Constants.SuperstructureConstants.SuperstructureState.L3 || position == Constants.SuperstructureConstants.SuperstructureState.L4) otherCommandQueue.addButDoNotStartAsCommand(
+                    {
+                        SuperstructureCommands.goToPosition(
+                            elevator, arm, climber, position
+                        ).withName("Superstructure to " + position.name + " Position (Queued)")
+                    },
+                    {
+                        SuperstructureCommands.scoreAtPosition(
+                            elevator, arm, clawIntake, drive, position
+                        ).withName("Score in $position (queued, auto-added)")
+                    }) else otherCommandQueue.addButDoNotStartAsCommand({
                     SuperstructureCommands.goToPosition(
                         elevator, arm, climber, position
                     ).withName("Superstructure to " + position.name + " Position (Queued)")
-                }).withName("Queue Superstructure " + position.name + " Position")
+                })
+            SmartDashboard.putData(
+                commands.withName("Queue Superstructure $position Position").ignoringDisable(true)
             )
         }
+        SmartDashboard.putData(otherCommandQueue.addButDoNotStartAsCommand({
+            SuperstructureCommands.pickUpCoral(
+                elevator, arm, clawIntake, climber
+            ).withName("Pick up coral (queued)")
+        }).withName("Queue pick up coral").ignoringDisable(true))
+        SmartDashboard.putData(otherCommandQueue.addButDoNotStartAsCommand({
+            SuperstructureCommands.score(
+                elevator, arm, clawIntake
+            ).withName("Score (queued)")
+        }).withName("Queue score").ignoringDisable(true))
 
     }
 
+
     fun addNamedCommands() {
         NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm, climber))
-        NamedCommands.registerCommand("l4", SuperstructureCommands.l4(elevator, arm))
+        NamedCommands.registerCommand("l4", SuperstructureCommands.l4(elevator, arm, climber))
         NamedCommands.registerCommand("deposit", run {
             arm.moveArmToAngle(arm.armAngle - 10).alongWith(clawIntake.spinFlywheel(1.0))
         })
         NamedCommands.registerCommand(
-            "pre-coral pickup", SuperstructureCommands.preCoralPickup(elevator, arm)
+            "pre-coral pickup", SuperstructureCommands.preCoralPickup(elevator, arm, climber)
         )
     }
 
-    fun stopQueue() = autoQueue.clearAll()
+    fun stopQueue() {
+        autoQueue.clearAll()
+        otherCommandQueue.clearAll()
+    }
 }

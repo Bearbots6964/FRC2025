@@ -54,6 +54,10 @@ object Constants {
              */
             const val RIGHT_MOTOR_CAN_ID = 2
 
+            const val elevatorTolerance = 5.0 // rotations
+            const val rotationsPerInch = 3.75
+
+
             /**
              * Talon FX configuration for the left elevator motor.
              */
@@ -89,8 +93,8 @@ object Constants {
                 it.Slot0.kG = 0.10784
                 it.Slot0.kP = 0.8 // sysid suggests 0.067039
 
-                it.MotionMagic.MotionMagicCruiseVelocity = 100.0
-                it.MotionMagic.MotionMagicAcceleration = 200.0
+                it.MotionMagic.MotionMagicCruiseVelocity = 200.0
+                it.MotionMagic.MotionMagicAcceleration = 400.0
                 it.MotionMagic.MotionMagicJerk = 1000.0
 
                 it
@@ -100,13 +104,13 @@ object Constants {
              * Elevator height states.
              */
             object ElevatorState {
-                const val HOME = 5.0
+                const val HOME = 17.2
                 const val L1 = 5.0
                 const val L2 = 42.96
-                const val L3 = 90.0
-                const val L4 = 86 // TODO: Find actual value
+                const val L3 = 70.8
+                const val L4 = 108.765 // TODO: Find actual value
                 const val PRE_CORAL_PICKUP = 37.0
-                const val CORAL_PICKUP = 0.0
+                const val CORAL_PICKUP = 28.0
                 const val BARGE_LAUNCH = 100.93
                 const val ALGAE_INTAKE = 0.0
                 const val UPPER_REEF_ALGAE = 11.3
@@ -130,13 +134,13 @@ object Constants {
              * Arm position states.
              */
             object ArmState {
-                const val HOME = 223.5
+                const val HOME = 210.5
                 const val L1 = 155.0
-                const val L2 = -71.36
-                const val L3 = -60.0
-                const val L4 = 45.0
+                const val L2 = -35.0
+                const val L3 = -37.0
+                const val L4 = 46.93
                 const val PRE_CORAL_PICKUP = HOME
-                const val CORAL_PICKUP = HOME
+                const val CORAL_PICKUP = 218.125
                 const val BARGE_LAUNCH = 77.0
                 const val ALGAE_INTAKE = -64.77
                 const val UPPER_REEF_ALGAE = 0.0
@@ -160,14 +164,14 @@ object Constants {
              */
             @JvmStatic
             val talonConfig: TalonFXSConfiguration = TalonFXSConfiguration().let {
-                it.CurrentLimits.StatorCurrentLimit = 50.0
+                it.CurrentLimits.StatorCurrentLimit = 40.0
                 it.CurrentLimits.StatorCurrentLimitEnable = true
 
                 it.ExternalFeedback.ExternalFeedbackSensorSource =
                     ExternalFeedbackSensorSourceValue.PulseWidth
                 it.ExternalFeedback.RotorToSensorRatio = 60.0
                 it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
-                it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.7
+                it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.65
                 it.ExternalFeedback.AbsoluteSensorOffset = 0.27
                 it.ExternalFeedback.SensorPhase = SensorPhaseValue.Aligned
 
@@ -178,7 +182,8 @@ object Constants {
                 it.Slot0.kS = 0.51518
                 it.Slot0.kV = 7.35
                 it.Slot0.kA = 0.61
-                it.Slot0.kG = 1.5
+                it.Slot0.kG = 0.75
+                it.Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
                 it.MotionMagic.MotionMagicCruiseVelocity = 1.25
                 it.MotionMagic.MotionMagicAcceleration = 1.5
@@ -189,10 +194,10 @@ object Constants {
 
                 it.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
                 it.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-                    Units.Degrees.of(223.5).`in`(Units.Revolutions)
+                    Units.Degrees.of(225.0).`in`(Units.Revolutions)
                 it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
                 it.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-                    Units.Degrees.of(-60.0).`in`(Units.Revolutions)
+                    Units.Degrees.of(-71.36).`in`(Units.Revolutions)
 
                 it // funny kotlin return
             }
@@ -213,7 +218,9 @@ object Constants {
              * Percent output of the claw motor when intaking.
              */
             @JvmStatic
-            val clawIntakePercent = 1.0
+            val clawIntakePercent = 0.25
+
+            const val clawGrippedCurrent = 11.0
 
             /**
              * Motor controller configuration for the claw motor.
@@ -399,25 +406,25 @@ object Constants {
             Units.Inches.of((29.5 / 2) - 1.3125),
             Units.Inches.of(-((29.5 / 2) - 3.75)),
             Units.Inches.of(8.125),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-14.0), Units.Degrees.of(30.0)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(36.49)),
         )
         var robotToBackRightCamera: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
             Units.Inches.of(-((29.5 / 2) - 1.5)),
             Units.Inches.of(8.0),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(230.0)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(225.0)),
         )
         var robotToFrontLeftCamera: Transform3d = Transform3d(
             Units.Inches.of((29.5 / 2) - 1.125),
             Units.Inches.of((29.5 / 2) - 3.375),
             Units.Inches.of(8.25),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-19.0), Units.Degrees.of(-30.0)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-31.89)),
         )
         var robotToBackLeftCamera: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
             Units.Inches.of((29.5 / 2) - 1.5),
             Units.Inches.of(8.0),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-19.0), Units.Degrees.of(140.0)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(135.0)),
         )
 
         // Basic filtering thresholds
@@ -498,7 +505,7 @@ object Constants {
          * Position of the pivot motor when the cage can catch the climber.
          */
         @JvmStatic
-        val pivotCageCatchPosition = -0.125
+        val pivotCageCatchPosition = -45.0
 
         /**
          * Position of the pivot motor when fully retracted and climbed.
@@ -513,15 +520,15 @@ object Constants {
         val pivotMotorConfig: TalonFXSConfiguration = TalonFXSConfiguration().let {
             it.MotorOutput.NeutralMode = NeutralModeValue.Brake
 
-            it.CurrentLimits.SupplyCurrentLimit = 40.0
             it.CurrentLimits.StatorCurrentLimit = 40.0
+            it.CurrentLimits.StatorCurrentLimitEnable = true
 
             it.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST
             it.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled
 
             it.ExternalFeedback.ExternalFeedbackSensorSource =
                 ExternalFeedbackSensorSourceValue.PulseWidth
-            it.ExternalFeedback.RotorToSensorRatio = 20.0
+            it.ExternalFeedback.RotorToSensorRatio = 45.0
             it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
             it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.5
             it.ExternalFeedback.AbsoluteSensorOffset = -0.47
@@ -558,7 +565,7 @@ object Constants {
             it
         }
     }
-
+    // <editor-fold desc="Extra utility constants">
     /**
      * What AdvantageKit should do while in a simulation.
      */
@@ -792,13 +799,13 @@ object Constants {
     object PhysicalProperties {
         object ProgrammingBase {
             @JvmStatic
-            val mass: Mass = Units.Pounds.of(125.0)
+            val mass: Mass = Units.Pounds.of(150.0)
 
             @JvmStatic
-            val momentOfInteria: MomentOfInertia = Units.KilogramSquareMeters.of(2.0) // TODO
+            val momentOfInteria: MomentOfInertia = Units.KilogramSquareMeters.of(7.661) // TODO
 
             @JvmStatic
-            val wheelRadius: Distance = Units.Inches.of(1.913)
+            val wheelRadius: Distance = Units.Inches.of(1.91)
 
             // We are using Kraken X60's. 15.5 ft/s without field-oriented control,
             // and 15.0 ft/s without.
@@ -806,7 +813,7 @@ object Constants {
             val maxVelocity: LinearVelocity = Units.FeetPerSecond.of(15.5)
 
             @JvmStatic
-            val coefficentOfFriction = 0.8 // this will need to be changed.
+            val coefficentOfFriction = 1.2 // this will need to be changed.
 
             // just a ballpark estimate for now.
             // very much depends on whether we're on carpet or concrete.
@@ -814,7 +821,7 @@ object Constants {
 
                 private val motor: DCMotor =
                     DCMotor.getKrakenX60(1).withReduction(6.75) // per module
-                private val currentLimit: Current = Units.Amps.of(40.0)
+                private val currentLimit: Current = Units.Amps.of(75.0)
 
                 private const val motorsPerModule = 1
 
@@ -848,4 +855,5 @@ object Constants {
         @JvmStatic
         val activeBase = ProgrammingBase
     }
+    // </
 }
