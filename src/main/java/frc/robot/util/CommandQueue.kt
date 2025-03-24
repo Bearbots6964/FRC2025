@@ -37,7 +37,7 @@ class CommandQueue : Sendable {
      * SmartDashboard.
      * Defaults to "CommandQueue (name me!)".
      */
-    private var name: String = "CommandQueue (name me!)"
+    private var name: String = "CommandQueue"
 
     /**
      * Adds one or more commands to the queue. If the queue was previously empty,
@@ -85,6 +85,7 @@ class CommandQueue : Sendable {
     fun addButDoNotStart(vararg command: () -> Command) {
         queue.addAll(command)
     }
+    fun addButDoNotStartAsCommand(vararg command: () -> Command): Command = Commands.runOnce({queue.addAll(command)})
 
     /**
      * Pauses the execution of the command queue. If a command is currently running,
@@ -199,7 +200,7 @@ class CommandQueue : Sendable {
      * next command in the queue.
      */
     private fun commandFinishedCallback() {
-        if (state != CommandQueueState.PAUSED) fireCommand()
+        state = CommandQueueState.IDLE
     }
 
     /**
@@ -228,7 +229,7 @@ class CommandQueue : Sendable {
             "Cancel", { LongArray(0) }) { longs ->
             longs.forEach {
                 // ditto here
-                if (it.toInt() >= 1) queue.removeAt(it.toInt() - 1).invoke().cancel()
+                if (it.toInt() > 1) queue.removeAt(it.toInt() - 2).invoke().cancel()
             }
         }
     }
