@@ -41,7 +41,7 @@ object TunerConstants {
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     @JvmStatic
     private val driveGains: Slot0Configs =
-        Slot0Configs().withKP(0.1).withKI(0.0).withKD(0.0).withKS(0.0).withKV(0.124)
+        Slot0Configs().withKP(0.1).withKI(0.0).withKD(0.0).withKS(0.25905).withKV(0.11893).withKA(0.0019831)
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -63,7 +63,7 @@ object TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private val slipCurrent: Current = Units.Amps.of(40.0)
+    private val slipCurrent: Current = Units.Amps.of(75.0)
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -86,7 +86,7 @@ object TunerConstants {
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
     @JvmStatic
-    val speedAt12Volts: LinearVelocity = Units.FeetPerSecond.of(15.5)
+    val speedAt12Volts: LinearVelocity = Units.MetersPerSecond.of(4.309594045337351)
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
@@ -94,7 +94,7 @@ object TunerConstants {
 
     private const val driveGearRatio = 6.746031746031747
     private const val steerGearRatio = 21.428571428571427
-    private val kWheelRadius: Distance = Units.Inches.of(2.0)
+    private val kWheelRadius: Distance = Units.Inches.of(1.91)
 
     private const val invertLeftSide = false
     private const val invertRightSide = true
