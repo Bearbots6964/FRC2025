@@ -47,7 +47,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command stop() {
-    return run(io::stop);
+    return runOnce(io::setGoalToCurrent).andThen(run(io::stop)).withName("Elevator Stop");
   }
 
   @Override
@@ -129,7 +129,7 @@ public class Elevator extends SubsystemBase {
                               case L4 -> ElevatorConstants.ElevatorState.L4;
                               default -> ElevatorConstants.ElevatorState.HOME;
                             })
-                    < 1.0);
+                    < ElevatorConstants.elevatorTolerance);
   }
 
   /**
@@ -141,7 +141,7 @@ public class Elevator extends SubsystemBase {
    */
   public Command goToPositionDelta(double delta) {
     return runOnce(() -> io.setPositionDelta(delta))
-        .until(() -> io.getDistanceFromGoal() < 1.0)
+        .until(() -> io.getDistanceFromGoal() < ElevatorConstants.elevatorTolerance)
         .withName("Elevator to Position");
   }
 
@@ -154,7 +154,7 @@ public class Elevator extends SubsystemBase {
   public Command goToPosition(double position) {
     targetPosition = position;
     return run(() -> setRotations(position))
-        .until(() -> Math.abs(inputs.rightMotorPositionRotations - position) < 1.0)
+        .until(() -> Math.abs(inputs.rightMotorPositionRotations - position) < ElevatorConstants.elevatorTolerance)
         .withName("Elevator to Position");
   }
 
@@ -177,11 +177,11 @@ public class Elevator extends SubsystemBase {
   public Command homeElevator() {
     return Commands.sequence(
         runOnce(() -> io.setSoftLimitsEnabled(false)),
-        velocityCommand(() -> -0.25).until(() -> inputs.rightMotorCurrent > 1),
+        velocityCommand(() -> -0.25).until(() -> inputs.limitSwitchPressed),
         runOnce(io::zero),
         run(() -> setRotations(5))
-            .until(() -> Math.abs(inputs.rightMotorPositionRotations - 5) < 1.0),
-        velocityCommand(() -> -0.05).until(() -> inputs.rightMotorCurrent > 1.5),
+            .until(() -> Math.abs(inputs.rightMotorPositionRotations - 5) < ElevatorConstants.elevatorTolerance),
+        velocityCommand(() -> -0.05).until(() -> inputs.limitSwitchPressed),
         runOnce(io::zero),
         runOnce(() -> io.setOpenLoop(0.0)),
         runOnce(() -> io.setSoftLimitsEnabled(true)));

@@ -17,6 +17,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants.SuperstructureConstants;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
@@ -47,19 +48,21 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final Debouncer rightMotorConnectedDebouncer = new Debouncer(0.5);
 
   protected double targetVelocity = 0.0;
-  protected double targetPosition = 0.0;
+  protected double targetPosition;
+
+  protected DigitalInput limitSwitch = new DigitalInput(9);
 
   public ElevatorIOTalonFX(TalonFXConfiguration leftConfig, TalonFXConfiguration rightConfig) {
     this.leftConfig = leftConfig;
     this.rightConfig = rightConfig;
     rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 105;
-    rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
+    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 108.75;
+    rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.5;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 105;
-    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
+    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 108.75;
+    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.5;
 
     leftMotor = new TalonFX(SuperstructureConstants.ElevatorConstants.LEFT_MOTOR_CAN_ID);
     rightMotor = new TalonFX(SuperstructureConstants.ElevatorConstants.RIGHT_MOTOR_CAN_ID);
@@ -123,6 +126,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     inputs.atTarget =
         Math.abs(rightMotorPosition.getValue().in(Units.Rotations) - targetPosition) < 1.0;
+    inputs.limitSwitchPressed = limitSwitch.get();
   }
 
   @Override
@@ -133,21 +137,21 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void setVelocity(double velocity) {
     targetVelocity = velocity;
-    motionMagicVelocityRequest.withVelocity(velocity);
+    motionMagicVelocityRequest.withVelocity(velocity).withLimitReverseMotion(limitSwitch.get());
     rightMotor.setControl(motionMagicVelocityRequest);
   }
 
   @Override
   public void setPosition(double position) {
     targetPosition = position;
-    motionMagicPositionRequest.withPosition(position);
+    motionMagicPositionRequest.withPosition(position).withLimitReverseMotion(limitSwitch.get());
     rightMotor.setControl(motionMagicPositionRequest);
   }
 
   @Override
   public void setPositionDelta(double delta) {
     targetPosition += delta;
-    motionMagicPositionRequest.withPosition(targetPosition);
+    motionMagicPositionRequest.withPosition(targetPosition).withLimitReverseMotion(limitSwitch.get());
     rightMotor.setControl(motionMagicPositionRequest);
   }
 
@@ -158,12 +162,17 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void stop() {
-    rightMotor.setControl(new MotionMagicVoltage(targetPosition));
+    rightMotor.setControl(new MotionMagicVoltage(targetPosition).withLimitReverseMotion(limitSwitch.get()));
+  }
+
+  @Override
+  public void setGoalToCurrent() {
+    targetPosition = rightMotorPosition.getValue().in(Units.Rotations);
   }
 
   @Override
   public void setVoltage(double voltage) {
-    voltageRequest.withOutput(voltage);
+    voltageRequest.withOutput(voltage).withLimitReverseMotion(limitSwitch.get());
     rightMotor.setControl(voltageRequest);
   }
 
