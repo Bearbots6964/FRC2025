@@ -52,7 +52,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -199,11 +198,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 
-    Notifier zoneNotifier =
-        new Notifier(
-            () -> currentZone = FieldConstants.INSTANCE.getZone(getPose().getTranslation()));
-    zoneNotifier.startPeriodic(0.5); // this really doesn't need to execute that often.
-    // it's also a pretty resource-intensive operation, so we have to be careful with it
 
     xController = new PIDController(7.5, 0, 0);
     yController = new PIDController(7.5, 0, 0);
@@ -266,6 +260,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     for (var module : modules) {
       module.periodic();
     }
+    odometryLock.unlock();
+    currentZone = FieldConstants.INSTANCE.getZone(getPose().getTranslation());
     // Drive standard deviations as a result of wheel slippage
     var driveStdDevs = getDriveStdDevs();
     Logger.recordOutput("Odometry/Drive Std Devs", driveStdDevs);
@@ -273,8 +269,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     Logger.recordOutput(
         "Swerve/Speed",
         Math.hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond));
-    odometryLock.unlock();
-
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       for (var module : modules) {
@@ -332,10 +326,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    * @param speeds Speeds in meters/sec
    */
   public void runVelocity(ChassisSpeeds speeds) {
+    lastSetpoint = setpointGenerator.generateSetpoint(lastSetpoint, speeds, 0.02);
+    SwerveModuleState[] setpointStates = lastSetpoint.moduleStates();
     // Calculate module setpoints
-    speeds = ChassisSpeeds.discretize(speeds, 0.02);
-    currentSpeeds = speeds;
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(speeds);
+    currentSpeeds = lastSetpoint.robotRelativeSpeeds();
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.getSpeedAt12Volts());
 
     // Log unoptimized setpoints and setpoint speeds
@@ -587,8 +581,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                   var sample =
                       repulsorFieldPlanner.sampleField(
                           poseEstimator.getEstimatedPosition().getTranslation(),
-                          maxLinearSpeedMetersPerSec * .25,
-                          1.25);
+                          maxLinearSpeedMetersPerSec * .65,
+                          2);
 
                   // calculate feedforward and feedback
                   var feedforward = new ChassisSpeeds(sample.vx(), sample.vy(), 0);
