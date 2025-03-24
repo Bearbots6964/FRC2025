@@ -4,15 +4,16 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface ClawIntakeIO {
   @AutoLog
-  public class FlywheelIOInputs {
-    public double flywheelAppliedVoltage = 0.0;
-    public double flywheelAppliedCurrent = 0.0;
+  public class ClawIntakeIOInputs {
+    public double intakeAppliedVoltage = 0.0;
+    public double intakeAppliedCurrent = 0.0;
     public boolean limitSwitchPressed = false;
+    public boolean thingGripped = false;
   }
 
-  default void updateInputs(FlywheelIOInputs inputs) {}
+  default void updateInputs(ClawIntakeIOInputs inputs) {}
 
-  default void setFlywheelOpenLoop(double output) {}
+  default void setIntakeOpenLoop(double output) {}
 
-  default void stopFlywheel() {}
+  default void stopIntake() {}
 }
