@@ -14,12 +14,14 @@ package frc.robot
 
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.auto.NamedCommands
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.networktables.StringPublisher
+import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -51,6 +53,9 @@ import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
+import java.util.function.Supplier
+import kotlin.math.hypot
+import kotlin.math.pow
 
 
 /**
@@ -85,6 +90,22 @@ class RobotContainer {
     private var nextSuperstructureCommand: Constants.SuperstructureConstants.SuperstructureState =
         Constants.SuperstructureConstants.SuperstructureState.HOME
 
+    private val speedAt12Volts = TunerConstants.speedAt12Volts.`in`(Units.MetersPerSecond)
+
+    val driveTranslationalControlSupplier: Supplier<Translation2d> = Supplier<Translation2d> {
+        var xControl: Double = -driveController.leftY
+        var yControl: Double = -driveController.leftX
+        val magnitude = hypot(xControl, yControl)
+        if (magnitude > 1) {
+            xControl /= magnitude
+            yControl /= magnitude
+        } else if (magnitude > 1e-6) {
+            val scalar = (MathUtil.applyDeadband(magnitude, .06) / magnitude).pow(2.0)
+            xControl *= scalar
+            yControl *= scalar
+        }
+        Translation2d(xControl, yControl)
+    }
 
     companion object {
         private val statusTable: NetworkTable = NetworkTableInstance.getDefault().getTable("Status")

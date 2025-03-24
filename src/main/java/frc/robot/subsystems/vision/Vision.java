@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
@@ -29,6 +30,15 @@ public class Vision extends SubsystemBase {
   private final List<Pose3d> allRobotPoses = new ArrayList<>();
   private final List<Pose3d> allRobotPosesAccepted = new ArrayList<>();
   private final List<Pose3d> allRobotPosesRejected = new ArrayList<>();
+  List<Pose3d> tagPoses = new ArrayList<>();
+  List<Pose3d> robotPoses = new ArrayList<>();
+  List<Pose3d> robotPosesAccepted = new ArrayList<>();
+  List<Pose3d> robotPosesRejected = new ArrayList<>();
+
+  static boolean backCamerasEnabled = true;
+  public static void setBackCamerasEnabled(boolean enabled) {
+    backCamerasEnabled = enabled;
+  }
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -65,6 +75,9 @@ public class Vision extends SubsystemBase {
     allRobotPosesRejected.clear();
 
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+      if ((cameraIndex == 1 || cameraIndex == 3) && !backCamerasEnabled) {
+        continue;
+      }
       io[cameraIndex].updateInputs(inputs[cameraIndex]);
       Logger.processInputs("Vision/Camera" + cameraIndex, inputs[cameraIndex]);
 
@@ -83,10 +96,10 @@ public class Vision extends SubsystemBase {
   }
 
   private void processCameraData(int cameraIndex) {
-    List<Pose3d> tagPoses = new ArrayList<>();
-    List<Pose3d> robotPoses = new ArrayList<>();
-    List<Pose3d> robotPosesAccepted = new ArrayList<>();
-    List<Pose3d> robotPosesRejected = new ArrayList<>();
+    tagPoses.clear();
+    robotPoses.clear();
+    robotPosesRejected.clear();
+    robotPosesAccepted.clear();
 
     // Add tag poses
     for (int tagId : inputs[cameraIndex].tagIds) {

@@ -9,12 +9,15 @@ import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.Commands
 import frc.robot.AprilTagPositions
 import frc.robot.Constants.PathfindingConstants
 import frc.robot.Robot
 import frc.robot.Robot.Companion.alliance
 import frc.robot.commands.PathfindingFactories.Reef.*
 import frc.robot.subsystems.drive.Drive
+import frc.robot.subsystems.vision.Vision
+import java.util.function.Supplier
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.sin
@@ -72,7 +75,7 @@ object PathfindingFactories {
 
     // Alternate pathfinding
     fun pathfindToCoralStationAlternate(
-        drive: Drive, side: CoralStationSide, nudge: () -> Translation2d
+        drive: Drive, side: CoralStationSide, nudge: Supplier<Translation2d>
     ): Command = drive.followRepulsorField(getSpecificCoralStationPose(side), nudge)
     //</editor-fold>
 
@@ -85,10 +88,10 @@ object PathfindingFactories {
         )
     }
 
-    fun pathfindToReefAlternate(drive: Drive, reef: Reef, nudge: () -> Translation2d): Command {
+    fun pathfindToReefAlternate(drive: Drive, reef: Reef, nudge: Supplier<Translation2d>): Command {
         val currentPose = drive.pose
         val targetPose = getSpecificReefSidePose(reef)
-        return drive.followRepulsorField(targetPose, nudge)
+        return Commands.runOnce({Vision.setBackCamerasEnabled(false)}).andThen(drive.followRepulsorField(targetPose, nudge)).andThen(Commands.runOnce({Vision.setBackCamerasEnabled(true)}))
     }
 
     fun finalLineupToNearestReef(drive: Drive, side: ReefSides): Command {
@@ -224,7 +227,13 @@ object PathfindingFactories {
             tagPose!!.transformBy(Transform2d(0.0, 0.0, Rotation2d.fromDegrees(180.0))),
             tagPose.rotation.degrees,
             -PathfindingConstants.finalDistanceFromCoralStationMeters
-        )
+        ).let {
+            translateCoordinates(
+                it,
+                it.rotation.degrees + 90,
+                0.06985
+            )
+        }
     }
 
     private fun getSpecificReefSidePose(reef: Reef): Pose2d {
@@ -299,15 +308,81 @@ object PathfindingFactories {
     }
 
     enum class CoralStationSide {
-        LEFT, RIGHT
+        LEFT {
+            override fun toString() = "Left"
+        },
+        RIGHT {
+            override fun toString() = "Right"
+        }
     }
 
     enum class Reef {
-        A, B, C, D, E, F, G, H, I, J, K, L, AB_ALGAE, CD_ALGAE, EF_ALGAE, GH_ALGAE, IJ_ALGAE, KL_ALGAE
+        A {
+            override fun toString() = "A"
+        },
+        B {
+            override fun toString() = "B"
+        },
+        C {
+            override fun toString() = "C"
+        },
+        D {
+            override fun toString() = "D"
+        },
+        E {
+            override fun toString() = "E"
+        },
+        F {
+            override fun toString() = "F"
+        },
+        G {
+            override fun toString() = "G"
+        },
+        H {
+            override fun toString() = "H"
+        },
+        I {
+            override fun toString() = "I"
+        },
+        J {
+            override fun toString() = "J"
+        },
+        K {
+            override fun toString() = "K"
+        },
+        L {
+            override fun toString() = "L"
+        },
+        AB_ALGAE {
+            override fun toString() = "AB Algae"
+        },
+        CD_ALGAE {
+            override fun toString() = "CD Algae"
+        },
+        EF_ALGAE {
+            override fun toString() = "EF Algae"
+        },
+        GH_ALGAE {
+            override fun toString() = "GH Algae"
+        },
+        IJ_ALGAE {
+            override fun toString() = "IJ Algae"
+        },
+        KL_ALGAE {
+            override fun toString() = "KL Algae"
+        }
     }
 
     enum class ReefSides {
-        LEFT, RIGHT, MIDDLE
+        LEFT {
+            override fun toString() = "Left"
+        },
+        RIGHT {
+            override fun toString() = "Right"
+        },
+        MIDDLE {
+            override fun toString() = "Middle"
+        }
     }
 
     private fun translateCoordinates(
