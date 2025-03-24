@@ -33,6 +33,7 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
   private final StatusSignal<Voltage> pivotMotorVoltage;
 
   private final Debouncer pivotMotorConnectedDebouncer = new Debouncer(0.5);
+  private double targetPosition = 0.0;
 
   public ClimberPivotIOTalonFX(TalonFXSConfiguration configuration) {
     this.pivotConfig = configuration;
@@ -57,6 +58,8 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
     inputs.pivotVelocityDegreesPerSecond = pivotMotorVelocity.getValue().in(Units.DegreesPerSecond);
     inputs.pivotAppliedVolts = pivotMotorVoltage.getValue().in(Units.Volts);
     inputs.pivotAppliedCurrentAmps = pivotMotorCurrent.getValue().in(Units.Amps);
+    inputs.targetPosition = targetPosition;
+    inputs.atTarget = Math.abs(inputs.pivotPositionDegrees - targetPosition) < 7.5;
   }
 
   @Override
@@ -77,8 +80,9 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
   }
 
   @Override
-  public void setPivotPosition(double position) {
-    motionMagicPositionRequest.withPosition(position).withEnableFOC(true);
+  public void setPivotPositionDegrees(double position) {
+    targetPosition = position;
+    motionMagicPositionRequest.withPosition(Units.Degrees.of(position)).withEnableFOC(true);
     pivotMotor.setControl(motionMagicPositionRequest);
   }
 

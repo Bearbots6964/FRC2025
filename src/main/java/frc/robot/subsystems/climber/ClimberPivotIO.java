@@ -23,7 +23,7 @@ public interface ClimberPivotIO {
 
   default void setPivotOpenLoop(double output) {}
 
-  default void setPivotPosition(double position) {}
+  default void setPivotPositionDegrees(double position) {}
 
   default void setPivotVelocity(double velocity) {}
 

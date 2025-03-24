@@ -57,7 +57,7 @@ public class ClimberPivotIOSparkMax implements ClimberPivotIO {
   }
 
   @Override
-  public void setPivotPosition(double position) {
+  public void setPivotPositionDegrees(double position) {
     controller.setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 

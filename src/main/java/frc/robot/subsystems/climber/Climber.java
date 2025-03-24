@@ -58,13 +58,19 @@ public class Climber extends SubsystemBase {
               winchIO.setWinchBrakeMode(NeutralModeValue.Coast);
               winchIO.stopWinch();
             })
-        .andThen(run(() -> pivotIO.setPivotPosition(-0.06)))
+        .andThen(run(() -> pivotIO.setPivotPositionDegrees(-21.6)))
         .withName("Move Climber to Intake Position");
   }
 
   public Command moveClimberToCageCatchPosition() {
     return runOnce(() -> winchIO.setWinchBrakeMode(NeutralModeValue.Coast))
-        .andThen(run(() -> pivotIO.setPivotPosition(ClimberConstants.getPivotCageCatchPosition())))
+        .andThen(run(() -> pivotIO.setPivotPositionDegrees(ClimberConstants.getPivotCageCatchPosition()))).until(() -> Math.abs(pivotIO.getPivotPosition() - ClimberConstants.getPivotCageCatchPosition()) < 6.0)
+        .withName("Move Climber to Cage Catch Position");
+  }
+
+  public Command moveClimberToCageCatchPositionNoStop() {
+    return runOnce(() -> winchIO.setWinchBrakeMode(NeutralModeValue.Coast))
+        .andThen(run(() -> pivotIO.setPivotPositionDegrees(ClimberConstants.getPivotCageCatchPosition())))
         .withName("Move Climber to Cage Catch Position");
   }
 
@@ -95,5 +101,15 @@ public class Climber extends SubsystemBase {
               winchIO.stopWinch();
             })
         .withName("Climb");
+  }
+
+  public Command pivotToPosition(double position) {
+    return run(() -> pivotIO.setPivotPositionDegrees(position))
+        .until(() -> Math.abs(pivotIO.getPivotPosition() - position) < 4.0)
+        .withName("Pivot to Position");
+  }
+
+  public double getPosition() {
+    return pivotIO.getPivotPosition();
   }
 }
