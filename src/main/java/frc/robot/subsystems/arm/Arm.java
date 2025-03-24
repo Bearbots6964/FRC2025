@@ -40,7 +40,7 @@ public class Arm extends SubsystemBase {
   }
 
   public Command stop() {
-    return run(io::stopArm).withName("Arm Stop");
+    return runOnce(io::setGoalToCurrent).andThen(run(io::stopArm)).withName("Arm Stop");
   }
 
   private void runCharacterization(double output) {
