@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
@@ -36,6 +35,7 @@ public class Vision extends SubsystemBase {
   List<Pose3d> robotPosesRejected = new ArrayList<>();
 
   static boolean backCamerasEnabled = true;
+
   public static void setBackCamerasEnabled(boolean enabled) {
     backCamerasEnabled = enabled;
   }

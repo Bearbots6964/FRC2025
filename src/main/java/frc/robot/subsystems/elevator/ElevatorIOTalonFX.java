@@ -151,7 +151,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void setPositionDelta(double delta) {
     targetPosition += delta;
-    motionMagicPositionRequest.withPosition(targetPosition).withLimitReverseMotion(limitSwitch.get());
+    motionMagicPositionRequest
+        .withPosition(targetPosition)
+        .withLimitReverseMotion(limitSwitch.get());
     rightMotor.setControl(motionMagicPositionRequest);
   }
 
@@ -162,7 +164,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void stop() {
-    rightMotor.setControl(new MotionMagicVoltage(targetPosition).withLimitReverseMotion(limitSwitch.get()));
+    rightMotor.setControl(
+        new MotionMagicVoltage(targetPosition).withLimitReverseMotion(limitSwitch.get()));
   }
 
   @Override

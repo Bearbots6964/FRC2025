@@ -59,7 +59,8 @@ public class Module {
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
       // Update on the situation,
-      // I did more experimenting and I think what ended up happening is the gear ratios got left out of calculations,
+      // I did more experimenting and I think what ended up happening is the gear ratios got left
+      // out of calculations,
       // so dividing by that ratio seems to solve our problems.
       double positionMeters =
           inputs.odometryDrivePositionsRad[i]
