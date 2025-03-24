@@ -36,11 +36,12 @@ public class ClawIntakeIOSparkMax implements ClawIntakeIO {
   @Override
   public void updateInputs(ClawIntakeIOInputs inputs) {
     inputs.intakeAppliedCurrent = intakeMotor.getOutputCurrent();
-    inputs.intakeAppliedVoltage =
-        intakeMotor.getAppliedOutput() * intakeMotor.getBusVoltage();
+    inputs.intakeAppliedVoltage = intakeMotor.getAppliedOutput() * intakeMotor.getBusVoltage();
     inputs.limitSwitchPressed = intakeMotor.getForwardLimitSwitch().isPressed();
-    inputs.thingGripped = gripDebouncer.calculate(intakeMotor.getOutputCurrent() > ClawIntakeConstants.clawGrippedCurrent
-                                                      || intakeMotor.getForwardLimitSwitch().isPressed());
+    inputs.thingGripped =
+        gripDebouncer.calculate(
+            intakeMotor.getOutputCurrent() > ClawIntakeConstants.clawGrippedCurrent
+                || intakeMotor.getForwardLimitSwitch().isPressed());
   }
 
   @Override

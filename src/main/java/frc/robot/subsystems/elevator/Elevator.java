@@ -154,7 +154,10 @@ public class Elevator extends SubsystemBase {
   public Command goToPosition(double position) {
     targetPosition = position;
     return run(() -> setRotations(position))
-        .until(() -> Math.abs(inputs.rightMotorPositionRotations - position) < ElevatorConstants.elevatorTolerance)
+        .until(
+            () ->
+                Math.abs(inputs.rightMotorPositionRotations - position)
+                    < ElevatorConstants.elevatorTolerance)
         .withName("Elevator to Position");
   }
 
@@ -180,7 +183,10 @@ public class Elevator extends SubsystemBase {
         velocityCommand(() -> -0.25).until(() -> inputs.limitSwitchPressed),
         runOnce(io::zero),
         run(() -> setRotations(5))
-            .until(() -> Math.abs(inputs.rightMotorPositionRotations - 5) < ElevatorConstants.elevatorTolerance),
+            .until(
+                () ->
+                    Math.abs(inputs.rightMotorPositionRotations - 5)
+                        < ElevatorConstants.elevatorTolerance),
         velocityCommand(() -> -0.05).until(() -> inputs.limitSwitchPressed),
         runOnce(io::zero),
         runOnce(() -> io.setOpenLoop(0.0)),

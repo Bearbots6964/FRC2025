@@ -64,13 +64,23 @@ public class Climber extends SubsystemBase {
 
   public Command moveClimberToCageCatchPosition() {
     return runOnce(() -> winchIO.setWinchBrakeMode(NeutralModeValue.Coast))
-        .andThen(run(() -> pivotIO.setPivotPositionDegrees(ClimberConstants.getPivotCageCatchPosition()))).until(() -> Math.abs(pivotIO.getPivotPosition() - ClimberConstants.getPivotCageCatchPosition()) < 6.0)
+        .andThen(
+            run(
+                () ->
+                    pivotIO.setPivotPositionDegrees(ClimberConstants.getPivotCageCatchPosition())))
+        .until(
+            () ->
+                Math.abs(pivotIO.getPivotPosition() - ClimberConstants.getPivotCageCatchPosition())
+                    < 6.0)
         .withName("Move Climber to Cage Catch Position");
   }
 
   public Command moveClimberToCageCatchPositionNoStop() {
     return runOnce(() -> winchIO.setWinchBrakeMode(NeutralModeValue.Coast))
-        .andThen(run(() -> pivotIO.setPivotPositionDegrees(ClimberConstants.getPivotCageCatchPosition())))
+        .andThen(
+            run(
+                () ->
+                    pivotIO.setPivotPositionDegrees(ClimberConstants.getPivotCageCatchPosition())))
         .withName("Move Climber to Cage Catch Position");
   }
 

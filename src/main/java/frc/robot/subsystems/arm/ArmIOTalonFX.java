@@ -54,14 +54,16 @@ public class ArmIOTalonFX implements ArmIO {
     }
     targetPosition = pivotMotorPosition.getValue().in(Units.Degrees);
 
-    motionMagicPositionRequest = new MotionMagicVoltage(
-        Units.Degrees.of(MathUtil.clamp(targetPosition, -70.0, 225.0)));
+    motionMagicPositionRequest =
+        new MotionMagicVoltage(Units.Degrees.of(MathUtil.clamp(targetPosition, -70.0, 225.0)));
   }
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
-    var pivotStatus = BaseStatusSignal.refreshAll(pivotMotorPosition, pivotMotorVelocity,
-                                                  pivotMotorVoltage, pivotMotorCurrent);
+    var pivotStatus =
+        BaseStatusSignal.refreshAll(
+            pivotMotorPosition, pivotMotorVelocity,
+            pivotMotorVoltage, pivotMotorCurrent);
 
     inputs.armAxisAngle = pivotMotorPosition.getValue().in(Units.Degrees);
     inputs.armAppliedVolts = pivotMotorVoltage.getValue().in(Units.Volts);
@@ -84,8 +86,11 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void setArmAngle(double angle) {
-    angle = MathUtil.clamp(angle, pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold * 360,
-                           pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold * 360);
+    angle =
+        MathUtil.clamp(
+            angle,
+            pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold * 360,
+            pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold * 360);
     targetPosition = angle;
     motionMagicPositionRequest.withPosition(Units.Degrees.of(angle));
     pivotMotor.setControl(motionMagicPositionRequest);
@@ -104,10 +109,11 @@ public class ArmIOTalonFX implements ArmIO {
   @Override
   public void setAngleDelta(double delta) {
     targetPosition += delta;
-    targetPosition = MathUtil.clamp(targetPosition,
-                                    pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold * 360,
-                                    pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold
-                                        * 360);
+    targetPosition =
+        MathUtil.clamp(
+            targetPosition,
+            pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold * 360,
+            pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold * 360);
     motionMagicPositionRequest.withPosition(targetPosition / 360);
     pivotMotor.setControl(motionMagicPositionRequest);
   }
@@ -116,7 +122,6 @@ public class ArmIOTalonFX implements ArmIO {
   public double getDistanceFromGoal() {
     return Math.abs(pivotMotorPosition.getValue().in(Units.Degrees) - targetPosition);
   }
-
 
   @Override
   public void setGoalToCurrent() {

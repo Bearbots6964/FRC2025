@@ -198,7 +198,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 
-
     xController = new PIDController(7.5, 0, 0);
     yController = new PIDController(7.5, 0, 0);
     yawController = new PIDController(4, 0, .2);

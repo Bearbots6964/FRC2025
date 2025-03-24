@@ -11,8 +11,7 @@ public class ClawIntake extends SubsystemBase {
 
   private final ClawIntakeIO io;
   private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
-  @Getter
-  public boolean manuallySetToGrabbed = false;
+  @Getter public boolean manuallySetToGrabbed = false;
 
   public ClawIntake(ClawIntakeIO io) {
     this.io = io;
@@ -40,16 +39,21 @@ public class ClawIntake extends SubsystemBase {
   }
 
   public Command intake() {
-    return run(() -> io.setIntakeOpenLoop(
-        -SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent())).until(
-            () -> inputs.thingGripped || manuallySetToGrabbed).andThen(io::stopIntake)
-        .finallyDo(io::stopIntake).withName("Intake");
+    return run(() ->
+            io.setIntakeOpenLoop(
+                -SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent()))
+        .until(() -> inputs.thingGripped || manuallySetToGrabbed)
+        .andThen(io::stopIntake)
+        .finallyDo(io::stopIntake)
+        .withName("Intake");
   }
 
   public Command outtake() {
-    return run(() -> io.setIntakeOpenLoop(
-        SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent())).finallyDo(
-        () -> spinFlywheel(0.0)).withName("Outtake");
+    return run(() ->
+            io.setIntakeOpenLoop(
+                SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent()))
+        .finallyDo(() -> spinFlywheel(0.0))
+        .withName("Outtake");
   }
 
   public void setIntakeGrabbed(Boolean grabbed) {
