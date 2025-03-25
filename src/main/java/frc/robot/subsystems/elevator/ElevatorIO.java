@@ -21,6 +21,9 @@ public interface ElevatorIO {
 
     public double targetVelocity = 0.0;
     public double targetPosition = 0.0;
+
+    public boolean atTarget = false;
+    public boolean limitSwitchPressed = false;
   }
 
   default void updateInputs(ElevatorIOInputs inputs) {}
@@ -31,7 +34,19 @@ public interface ElevatorIO {
 
   default void setPosition(double position) {}
 
+  default void setPositionDelta(double delta) {}
+
   default void setVoltage(double voltage) {}
 
+  default double getDistanceFromGoal() {
+    return 0.0;
+  }
+
   default void stop() {}
+
+  default void setSoftLimitsEnabled(boolean enabled) {}
+
+  default void zero() {}
+
+  default void setGoalToCurrent() {}
 }

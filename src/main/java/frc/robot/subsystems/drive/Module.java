@@ -20,6 +20,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
@@ -31,7 +34,9 @@ public class Module {
   private final Alert driveDisconnectedAlert;
   private final Alert turnDisconnectedAlert;
   private final Alert turnEncoderDisconnectedAlert;
-  private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
+
+  /** -- GETTER -- Returns the module positions received this cycle. */
+  @Getter private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(ModuleIO io, int index, SwerveModuleConstants constants) {
     this.io = io;
@@ -53,12 +58,14 @@ public class Module {
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
-      // TODO: Shit is absolutely fucked. The 7.0 was determined to work.
-      // If we want to,
-      // we can do some further browsing
-      // and figure out *why* dividing by 7 fixes everything,
-      // but in the interim, this works perfectly and fixes all our odometry problems.
-      double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius / 7.0;
+      // Update on the situation,
+      // I did more experimenting and I think what ended up happening is the gear ratios got left
+      // out of calculations,
+      // so dividing by that ratio seems to solve our problems.
+      double positionMeters =
+          inputs.odometryDrivePositionsRad[i]
+              * constants.WheelRadius
+              / ((Constants.getCurrentMode() == Mode.REAL) ? 6.746031746031747 : 1.0);
       Rotation2d angle = inputs.odometryTurnPositions[i];
       odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
     }
@@ -115,11 +122,6 @@ public class Module {
   /** Returns the module state (turn angle and drive velocity). */
   public SwerveModuleState getState() {
     return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
-  }
-
-  /** Returns the module positions received this cycle. */
-  public SwerveModulePosition[] getOdometryPositions() {
-    return odometryPositions;
   }
 
   /** Returns the timestamps of the samples received this cycle. */

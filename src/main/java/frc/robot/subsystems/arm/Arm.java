@@ -1,5 +1,6 @@
 package frc.robot.subsystems.arm;
 
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,10 +22,10 @@ public class Arm extends SubsystemBase {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
+                Units.Volts.per(Units.Second).of(0.0625),
+                Units.Volts.of(0.2),
                 null,
-                null,
-                null,
-                (state) -> Logger.recordOutput("Arm/SysIDState", state.toString())),
+                (state) -> SignalLogger.writeString("Arm/SysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage -> runCharacterization(voltage.in(Units.Volts))), null, this));
   }
@@ -39,11 +40,11 @@ public class Arm extends SubsystemBase {
   }
 
   public Command stop() {
-    return run(io::holdArm);
+    return runOnce(io::setGoalToCurrent).andThen(run(io::stopArm)).withName("Arm Stop");
   }
 
   private void runCharacterization(double output) {
-    io.setArmOpenLoopVoltage(output);
+    io.setArmOpenLoop(output);
   }
 
   public Command sysIdDynamic(Direction direction) {
@@ -57,11 +58,26 @@ public class Arm extends SubsystemBase {
   // TODO: Command Factories?
 
   public Command moveArm(DoubleSupplier output) {
-    return run(() -> io.setArmOpenLoop(output.getAsDouble() * 0.1));
+    return run(() -> io.setArmOpenLoop(output.getAsDouble() * 0.2)).withName("Move Arm");
   }
 
   public Command moveArmToAngle(Double angle) {
     return run(() -> io.setArmAngle(angle))
-        .until(() -> Math.abs(inputs.armAxisAngle - angle) < 1.0);
+        .until(() -> Math.abs(inputs.armAxisAngle - angle) < 3.0)
+        .withName("Move Arm to Angle");
+  }
+
+  public Command moveArmToAngleWithoutEnding(Double angle) {
+    return run(() -> io.setArmAngle(angle)).withName("Move Arm to Angle");
+  }
+
+  public Command moveArmAngleDelta(Double delta) {
+    return runOnce(() -> io.setAngleDelta(delta))
+        .until(() -> io.getDistanceFromGoal() < 3.0)
+        .withName("Move Arm Delta");
+  }
+
+  public double getArmAngle() { // degrees
+    return inputs.armAxisAngle;
   }
 }
