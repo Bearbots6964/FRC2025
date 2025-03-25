@@ -230,6 +230,7 @@ class CommandQueue : Sendable {
             longs.forEach {
                 // ditto here
                 if (it.toInt() > 1) queue.removeAt(it.toInt() - 2).invoke().cancel()
+                else clearAll()
             }
         }
     }
