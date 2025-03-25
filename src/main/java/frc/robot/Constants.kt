@@ -106,11 +106,11 @@ object Constants {
             object ElevatorState {
                 const val HOME = 17.2
                 const val L1 = 5.0
-                const val L2 = 42.96
-                const val L3 = 70.8
-                const val L4 = 108.765 // TODO: Find actual value
+                const val L2 = 24.4375
+                const val L3 = 87.99
+                const val L4 = 80.765 // TODO: Find actual value
                 const val PRE_CORAL_PICKUP = 37.0
-                const val CORAL_PICKUP = 28.0
+                const val CORAL_PICKUP = 54.0
                 const val BARGE_LAUNCH = 100.93
                 const val ALGAE_INTAKE = 0.0
                 const val UPPER_REEF_ALGAE = 11.3
@@ -136,8 +136,8 @@ object Constants {
             object ArmState {
                 const val HOME = 210.5
                 const val L1 = 155.0
-                const val L2 = -35.0
-                const val L3 = -37.0
+                const val L2 = -46.0546875
+                const val L3 = -48.52
                 const val L4 = 46.93
                 const val PRE_CORAL_PICKUP = HOME
                 const val CORAL_PICKUP = 218.125
@@ -172,7 +172,7 @@ object Constants {
                 it.ExternalFeedback.RotorToSensorRatio = 60.0
                 it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
                 it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.65
-                it.ExternalFeedback.AbsoluteSensorOffset = 0.27
+                it.ExternalFeedback.AbsoluteSensorOffset = 0.9366666667
                 it.ExternalFeedback.SensorPhase = SensorPhaseValue.Aligned
 
                 it.MotorOutput.NeutralMode = NeutralModeValue.Brake
@@ -220,7 +220,7 @@ object Constants {
             @JvmStatic
             val clawIntakePercent = 0.25
 
-            const val clawGrippedCurrent = 11.0
+            const val clawGrippedCurrent = 8.0
 
             /**
              * Motor controller configuration for the claw motor.
@@ -456,7 +456,7 @@ object Constants {
         /**
          * Final distance from the coral station in meters.
          */
-        const val finalDistanceFromCoralStationMeters = 0.3937 // 16.77 inches
+        const val finalDistanceFromCoralStationMeters = 0.3737 // 16.77 inches
 
         /**
          * Distance from the goal at which pathfinding should end.
@@ -511,7 +511,7 @@ object Constants {
          * Position of the pivot motor when fully retracted and climbed.
          */
         @JvmStatic
-        val pivotClimbedPosition = 54.0
+        val pivotClimbedPosition = 57.0
 
 
         /**
@@ -538,10 +538,10 @@ object Constants {
             it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
             it.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Units.Degrees.of(-45.0).`in`(Units.Rotations)
 
-            it.MotionMagic.MotionMagicCruiseVelocity = 0.25
+            it.MotionMagic.MotionMagicCruiseVelocity = 0.325
             it.MotionMagic.MotionMagicAcceleration = 12.0
 
-            it.Slot0.kP = 16.0
+            it.Slot0.kP = 20.0
 
             it
         }

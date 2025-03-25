@@ -149,20 +149,20 @@ object SuperstructureCommands {
             SuperstructureState.L2 -> e.goToPositionDelta(-5.0).alongWith(
                 a.moveArmAngleDelta(20.0)
             ).alongWith(
-                f.outtake()
+                f.outtakeFaster()
             ).raceWith(
                 d.backUpBy()
             ).withName("Score L2")
 
             SuperstructureState.L3 -> e.goToPositionDelta(-5.0).alongWith(
-                a.moveArmAngleDelta(20.0)
+                a.moveArmAngleDelta(25.0)
             ).alongWith(
-                f.outtake()
-            ).raceWith(
+                f.outtakeFaster()
+            ).withDeadline(
                 d.backUpBy()
             ).withName("Score L3")
 
-            SuperstructureState.L4 -> e.goToPositionDelta(-17.0).alongWith(
+            SuperstructureState.L4 -> e.goToPositionDelta(-35.0).alongWith(
                 f.outtake()
             ).withDeadline(
                 Commands.waitSeconds(0.5).andThen(d.backUpBy())
