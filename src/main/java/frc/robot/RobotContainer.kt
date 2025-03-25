@@ -310,6 +310,9 @@ class RobotContainer {
         driveController.start().onTrue(
             Commands.runOnce(resetGyro, drive).ignoringDisable(true)
         )
+
+        driveController.pov(90).onTrue(autoQueue.addButDoNotStartAsCommand({ PathfindingFactories.pathfindToCoralStationAlternate(drive, PathfindingFactories.CoralStationSide.RIGHT, driveTranslationalControlSupplier)}))
+        driveController.pov(180).onTrue(autoQueue.addButDoNotStartAsCommand({ PathfindingFactories.pathfindToCoralStationAlternate(drive, PathfindingFactories.CoralStationSide.LEFT, driveTranslationalControlSupplier)}))
         // </editor-fold>
 
         // Default commands for elevator and arm
@@ -332,7 +335,7 @@ class RobotContainer {
         operatorController.b().whileTrue(Commands.runOnce({
             otherCommandQueue.cancelCurrent()
         }))
-        operatorController.x().onTrue(Commands.runOnce({
+        driveController.y().onTrue(Commands.runOnce({
             otherCommandQueue.start()
         }))
         operatorController.y().whileTrue(Commands.runOnce({
@@ -528,7 +531,8 @@ class RobotContainer {
                 .alongWith(drive.backUpBy()).withName("Place Coral")
         )
         SmartDashboard.putData(
-            elevator.homeElevator().withName("Home Elevator")
+            elevator.homeElevator()
+                .deadlineFor(arm.moveArmToAngleWithoutEnding(90.0)).withName("Home Elevator")
         )
 
         SmartDashboard.putData(drive.followRepulsorField(AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]))
@@ -578,7 +582,17 @@ class RobotContainer {
                     PathfindingFactories.pathfindToCoralStationAlternate(
                         drive, coralStation, driveTranslationalControlSupplier
                     ).withName("Drive to $coralStation Coral Station (Queued, alternate)")
-                }).withName("Queue Drive to $coralStation Coral Station (alternate)").ignoringDisable(true)
+                }).ignoringDisable(true)
+                    .alongWith(
+                        otherCommandQueue.addButDoNotStartAsCommand({
+                            SuperstructureCommands.algaeIntake(elevator, arm, climber).withName("Superstructure Algae Intake (queued, auto-added)")
+                        }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
+                    ).andThen(
+
+                        otherCommandQueue.addButDoNotStartAsCommand({
+                            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber).withName("Superstructure Coral Pickup (queued, auto-added)")
+                        }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
+                    ).withName("Queue Drive to $coralStation Coral Station (alternate)")
             )
         }/*
         for (coralStation in PathfindingFactories.CoralStationSide.entries) {
