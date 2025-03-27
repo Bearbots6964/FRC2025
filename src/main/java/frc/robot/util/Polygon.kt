@@ -13,7 +13,8 @@ class Polygon(private val vertices: List<Translation2d>) {
     
     private var boundingBox: Rectangle2d
     init {
-        if (Robot.alliance == DriverStation.Alliance.Red) {
+        val alliance = DriverStation.getAlliance().get()
+        if (alliance == DriverStation.Alliance.Red) {
             vertices.forEach {
                 FlippingUtil.flipFieldPosition(it)
             }

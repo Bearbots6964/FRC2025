@@ -125,9 +125,6 @@ class Robot : LoggedRobot() {
     }
 
     companion object {
-        @JvmStatic
-        var alliance = if (DriverStation.getAlliance().isPresent) DriverStation.getAlliance()
-            .get() else Alliance.Red
 
         fun reportError(error: String) {
             DriverStation.reportError(error, false)

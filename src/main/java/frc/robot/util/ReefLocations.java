@@ -11,10 +11,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.AprilTagPositions;
 import frc.robot.Robot;
 import frc.robot.subsystems.FieldConstants;
+import lombok.val;
 import org.littletonrobotics.junction.Logger;
 
 public final class ReefLocations {
@@ -86,7 +88,8 @@ public final class ReefLocations {
   }
 
   public static Pose2d getScoringLocation(ReefBranch reefBranch) {
-    return (Robot.getAlliance().equals(Alliance.Red) ? RED_POSES : BLUE_POSES)[reefBranch.id];
+    var alliance = DriverStation.getAlliance().get();
+    return (alliance.equals(Alliance.Red) ? RED_POSES : BLUE_POSES)[reefBranch.id];
   }
 
   public static void log() {

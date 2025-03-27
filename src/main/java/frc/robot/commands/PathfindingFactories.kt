@@ -7,13 +7,14 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import frc.robot.AprilTagPositions
 import frc.robot.Constants.PathfindingConstants
 import frc.robot.Robot
-import frc.robot.Robot.Companion.alliance
+import frc.robot.RobotContainer
 import frc.robot.commands.PathfindingFactories.Reef.*
 import frc.robot.subsystems.drive.Drive
 import frc.robot.subsystems.vision.Vision
@@ -141,6 +142,7 @@ object PathfindingFactories {
     // <editor-fold desc="Utility Methods">
     private fun getClosestCoralStationAprilTagPose(currentPose: Pose2d): Pose2d {
         val aprilTagsToAlignTo = HashMap<Int, Pose2d>()
+        val alliance = DriverStation.getAlliance().get()
         if (alliance == Alliance.Red) {
             aprilTagsToAlignTo[1] = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[1]!!
             aprilTagsToAlignTo[2] = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]!!
@@ -169,6 +171,7 @@ object PathfindingFactories {
 
     private fun getClosestReefAprilTagPose(currentPose: Pose2d, side: ReefSides): Pose2d {
         var aprilTagsToAlignTo = AprilTagPositions.WELDED_BLUE_CORAL_APRIL_TAG_POSITIONS
+        val alliance = DriverStation.getAlliance().get()
         if (alliance == Alliance.Red) {
             aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS
         }
@@ -215,6 +218,7 @@ object PathfindingFactories {
     }
 
     private fun getSpecificCoralStationPose(side: CoralStationSide): Pose2d {
+        val alliance = DriverStation.getAlliance().get()
         val tagPose = if (alliance == Alliance.Red) {
             if (side == CoralStationSide.LEFT) AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[1]
             else AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]
@@ -238,7 +242,7 @@ object PathfindingFactories {
 
     private fun getSpecificReefSidePose(reef: Reef): Pose2d {
         val aprilTagsToAlignTo = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS
-        val alliance = Robot.alliance
+        val alliance = DriverStation.getAlliance().get()
         val aprilTagNum: Int = when (reef) {
             A, B, AB_ALGAE -> when (alliance) {
                 Alliance.Red -> 7

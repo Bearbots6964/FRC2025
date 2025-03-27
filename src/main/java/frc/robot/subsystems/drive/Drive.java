@@ -73,6 +73,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.Getter;
+import lombok.val;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
@@ -178,7 +179,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         new PPHolonomicDriveController(
             new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
         PP_CONFIG,
-        () -> Robot.getAlliance() == Alliance.Red,
+        () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red,
         this);
     Pathfinding.setPathfinder(new LocalADStarAK());
     PathPlannerLogging.setLogActivePathCallback(
@@ -618,7 +619,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                               * Math.min(error.getTranslation().getNorm() / 3, 1)
                               * maxLinearSpeedMetersPerSec;
 
-                      if (Robot.getAlliance() == Alliance.Red) {
+                      var alliance = DriverStation.getAlliance().get();
+                      if (alliance == Alliance.Red) {
                         nudge = new Translation2d(-nudge.getX(), -nudge.getY());
                       }
                       nudgeScalar *=

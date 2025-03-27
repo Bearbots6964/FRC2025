@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.math.util.Units
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
@@ -92,8 +93,9 @@ object DriveCommands {
                         linearVelocity.y * drive.maxLinearSpeedMetersPerSec,
                         omega * drive.maxAngularSpeedRadPerSec
                     )
+                val alliance = DriverStation.getAlliance().get()
                 val isFlipped =
-                    Robot.alliance == Alliance.Red
+                    alliance == Alliance.Red
                 drive.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         speeds,
@@ -150,8 +152,9 @@ object DriveCommands {
                         linearVelocity.y * drive.maxLinearSpeedMetersPerSec,
                         omega
                     )
+                val alliance = DriverStation.getAlliance().get()
                 val isFlipped =
-                    Robot.alliance == Alliance.Red
+                    alliance == Alliance.Red
                 drive.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         speeds,
