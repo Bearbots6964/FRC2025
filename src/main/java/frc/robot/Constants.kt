@@ -428,22 +428,22 @@ object Constants {
         )
 
         // Basic filtering thresholds
-        var maxAmbiguity: Double = 0.15
+        var maxAmbiguity: Double = 0.2
         var maxZError: Double = 0.25
 
         // Standard deviation baselines, for 1 meter distance and 1 tag
         // (Adjusted automatically based on distance and # of tags)
-        var linearStdDevBaseline: Double = 0.2 // Meters
-        var angularStdDevBaseline: Double = 0.6 // Radians
+        var linearStdDevBaseline: Double = 0.02 // Meters
+        var angularStdDevBaseline: Double = 0.06 // Radians
 
         // Standard deviation multipliers for each camera
         // (Adjust to trust some cameras more than others)
         @JvmStatic
         var cameraStdDevFactors: DoubleArray = doubleArrayOf(
             1.0, // Front right camera
-            3.0, // Back right camera
+            1.0, // Back right camera
             1.0, // Front left camera
-            3.0  // Back left camera
+            1.0  // Back left camera
         )
 
         // Multipliers to apply for MegaTag 2 observations

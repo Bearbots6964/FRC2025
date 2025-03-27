@@ -580,7 +580,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                   var sample =
                       repulsorFieldPlanner.sampleField(
                           poseEstimator.getEstimatedPosition().getTranslation(),
-                          maxLinearSpeedMetersPerSec * .375,
+                          maxLinearSpeedMetersPerSec * .50,
                           1.75);
 
                   // calculate feedforward and feedback
