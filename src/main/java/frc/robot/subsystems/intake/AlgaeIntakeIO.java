@@ -13,10 +13,6 @@ public interface AlgaeIntakeIO {
     public double intakeMotorVoltage = 0.0;
     public double intakeMotorCurrent = 0.0;
 
-    public double leftFlywheelCurrent = 0.0;
-    public double rightFlywheelCurrent = 0.0;
-    public double leftFlywheelVoltage = 0.0;
-    public double rightFlywheelVoltage = 0.0;
 
     public boolean extended = false;
   }
@@ -31,5 +27,4 @@ public interface AlgaeIntakeIO {
 
   default void setIntakeVelocity(double velocity) {}
 
-  default void setFlywheelOpenLoop(double output) {}
 }

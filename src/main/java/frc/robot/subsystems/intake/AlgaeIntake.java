@@ -35,13 +35,9 @@ public class AlgaeIntake extends SubsystemBase {
     io.setIntakeVelocity(velocity);
   }
 
-  public void setFlywheelOpenLoop(double output) {
-    io.setFlywheelOpenLoop(output);
-  }
 
   public Command runIntake() {
     return run(() -> {
-          setFlywheelOpenLoop(Constants.AlgaeIntakeConstants.getFlywheelRunningPercent());
           setIntakeVelocity(Constants.AlgaeIntakeConstants.getIntakeVelocity());
           setArmPosition(Constants.AlgaeIntakeConstants.getArmExtendedPosition());
         })
@@ -49,13 +45,11 @@ public class AlgaeIntake extends SubsystemBase {
             () -> {
               setIntakeOpenLoop(0);
               setArmOpenLoop(0);
-              setFlywheelOpenLoop(0);
             });
   }
 
   public Command stopIntake() {
-    return run(() -> setFlywheelOpenLoop(0))
-        .alongWith(run(() -> setIntakeOpenLoop(0)))
+    return run(() -> setIntakeOpenLoop(0))
         .alongWith(run(() -> setArmOpenLoop(0)));
   }
 
@@ -71,7 +65,6 @@ public class AlgaeIntake extends SubsystemBase {
         .finallyDo(
             () -> {
               setIntakeOpenLoop(0.0);
-              setFlywheelOpenLoop(0.0);
               setArmOpenLoop(0.0);
             });
   }

@@ -153,9 +153,7 @@ class RobotContainer {
                 algaeIntake = AlgaeIntake(
                     AlgaeIntakeIOSparkMax(
                         Constants.AlgaeIntakeConstants.armConfig,
-                        Constants.AlgaeIntakeConstants.intakeConfig,
-                        Constants.AlgaeIntakeConstants.leftFlywheelConfig,
-                        Constants.AlgaeIntakeConstants.rightFlywheelConfig
+                        Constants.AlgaeIntakeConstants.intakeConfig
                     )
                 )
                 climber = Climber(

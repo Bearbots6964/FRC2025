@@ -466,7 +466,7 @@ object Constants {
         /**
          * Final distance from the reef in meters.
          */
-        const val finalDistanceFromReefMeters = 0.4768342
+        const val finalDistanceFromReefMeters = 0.5022342
 
         /**
          * Lateral distance from the reef in meters.
