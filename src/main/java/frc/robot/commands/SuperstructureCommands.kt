@@ -175,6 +175,32 @@ object SuperstructureCommands {
         }
     }
 
+    fun scoreAtPositionWithoutDrive(
+        e: Elevator, a: Arm, f: ClawIntake, s: SuperstructureState
+    ): Command {
+        return when (s) {
+            SuperstructureState.L1 -> Commands.runOnce({ Robot.reportError("Cannot score at L1") })
+            SuperstructureState.L2 -> e.goToPositionDelta(-5.0).alongWith(
+                a.moveArmAngleDelta(20.0)
+            ).alongWith(
+                f.outtakeFaster()
+            ).withName("Score L2")
+
+            SuperstructureState.L3 -> e.goToPositionDelta(-5.0).alongWith(
+                a.moveArmAngleDelta(25.0)
+            ).alongWith(
+                f.outtakeFaster()
+            ).withName("Score L3")
+
+            SuperstructureState.L4 -> e.goToPositionDelta(-35.0).alongWith(
+                f.outtake()
+            ).alongWith(
+                a.moveArmAngleDelta(-10.0)
+            ).withName("Score L4")
+
+            else -> Commands.none()
+        }
+    }
 
     fun pickUpCoral(e: Elevator, a: Arm, f: ClawIntake, c: Climber): Command {
         return Commands.sequence(

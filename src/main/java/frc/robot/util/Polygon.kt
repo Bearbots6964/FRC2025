@@ -13,12 +13,14 @@ class Polygon(private val vertices: List<Translation2d>) {
     
     private var boundingBox: Rectangle2d
     init {
-        val alliance = DriverStation.getAlliance().get()
-        if (alliance == DriverStation.Alliance.Red) {
-            vertices.forEach {
-                FlippingUtil.flipFieldPosition(it)
+        try {
+            val alliance = DriverStation.getAlliance().get()
+            if (alliance == DriverStation.Alliance.Red) {
+                vertices.forEach {
+                    FlippingUtil.flipFieldPosition(it)
+                }
             }
-        }
+        } catch (_: Exception) {}
         var left = Units.Feet.of(1e6) // arbitrary large number
         var right = Units.Feet.of(-1e6)
         var top = Units.Feet.of(1e6)

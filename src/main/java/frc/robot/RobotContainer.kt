@@ -217,10 +217,10 @@ class RobotContainer {
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
             }
         }
+        addNamedCommands()
 
         setUpAutoChooser()
 
-        addNamedCommands()
 
         // Configure the button bindings
         configureButtonBindings()
@@ -603,9 +603,9 @@ class RobotContainer {
     fun addNamedCommands() {
         NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm, climber))
         NamedCommands.registerCommand("L4", SuperstructureCommands.l4WithoutSafety(elevator, arm))
-        NamedCommands.registerCommand("deposit", SuperstructureCommands.scoreAtPosition(elevator, arm, clawIntake, drive, Constants.SuperstructureConstants.SuperstructureState.L4))
+        NamedCommands.registerCommand("deposit", SuperstructureCommands.scoreAtPositionWithoutDrive(elevator, arm, clawIntake, Constants.SuperstructureConstants.SuperstructureState.L4))
         NamedCommands.registerCommand(
-            "pre-coral pickup", SuperstructureCommands.preCoralPickup(elevator, arm, climber)
+            "Pre-Coral Pickup", SuperstructureCommands.preCoralPickup(elevator, arm, climber)
         )
         NamedCommands.registerCommand("Fix Pivot", elevator.goToPosition(40.0).alongWith(climber.pivotToPosition(57.0)).andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber)))
         NamedCommands.registerCommand("Fix Pivot and L4", climber.pivotToPosition(57.0).alongWith(SuperstructureCommands.l4WithoutSafety(
