@@ -314,8 +314,10 @@ class RobotContainer {
         //)
 
         // Operator controller bindings
+        operatorController.a().onTrue(algaeIntake.runIntake())
+        operatorController.b().onTrue(algaeIntake.retractIntake())
         operatorController.a().whileTrue(
-                SuperstructureCommands.home(elevator, arm, climber)
+            SuperstructureCommands.home(elevator, arm, climber)
         )
         operatorController.b().whileTrue(Commands.runOnce({
             otherCommandQueue.cancelCurrent()
