@@ -14,7 +14,7 @@ import frc.robot.Constants.SuperstructureConstants.ClawIntakeConstants;
 public class ClawIntakeIOSparkMax implements ClawIntakeIO {
   protected SparkMax intakeMotor;
   protected SparkBaseConfig intakeConfiguration;
-  protected final Debouncer gripDebouncer = new Debouncer(0.3);
+  protected final Debouncer gripDebouncer = new Debouncer(0.5);
 
   public ClawIntakeIOSparkMax(SparkBaseConfig intakeConfiguration) {
     this.intakeConfiguration = intakeConfiguration;
