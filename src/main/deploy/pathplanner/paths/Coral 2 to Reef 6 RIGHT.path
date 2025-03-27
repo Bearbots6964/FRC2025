@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.305966796875,
-        "y": 7.0685205078125
+        "x": 1.248998188585455,
+        "y": 7.091104322482135
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.767755526459003,
-        "y": 7.521325791052809
+        "x": 0.785772750486083,
+        "y": 7.441054107266941
       },
       "isLocked": false,
       "linkedName": "Upper Coral Station"
     },
     {
       "anchor": {
-        "x": 3.6596641998786428,
-        "y": 5.0976128937362075
+        "x": 3.9427294921875,
+        "y": 5.2078759765625
       },
       "prevControl": {
-        "x": 3.8621287572181027,
-        "y": 4.923220067940057
+        "x": 3.6465359202496113,
+        "y": 5.4840860858770455
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,14 +31,7 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "",
-      "waypointRelativePos": 0.8631172883994463,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

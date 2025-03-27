@@ -7,7 +7,6 @@ import frc.robot.Constants.SuperstructureConstants.ArmConstants
 import frc.robot.Constants.SuperstructureConstants.ElevatorConstants.ElevatorState
 import frc.robot.Constants.SuperstructureConstants.SuperstructureState
 import frc.robot.Robot
-import frc.robot.RobotContainer
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ClawIntake
 import frc.robot.subsystems.climber.Climber
@@ -17,7 +16,6 @@ import frc.robot.subsystems.elevator.Elevator
 object SuperstructureCommands {
     var reefPosition = SuperstructureState.L1
     fun l1(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("L1")
         reefPosition = SuperstructureState.L1
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(SuperstructureState.L1)
@@ -26,7 +24,6 @@ object SuperstructureCommands {
     }
 
     fun l2(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("L2")
         reefPosition = SuperstructureState.L2
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(SuperstructureState.L2)
@@ -35,7 +32,6 @@ object SuperstructureCommands {
     }
 
     fun l3(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("L3")
         reefPosition = SuperstructureState.L3
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(SuperstructureState.L3)
@@ -44,7 +40,6 @@ object SuperstructureCommands {
     }
 
     fun l4(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("L4")
         reefPosition = SuperstructureState.L4
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(SuperstructureState.L4)
@@ -52,8 +47,14 @@ object SuperstructureCommands {
         ).withName("Superstructure to L4")
     }
 
+    fun l4WithoutSafety(e: Elevator, a: Arm): Command {
+        reefPosition = SuperstructureState.L4
+        return e.goToPosition(SuperstructureState.L4)
+            .alongWith(a.moveArmToAngle(ArmConstants.ArmState.L4))
+            .withName("Superstructure to L4")
+    }
+
     fun coralStationPosition(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("Coral Station Position")
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.CORAL_PICKUP).alongWith(c.moveClimberToCageCatchPosition())
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.CORAL_PICKUP))
@@ -61,7 +62,6 @@ object SuperstructureCommands {
     }
 
     fun home(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("Home")
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.HOME).alongWith(c.moveClimberToCageCatchPosition())
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.HOME))
@@ -69,14 +69,12 @@ object SuperstructureCommands {
     }
 
     fun homeWithoutSafety(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("Home")
         return e.goToPosition(ElevatorState.HOME).alongWith(c.moveClimberToCageCatchPosition())
             .alongWith(a.moveArmToAngle(ArmConstants.ArmState.HOME))
             .withName("Superstructure to Home Position")
     }
 
     fun preCoralPickup(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("Pre Coral Pickup")
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.PRE_CORAL_PICKUP)
                 .alongWith(c.moveClimberToCageCatchPosition())
@@ -85,7 +83,6 @@ object SuperstructureCommands {
     }
 
     fun bargeLaunch(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("Barge Launch")
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.BARGE_LAUNCH)
                 .andThen(a.moveArmToAngle(ArmConstants.ArmState.BARGE_LAUNCH))
@@ -93,15 +90,19 @@ object SuperstructureCommands {
     }
 
     fun algaeIntake(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("Algae Intake")
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.ALGAE_INTAKE)
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.ALGAE_INTAKE))
         ).withName("Superstructure to Algae Intake Position")
     }
 
+    fun algaeIntakeWithoutSafety(e: Elevator, a: Arm, c: Climber): Command {
+        return e.goToPosition(ElevatorState.ALGAE_INTAKE)
+            .alongWith(a.moveArmToAngle(ArmConstants.ArmState.ALGAE_INTAKE))
+            .withName("Superstructure to Algae Intake Position")
+    }
+
     fun upperReefAlgae(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("Upper Reef Algae")
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.UPPER_REEF_ALGAE)
                 .andThen(a.moveArmToAngle(ArmConstants.ArmState.UPPER_REEF_ALGAE))
@@ -109,7 +110,6 @@ object SuperstructureCommands {
     }
 
     fun lowerReefAlgae(e: Elevator, a: Arm, c: Climber): Command {
-        RobotContainer.statusTopic.set("Lower Reef Algae")
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.LOWER_REEF_ALGAE)
                 .andThen(a.moveArmToAngle(ArmConstants.ArmState.LOWER_REEF_ALGAE))
@@ -117,10 +117,11 @@ object SuperstructureCommands {
     }
 
     fun ensureSuperstructureSafety(e: Elevator, a: Arm, c: Climber): Command {
-        return if (e.position < Constants.SuperstructureConstants.ElevatorConstants.armClearancePosition && a.armAngle < ArmConstants.safeAngle)
-            a.moveArmToAngle(ArmConstants.safeAngle).withName("Ensure Superstructure Safety")
-        else if (e.position < 20.0 && a.armAngle > 200.0 && c.position > -30.0)
-            c.moveClimberToCageCatchPosition().withName("Ensure Superstructure Safety")
+        return if (e.position < Constants.SuperstructureConstants.ElevatorConstants.armClearancePosition && a.armAngle < ArmConstants.safeAngle) a.moveArmToAngle(
+            ArmConstants.safeAngle
+        ).withName("Ensure Superstructure Safety")
+        else if (e.position < 20.0 && a.armAngle > 200.0 && c.position > -30.0) c.moveClimberToCageCatchPosition()
+            .withName("Ensure Superstructure Safety")
         else Commands.none()
     }
 
@@ -164,6 +165,8 @@ object SuperstructureCommands {
 
             SuperstructureState.L4 -> e.goToPositionDelta(-35.0).alongWith(
                 f.outtake()
+            ).alongWith(
+                a.moveArmAngleDelta(-10.0)
             ).withDeadline(
                 Commands.waitSeconds(0.5).andThen(d.backUpBy())
             ).withName("Score L4")
@@ -174,7 +177,6 @@ object SuperstructureCommands {
 
 
     fun pickUpCoral(e: Elevator, a: Arm, f: ClawIntake, c: Climber): Command {
-        RobotContainer.statusTopic.set("Pick Up Coral")
         return Commands.sequence(
             ensureSuperstructureSafety(e, a, c),
             Commands.parallel(
@@ -188,11 +190,8 @@ object SuperstructureCommands {
     }
 
     fun score(e: Elevator, a: Arm, f: ClawIntake): Command {
-        RobotContainer.statusTopic.set("Score")
         return Commands.parallel(
-            e.goToPositionDelta(-5.0),
-            a.moveArmAngleDelta(-5.0),
-            f.outtake()
+            e.goToPositionDelta(-5.0), a.moveArmAngleDelta(-5.0), f.outtake()
         ).withName("Score")
     }
 }

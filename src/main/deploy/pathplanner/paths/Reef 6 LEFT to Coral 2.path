@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.9416928179852375,
-        "y": 5.265279219986556
+        "x": 4.970430298774475,
+        "y": 5.234628475677073
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.1219142558168547,
-        "y": 5.815161802760026
+        "x": 5.5625537109375,
+        "y": 6.5131396484375
       },
       "isLocked": false,
       "linkedName": "Reef 6 LEFT"
     },
     {
       "anchor": {
-        "x": 1.305966796875,
-        "y": 7.0685205078125
+        "x": 1.248998188585455,
+        "y": 7.091104322482135
       },
       "prevControl": {
-        "x": 1.7168375134987386,
-        "y": 6.7888702991026015
+        "x": 1.6598689052091937,
+        "y": 6.811454113772236
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,14 +29,44 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.09901607538802659,
+      "constraints": {
+        "maxVelocity": 0.75,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "pre-coral pickup",
-      "waypointRelativePos": 0.023302667108702338,
+      "name": "deposit",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.14729420731707307,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deposit"
+        }
+      }
+    },
+    {
+      "name": "Pre-Coral Pickup",
+      "waypointRelativePos": 0.15070676274944567,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Pre-Coral Pickup"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -55,7 +85,7 @@
   "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -58.75500000000001
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

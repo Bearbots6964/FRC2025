@@ -200,7 +200,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     xController = new PIDController(7.5, 0, 0);
     yController = new PIDController(7.5, 0, 0);
-    yawController = new PIDController(4, 0, .2);
+    yawController = new PIDController(4.5, 0, .2);
     yawController.enableContinuousInput(-PI, PI);
 
     setpointGenerator = new SwerveSetpointGenerator(PP_CONFIG, Units.rotationsToRadians(10.0));
@@ -581,7 +581,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                       repulsorFieldPlanner.sampleField(
                           poseEstimator.getEstimatedPosition().getTranslation(),
                           maxLinearSpeedMetersPerSec * .375,
-                          2);
+                          1.75);
 
                   // calculate feedforward and feedback
                   var feedforward = new ChassisSpeeds(sample.vx(), sample.vy(), 0);

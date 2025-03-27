@@ -3,35 +3,42 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.248998188585455,
-        "y": 7.091104322482135
+        "x": 8.0449365234375,
+        "y": 7.2379296875
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.630126953125,
-        "y": 5.81427734375
+        "x": 7.266160852664012,
+        "y": 7.193219977376305
       },
       "isLocked": false,
-      "linkedName": "Upper Coral Station"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.6968115234375,
-        "y": 5.0519140625
+        "x": 5.777653711647706,
+        "y": 4.210808215018741
       },
       "prevControl": {
-        "x": 3.420889860081671,
-        "y": 5.36272362657061
+        "x": 7.653509461829766,
+        "y": 4.262567144361597
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef 7 LEFT"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "L4",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -42,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "New Folder",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -53.51
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

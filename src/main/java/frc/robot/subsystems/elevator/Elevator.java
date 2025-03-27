@@ -1,8 +1,12 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.math.util.Units.inchesToMeters;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Constants.SuperstructureConstants.ElevatorConstants;
 import frc.robot.Constants.SuperstructureConstants.SuperstructureState;
 import java.util.function.DoubleSupplier;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
@@ -23,6 +28,10 @@ public class Elevator extends SubsystemBase {
   private SysIdRoutine sysIdRoutine;
 
   private double targetPosition;
+
+  @Getter
+  private MechanismLigament2d mechanism;
+
 
   public Elevator(ElevatorIO io) {
     this.io = io;
@@ -40,6 +49,8 @@ public class Elevator extends SubsystemBase {
 
       targetPosition = inputs.rightMotorPositionRotations;
     }
+    mechanism = new MechanismLigament2d("Elevator", inchesToMeters(37.0), 90, inchesToMeters(2.0), new Color8Bit(
+        Color.kGray));
   }
 
   public void setRotations(double rotations) {
@@ -54,6 +65,7 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
+    mechanism.setLength(inchesToMeters(inputs.rightMotorPositionRotations / 3.64 + 37));
   }
 
   /**

@@ -1,6 +1,8 @@
 package frc.robot.subsystems.climber;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,6 +20,8 @@ public class Climber extends SubsystemBase {
 
   private final ClimberPivotIO pivotIO;
   private final ClimberPivotIOInputsAutoLogged pivotInputs = new ClimberPivotIOInputsAutoLogged();
+  private final Alert overcurrentAlert = new Alert("Bicep pivot is hitting current limit! You're stuck on something, is the winch engaged?", AlertType.kWarning);
+  private boolean climbing = false;
 
   public Climber(WinchIO winchIO, ClimberPivotIO pivotIO) {
     this.winchIO = winchIO;
@@ -29,6 +33,8 @@ public class Climber extends SubsystemBase {
     Logger.processInputs("Climber Winch", winchInputs);
     pivotIO.updateInputs(pivotInputs);
     Logger.processInputs("Climber Pivot", pivotInputs);
+
+    overcurrentAlert.set(pivotInputs.pivotAppliedCurrentAmps > 35.0);
 
     if (DriverStation.isDisabled()) {
       winchIO.stopWinch();
@@ -92,6 +98,7 @@ public class Climber extends SubsystemBase {
               pivotIO.stopPivot();
               Elastic.sendNotification(
                   new Notification(NotificationLevel.INFO, "Info", "Godspeed, soldier."));
+              climbing = true;
             })
         .andThen(
             run(() -> winchIO.setWinchOpenLoop(0.60))
@@ -113,6 +120,7 @@ public class Climber extends SubsystemBase {
               pivotIO.stopPivot();
               pivotIO.setPivotBrakeMode(NeutralModeValue.Brake);
               winchIO.stopWinch();
+              climbing = false;
             })
         .withName("Climb");
   }

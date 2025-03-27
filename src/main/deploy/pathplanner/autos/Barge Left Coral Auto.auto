@@ -5,15 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Barge to Reef 6 LEFT"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "deposit"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Barge to Reef 6 LEFT"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Fix Pivot and L4"
+                }
+              }
+            ]
           }
         },
         {
@@ -23,15 +30,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Coral 2 to Reef 6 RIGHT"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "deposit"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral 2 to Reef 6 RIGHT"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Fix Pivot and L4"
+                }
+              }
+            ]
           }
         },
         {
@@ -41,15 +55,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Coral 2 to Reef 7 LEFT"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "deposit"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral 2 to Reef 7 LEFT"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Pick Up and L4"
+                }
+              }
+            ]
           }
         },
         {
@@ -59,15 +80,28 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Coral 1 to Reef 7 RIGHT"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral 1 to Reef 7 RIGHT"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Pick Up and L4"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "deposit"
+            "pathName": "Final backup"
           }
         }
       ]

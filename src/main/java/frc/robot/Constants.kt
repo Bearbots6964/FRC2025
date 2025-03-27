@@ -106,14 +106,14 @@ object Constants {
             object ElevatorState {
                 const val HOME = 17.2
                 const val L1 = 5.0
-                const val L2 = 24.4375
-                const val L3 = 87.99
-                const val L4 = 80.765 // TODO: Find actual value
+                const val L2 = 39.4
+                const val L3 = 104.2
+                const val L4 = 66.45 // TODO: Find actual value
                 const val PRE_CORAL_PICKUP = 37.0
-                const val CORAL_PICKUP = 54.0
+                const val CORAL_PICKUP = 48.25
                 const val BARGE_LAUNCH = 100.93
                 const val ALGAE_INTAKE = 0.0
-                const val UPPER_REEF_ALGAE = 11.3
+                const val UPPER_REEF_ALGAE = 40.8
                 const val LOWER_REEF_ALGAE = 0.0
             }
 
@@ -136,9 +136,9 @@ object Constants {
             object ArmState {
                 const val HOME = 210.5
                 const val L1 = 155.0
-                const val L2 = -46.0546875
-                const val L3 = -48.52
-                const val L4 = 46.93
+                const val L2 = -62.93
+                const val L3 = -67.85
+                const val L4 = 55.81
                 const val PRE_CORAL_PICKUP = HOME
                 const val CORAL_PICKUP = 218.125
                 const val BARGE_LAUNCH = 77.0
@@ -333,7 +333,7 @@ object Constants {
 
         /** Velocity of the intake motor. */
         @JvmStatic
-        val intakeVelocity: Double = 1000.0
+        val intakeVelocity: Double = 2000.0
 
         /** Position of the arm when extended. */
         @JvmStatic
@@ -406,7 +406,7 @@ object Constants {
             Units.Inches.of((29.5 / 2) - 1.3125),
             Units.Inches.of(-((29.5 / 2) - 3.75)),
             Units.Inches.of(8.125),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(36.49)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(32.29)),
         )
         var robotToBackRightCamera: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
@@ -418,7 +418,7 @@ object Constants {
             Units.Inches.of((29.5 / 2) - 1.125),
             Units.Inches.of((29.5 / 2) - 3.375),
             Units.Inches.of(8.25),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-31.89)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-26.5)),
         )
         var robotToBackLeftCamera: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
@@ -428,7 +428,7 @@ object Constants {
         )
 
         // Basic filtering thresholds
-        var maxAmbiguity: Double = 0.2
+        var maxAmbiguity: Double = 0.15
         var maxZError: Double = 0.25
 
         // Standard deviation baselines, for 1 meter distance and 1 tag
@@ -511,7 +511,7 @@ object Constants {
          * Position of the pivot motor when fully retracted and climbed.
          */
         @JvmStatic
-        val pivotClimbedPosition = 57.0
+        val pivotClimbedPosition = 52.0
 
 
         /**

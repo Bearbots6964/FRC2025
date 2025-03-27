@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.630126953125,
-        "y": 5.81427734375
+        "x": 2.248998188585455,
+        "y": 7.091104322482135
       },
       "isLocked": false,
       "linkedName": "Upper Coral Station"
@@ -20,12 +20,12 @@
         "y": 5.0519140625
       },
       "prevControl": {
-        "x": 3.420889860081671,
-        "y": 5.36272362657061
+        "x": 2.6968115234375,
+        "y": 5.0519140625
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef 7 LEFT"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],

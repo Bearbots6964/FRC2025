@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6596641998786428,
-        "y": 5.0976128937362075
+        "x": 3.9427294921875,
+        "y": 5.2078759765625
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9638434120186075,
-        "y": 5.7209197140699715
+        "x": 3.2469087043274647,
+        "y": 5.831182796896264
       },
       "isLocked": false,
       "linkedName": "Reef 6 RIGHT"
     },
     {
       "anchor": {
-        "x": 1.305966796875,
-        "y": 7.0685205078125
+        "x": 1.248998188585455,
+        "y": 7.091104322482135
       },
       "prevControl": {
-        "x": 1.5293719036540099,
-        "y": 6.867546880694699
+        "x": 1.4791945316744175,
+        "y": 6.897946655897828
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,14 +29,33 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.1405557095343681,
+      "constraints": {
+        "maxVelocity": 13.0,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "pre-coral pickup",
-      "waypointRelativePos": 0.019249872674507996,
-      "endWaypointRelativePos": null,
-      "command": null
+      "name": "deposit",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.14899182372505546,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deposit"
+        }
+      }
     }
   ],
   "globalConstraints": {

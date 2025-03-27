@@ -35,6 +35,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
 import kotlin.math.roundToInt
 
+import edu.wpi.first.hal.FRCNetComm.tInstances.*
+import edu.wpi.first.hal.FRCNetComm.tResourceType.*
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -90,8 +92,18 @@ class Robot : LoggedRobot() {
             TunerConstants.BackRight
         )
         HAL.report(
-            FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin
+            kResourceType_Language, kLanguage_Kotlin
         )
+        HAL.report(
+            kResourceType_Framework, kFramework_AdvantageKit
+        )
+        HAL.report(
+            kResourceType_RobotDrive, kRobotDriveSwerve_AdvantageKit
+        )
+        HAL.report(kResourceType_Dashboard, kDashboard_Elastic)
+        HAL.report(kResourceType_Dashboard, kDashboard_AdvantageScope)
+        HAL.report(kResourceType_PDP, kPDP_REV)
+
         for (constants in modules) {
             if ((constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated) || (constants.SteerMotorType != SteerMotorArrangement.TalonFX_Integrated)) {
                 throw RuntimeException(
@@ -155,30 +167,6 @@ class Robot : LoggedRobot() {
         //Threads.setCurrentThreadPriority(true, 99)
         CommandScheduler.getInstance().run()
         //Threads.setCurrentThreadPriority(false, 10)
-        for (i in 0..5) run {
-            Logger.recordOutput(
-                "Controller/Axis$i",
-                robotContainer.markIVController.getRawAxis(i)
-                    .let { if (it < 0.0) it * 127.0 else it * 128.0 }.let { it + 127.0 }.roundToInt()
-                    .toString(2).padStart(8, '0')
-            )
-
-            Logger.recordOutput(
-                "Controller/RawAxis$i",
-                robotContainer.markIVController.getRawAxis(i)
-                    .let { if (it < 0.0) it * 127.0 else it * 128.0 }.let { it + 127.0 }.roundToInt()
-            )
-
-            Logger.recordOutput(
-                "Controller/ReallyRawAxis$i",
-                robotContainer.markIVController.getRawAxis(i)
-                    .let { if (it < 0.0) it * 127.0 else it * 128.0 }.roundToInt()
-            )
-            Logger.recordOutput(
-                "Controller/ReallyReallyRawAxis$i",
-                robotContainer.markIVController.getRawAxis(i)
-            )
-        }
     }
 
     /** This function is called once when the robot is disabled.  */
