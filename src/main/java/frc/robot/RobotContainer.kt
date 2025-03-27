@@ -75,8 +75,16 @@ class RobotContainer {
     private val driveController = CommandXboxController(0)
     private val operatorController = CommandXboxController(1)
 
-    private val autoQueue: CommandQueue = CommandQueue()
-    private val otherCommandQueue: CommandQueue = CommandQueue().withName("Other Command Queue")
+    private val autoQueue: CommandQueue = CommandQueue().withCallback(Commands.race(
+        Commands.waitSeconds(0.5),
+        Commands.run(Runnable { driveController.setRumble(GenericHID.RumbleType.kBothRumble, 1.0) }).finallyDo(
+            Runnable{ driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
+    ))
+    private val otherCommandQueue: CommandQueue = CommandQueue().withCallback(Commands.race(
+        Commands.waitSeconds(0.5),
+        Commands.run(Runnable { driveController.setRumble(GenericHID.RumbleType.kBothRumble, 1.0) }).finallyDo(
+            Runnable{ driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
+    )).withName("Other Command Queue")
 
     // Dashboard inputs
     private lateinit var autoChooser: LoggedDashboardChooser<Command>
@@ -568,7 +576,7 @@ class RobotContainer {
                             SuperstructureCommands.goToPosition(elevator, arm, climber, position).withName("Superstructure to $position Position (Queued)")
                         },
                         {
-                            clawIntake.intake().withName("Intake Algae (Queued, auto-added")
+                            clawIntake.intakeWithoutStoppingForAlgae().withName("Intake Algae (Queued, auto-added")
                         },
                         {
                             SuperstructureCommands.goToPosition(elevator, arm, climber, Constants.SuperstructureConstants.SuperstructureState.BARGE_LAUNCH).withName("Superstructure to Barge Launch Position (Queued, auto-added)")

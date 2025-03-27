@@ -55,7 +55,7 @@ object Constants {
             const val RIGHT_MOTOR_CAN_ID = 2
 
             const val elevatorTolerance = 5.0 // rotations
-            const val rotationsPerInch = 3.75
+            const val rotationsPerInch = 3.6378272707
 
 
             /**
@@ -114,7 +114,7 @@ object Constants {
                 const val BARGE_LAUNCH = 100.93
                 const val ALGAE_INTAKE = 0.0
                 const val UPPER_REEF_ALGAE = 48.8
-                const val LOWER_REEF_ALGAE = 0.0
+                const val LOWER_REEF_ALGAE = 3.0 * rotationsPerInch
             }
 
             /**
@@ -219,6 +219,8 @@ object Constants {
              */
             @JvmStatic
             val clawIntakePercent = 0.25
+
+            const val algaeIntakePercent = 0.38
 
             const val clawGrippedCurrent = 8.0
 

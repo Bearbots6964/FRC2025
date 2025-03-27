@@ -39,6 +39,11 @@ class CommandQueue : Sendable {
      */
     private var name: String = "CommandQueue"
 
+    private var callbackCommand: Command = Commands.none()
+    fun withCallback(command: Command): CommandQueue {
+        callbackCommand = command
+        return this
+    }
     /**
      * Adds one or more commands to the queue. If the queue was previously empty,
      * the first command added will be started immediately.
@@ -85,7 +90,10 @@ class CommandQueue : Sendable {
     fun addButDoNotStart(vararg command: () -> Command) {
         queue.addAll(command)
     }
-    fun addButDoNotStartAsCommand(vararg command: () -> Command): Command = Commands.runOnce({queue.addAll(command)})
+    fun addButDoNotStartAsCommand(vararg command: () -> Command): Command {
+        callbackCommand.schedule()
+        return Commands.runOnce({queue.addAll(command)})
+    }
 
     /**
      * Pauses the execution of the command queue. If a command is currently running,

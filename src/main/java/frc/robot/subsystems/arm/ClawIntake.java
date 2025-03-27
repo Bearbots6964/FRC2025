@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SuperstructureConstants;
+import frc.robot.Constants.SuperstructureConstants.ClawIntakeConstants;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -43,6 +44,14 @@ public class ClawIntake extends SubsystemBase {
             io.setIntakeOpenLoop(
                 -SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent()))
         .until(() -> inputs.thingGripped || manuallySetToGrabbed)
+        .andThen(io::stopIntake)
+        .finallyDo(io::stopIntake)
+        .withName("Intake");
+  }
+  public Command intakeWithoutStoppingForAlgae() {
+    return run(() ->
+                   io.setIntakeOpenLoop(
+                       -ClawIntakeConstants.algaeIntakePercent))
         .andThen(io::stopIntake)
         .finallyDo(io::stopIntake)
         .withName("Intake");
