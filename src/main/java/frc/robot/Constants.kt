@@ -433,8 +433,8 @@ object Constants {
 
         // Standard deviation baselines, for 1 meter distance and 1 tag
         // (Adjusted automatically based on distance and # of tags)
-        var linearStdDevBaseline: Double = 0.02 // Meters
-        var angularStdDevBaseline: Double = 0.06 // Radians
+        var linearStdDevBaseline: Double = 0.2 // Meters
+        var angularStdDevBaseline: Double = 0.6 // Radians
 
         // Standard deviation multipliers for each camera
         // (Adjust to trust some cameras more than others)
