@@ -39,8 +39,8 @@ class CommandQueue : Sendable {
      */
     private var name: String = "CommandQueue"
 
-    private var callbackCommand: Command = Commands.none()
-    fun withCallback(command: Command): CommandQueue {
+    private var callbackCommand: () -> Command = Commands::none
+    fun withCallback(command: () -> Command): CommandQueue {
         callbackCommand = command
         return this
     }
@@ -91,8 +91,7 @@ class CommandQueue : Sendable {
         queue.addAll(command)
     }
     fun addButDoNotStartAsCommand(vararg command: () -> Command): Command {
-        callbackCommand.schedule()
-        return Commands.runOnce({queue.addAll(command)})
+        return Commands.runOnce({queue.addAll(command)}).alongWith(callbackCommand.invoke())
     }
 
     /**

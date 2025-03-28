@@ -75,16 +75,26 @@ class RobotContainer {
     private val driveController = CommandXboxController(0)
     private val operatorController = CommandXboxController(1)
 
-    private val autoQueue: CommandQueue = CommandQueue().withCallback(Commands.race(
-        Commands.waitSeconds(0.5),
-        Commands.run(Runnable { driveController.setRumble(GenericHID.RumbleType.kBothRumble, 1.0) }).finallyDo(
-            Runnable{ driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
-    ))
-    private val otherCommandQueue: CommandQueue = CommandQueue().withCallback(Commands.race(
-        Commands.waitSeconds(0.5),
-        Commands.run(Runnable { driveController.setRumble(GenericHID.RumbleType.kBothRumble, 1.0) }).finallyDo(
-            Runnable{ driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
-    )).withName("Other Command Queue")
+    private val autoQueue: CommandQueue = CommandQueue().withCallback {
+        Commands.race(
+            Commands.waitSeconds(0.5), Commands.run({
+                driveController.setRumble(
+                    GenericHID.RumbleType.kBothRumble, 1.0
+                )
+            }).finallyDo(
+                Runnable { driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0) })
+        )
+    }
+    private val otherCommandQueue: CommandQueue = CommandQueue().withCallback {
+        Commands.race(
+            Commands.waitSeconds(0.5), Commands.run({
+                driveController.setRumble(
+                    GenericHID.RumbleType.kBothRumble, 1.0
+                )
+            }).finallyDo(
+                Runnable { driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0) })
+        )
+    }.withName("Other Command Queue")
 
     // Dashboard inputs
     private lateinit var autoChooser: LoggedDashboardChooser<Command>
@@ -304,8 +314,18 @@ class RobotContainer {
             Commands.runOnce(resetGyro, drive).ignoringDisable(true)
         )
 
-        driveController.pov(90).onTrue(autoQueue.addButDoNotStartAsCommand({ PathfindingFactories.pathfindToCoralStationAlternate(drive, PathfindingFactories.CoralStationSide.RIGHT, driveTranslationalControlSupplier)}))
-        driveController.pov(180).onTrue(autoQueue.addButDoNotStartAsCommand({ PathfindingFactories.pathfindToCoralStationAlternate(drive, PathfindingFactories.CoralStationSide.LEFT, driveTranslationalControlSupplier)}))
+        driveController.pov(90).onTrue(autoQueue.addButDoNotStartAsCommand({
+            PathfindingFactories.pathfindToCoralStationAlternate(
+                drive,
+                PathfindingFactories.CoralStationSide.RIGHT,
+                driveTranslationalControlSupplier
+            )
+        }))
+        driveController.pov(180).onTrue(autoQueue.addButDoNotStartAsCommand({
+            PathfindingFactories.pathfindToCoralStationAlternate(
+                drive, PathfindingFactories.CoralStationSide.LEFT, driveTranslationalControlSupplier
+            )
+        }))
         // </editor-fold>
 
         // Default commands for elevator and arm
@@ -478,11 +498,9 @@ class RobotContainer {
     private fun setUpDashboardCommands() {
 
 
-
-
         SmartDashboard.putData(
-            elevator.homeElevator()
-                .deadlineFor(arm.moveArmToAngleWithoutEnding(90.0)).withName("Home Elevator")
+            elevator.homeElevator().deadlineFor(arm.moveArmToAngleWithoutEnding(90.0))
+                .withName("Home Elevator")
         )
 
         SmartDashboard.putData(drive.followRepulsorField(AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]))
@@ -532,15 +550,16 @@ class RobotContainer {
                     PathfindingFactories.pathfindToCoralStationAlternate(
                         drive, coralStation, driveTranslationalControlSupplier
                     ).withName("Drive to $coralStation Coral Station (Queued, alternate)")
-                }).ignoringDisable(true)
-                    .alongWith(
+                }).ignoringDisable(true).alongWith(
                         otherCommandQueue.addButDoNotStartAsCommand({
-                            SuperstructureCommands.algaeIntake(elevator, arm, climber).withName("Superstructure Algae Intake (queued, auto-added)")
+                            SuperstructureCommands.algaeIntake(elevator, arm, climber)
+                                .withName("Superstructure Algae Intake (queued, auto-added)")
                         }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
                     ).andThen(
 
                         otherCommandQueue.addButDoNotStartAsCommand({
-                            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber).withName("Superstructure Coral Pickup (queued, auto-added)")
+                            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber)
+                                .withName("Superstructure Coral Pickup (queued, auto-added)")
                         }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
                     ).withName("Queue Drive to $coralStation Coral Station (alternate)")
             )
@@ -558,36 +577,41 @@ class RobotContainer {
 
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
-            val commands: Command =
-                when (position) {
-                    Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> otherCommandQueue.addButDoNotStartAsCommand(
-                        {
-                            SuperstructureCommands.goToPosition(
-                                elevator, arm, climber, position
-                            ).withName("Superstructure to " + position.name + " Position (Queued)")
-                        },
-                        {
-                            SuperstructureCommands.scoreAtPosition(
-                                elevator, arm, clawIntake, drive, position
-                            ).withName("Score in $position (queued, auto-added)")
-                        })
-                    Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> otherCommandQueue.addButDoNotStartAsCommand(
-                        {
-                            SuperstructureCommands.goToPosition(elevator, arm, climber, position).withName("Superstructure to $position Position (Queued)")
-                        },
-                        {
-                            clawIntake.intakeWithoutStoppingForAlgae().withName("Intake Algae (Queued, auto-added")
-                        },
-                        {
-                            SuperstructureCommands.goToPosition(elevator, arm, climber, Constants.SuperstructureConstants.SuperstructureState.BARGE_LAUNCH).withName("Superstructure to Barge Launch Position (Queued, auto-added)")
-                        }
-                    )
-                    else -> otherCommandQueue.addButDoNotStartAsCommand({
+            val commands: Command = when (position) {
+                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> otherCommandQueue.addButDoNotStartAsCommand({
                         SuperstructureCommands.goToPosition(
                             elevator, arm, climber, position
                         ).withName("Superstructure to " + position.name + " Position (Queued)")
+                    },
+                    {
+                        SuperstructureCommands.scoreAtPosition(
+                            elevator, arm, clawIntake, drive, position
+                        ).withName("Score in $position (queued, auto-added)")
                     })
-                }
+
+                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> otherCommandQueue.addButDoNotStartAsCommand({
+                        SuperstructureCommands.goToPosition(elevator, arm, climber, position)
+                            .withName("Superstructure to $position Position (Queued)")
+                    },
+                    {
+                        clawIntake.intakeWithoutStoppingForAlgae()
+                            .withName("Intake Algae (Queued, auto-added")
+                    },
+                    {
+                        SuperstructureCommands.goToPosition(
+                            elevator,
+                            arm,
+                            climber,
+                            Constants.SuperstructureConstants.SuperstructureState.BARGE_LAUNCH
+                        ).withName("Superstructure to Barge Launch Position (Queued, auto-added)")
+                    })
+
+                else -> otherCommandQueue.addButDoNotStartAsCommand({
+                    SuperstructureCommands.goToPosition(
+                        elevator, arm, climber, position
+                    ).withName("Superstructure to " + position.name + " Position (Queued)")
+                })
+            }
             SmartDashboard.putData(
                 commands.withName("Queue Superstructure $position Position").ignoringDisable(true)
             )
@@ -603,7 +627,9 @@ class RobotContainer {
             ).withName("Score (queued)")
         }).withName("Queue score").ignoringDisable(true))
 
-        if (Constants.currentMode == Constants.Mode.SIM) SmartDashboard.putData(Commands.runOnce({autoQueue.start()}).withName("Execute (sim-exclusive)"))
+        if (Constants.currentMode == Constants.Mode.SIM) SmartDashboard.putData(
+            Commands.runOnce({ autoQueue.start() }).withName("Execute (sim-exclusive)")
+        )
 
     }
 
@@ -611,19 +637,34 @@ class RobotContainer {
     fun addNamedCommands() {
         NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm, climber))
         NamedCommands.registerCommand("L4", SuperstructureCommands.l4WithoutSafety(elevator, arm))
-        NamedCommands.registerCommand("deposit", SuperstructureCommands.scoreAtPositionWithoutDrive(elevator, arm, clawIntake, Constants.SuperstructureConstants.SuperstructureState.L4))
+        NamedCommands.registerCommand(
+            "deposit", SuperstructureCommands.scoreAtPositionWithoutDrive(
+                elevator, arm, clawIntake, Constants.SuperstructureConstants.SuperstructureState.L4
+            )
+        )
         NamedCommands.registerCommand(
             "Pre-Coral Pickup", SuperstructureCommands.preCoralPickup(elevator, arm, climber)
         )
-        NamedCommands.registerCommand("Fix Pivot", elevator.goToPosition(40.0).alongWith(climber.pivotToPosition(57.0)).andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber)))
-        NamedCommands.registerCommand("Fix Pivot and L4", climber.pivotToPosition(57.0).alongWith(SuperstructureCommands.l4WithoutSafety(
-            elevator,
-            arm
-        )))
-        NamedCommands.registerCommand("Pick Up and L4", SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber).andThen(SuperstructureCommands.l4WithoutSafety(
-            elevator,
-            arm
-        )))
+        NamedCommands.registerCommand(
+            "Fix Pivot",
+            elevator.goToPosition(40.0).alongWith(climber.pivotToPosition(57.0))
+                .andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber))
+        )
+        NamedCommands.registerCommand(
+            "Fix Pivot and L4", climber.pivotToPosition(57.0).alongWith(
+                SuperstructureCommands.l4WithoutSafety(
+                    elevator, arm
+                )
+            )
+        )
+        NamedCommands.registerCommand(
+            "Pick Up and L4",
+            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber).andThen(
+                SuperstructureCommands.l4WithoutSafety(
+                    elevator, arm
+                )
+            )
+        )
     }
 
     fun stopQueue() {
