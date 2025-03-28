@@ -12,6 +12,7 @@ import frc.robot.subsystems.arm.ClawIntake
 import frc.robot.subsystems.climber.Climber
 import frc.robot.subsystems.drive.Drive
 import frc.robot.subsystems.elevator.Elevator
+import frc.robot.subsystems.intake.AlgaeIntake
 
 object SuperstructureCommands {
     var reefPosition = SuperstructureState.L1
@@ -219,5 +220,15 @@ object SuperstructureCommands {
         return Commands.parallel(
             e.goToPositionDelta(-5.0), a.moveArmAngleDelta(-5.0), f.outtake()
         ).withName("Score")
+    }
+
+    fun algaeIntakeProtocol(e: Elevator, a: Arm, c: Climber, i: AlgaeIntake, f: ClawIntake): Command {
+        return Commands.sequence(
+            algaeIntake(e, a, c),
+            i.runIntake()
+                .alongWith(f.intakeWithoutStoppingForAlgae()),
+            a.moveArmToAngle(ArmConstants.ArmState.LOWER_REEF_ALGAE),
+            i.retractIntake()
+        ).withName("Algae Intake Protocol")
     }
 }
