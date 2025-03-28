@@ -634,7 +634,7 @@ class RobotContainer {
     }
 
 
-    fun addNamedCommands() {
+    private fun addNamedCommands() {
         NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm, climber))
         NamedCommands.registerCommand("L4", SuperstructureCommands.l4WithoutSafety(elevator, arm))
         NamedCommands.registerCommand(
@@ -647,11 +647,11 @@ class RobotContainer {
         )
         NamedCommands.registerCommand(
             "Fix Pivot",
-            elevator.goToPosition(40.0).alongWith(climber.pivotToPosition(57.0))
+            elevator.goToPosition(40.0).deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
                 .andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber))
         )
         NamedCommands.registerCommand(
-            "Fix Pivot and L4", climber.pivotToPosition(57.0).alongWith(
+            "Fix Pivot and L4", climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }).withDeadline(
                 SuperstructureCommands.l4WithoutSafety(
                     elevator, arm
                 )
