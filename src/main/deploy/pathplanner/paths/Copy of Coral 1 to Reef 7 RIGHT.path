@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Fix Pivot and L4",
+      "name": "Pick Up and L4",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": null

@@ -56,6 +56,12 @@
           "name": "deposit"
         }
       }
+    },
+    {
+      "name": "Pre-Coral Pickup",
+      "waypointRelativePos": 0.1503689717294901,
+      "endWaypointRelativePos": null,
+      "command": null
     }
   ],
   "globalConstraints": {

@@ -48,7 +48,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Fix Pivot and L4"
+                  "name": "Pick Up and L4"
                 }
               }
             ]
@@ -94,7 +94,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 2.5
           }
         },
         {

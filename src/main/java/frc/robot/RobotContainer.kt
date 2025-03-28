@@ -478,13 +478,6 @@ class RobotContainer {
             elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
 
-        autoChooser.addOption(
-            let {
-                var a = ""
-                for (i in 0..1000) a += "1234567890"
-                a
-            }, Commands.none()
-        )
     }
 
     private fun setUpDashboardCommands() {
