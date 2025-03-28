@@ -104,7 +104,7 @@ object Constants {
              * Elevator height states.
              */
             object ElevatorState {
-                const val HOME = 17.2
+                const val HOME = 27.2
                 const val L1 = 5.0
                 const val L2 = 39.4
                 const val L3 = 104.2
@@ -134,7 +134,7 @@ object Constants {
              * Arm position states.
              */
             object ArmState {
-                const val HOME = 210.5
+                const val HOME = 215.5
                 const val L1 = 155.0
                 const val L2 = -62.93
                 const val L3 = -67.85

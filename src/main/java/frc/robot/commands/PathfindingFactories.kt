@@ -309,7 +309,7 @@ object PathfindingFactories {
             else -> translateCoordinates(
                 inFrontOfAprilTag,
                 closestPose.rotation.degrees,
-                0.1
+                0.02
             )
         }
 

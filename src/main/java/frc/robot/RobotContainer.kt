@@ -61,6 +61,7 @@ import kotlin.math.pow
  */
 @Suppress("GrazieInspection")
 class RobotContainer {
+    //noinspection ALL
     /* in the reefed scape. straight up "pushing it". and by "it", haha, well. let's justr say. My code */
 
     // Subsystems
@@ -280,11 +281,7 @@ class RobotContainer {
 
         // Reduced speed drive when B button is pressed
         driveController.b().onTrue(
-            DriveCommands.joystickDrive(
-                drive,
-                { -driveController.leftY * 0.5 },
-                { -driveController.leftX * 0.5 },
-                { -driveController.rightX })
+            SuperstructureCommands.home(elevator, arm, climber)
         )
 
 
