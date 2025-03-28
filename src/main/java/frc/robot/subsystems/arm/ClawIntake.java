@@ -48,10 +48,9 @@ public class ClawIntake extends SubsystemBase {
         .finallyDo(io::stopIntake)
         .withName("Intake");
   }
+
   public Command intakeWithoutStoppingForAlgae() {
-    return run(() ->
-                   io.setIntakeOpenLoop(
-                       -ClawIntakeConstants.algaeIntakePercent))
+    return run(() -> io.setIntakeOpenLoop(-ClawIntakeConstants.algaeIntakePercent))
         .andThen(io::stopIntake)
         .finallyDo(io::stopIntake)
         .withName("Intake");

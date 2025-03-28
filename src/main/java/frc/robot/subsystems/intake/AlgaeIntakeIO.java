@@ -13,7 +13,6 @@ public interface AlgaeIntakeIO {
     public double intakeMotorVoltage = 0.0;
     public double intakeMotorCurrent = 0.0;
 
-
     public boolean extended = false;
   }
 
@@ -26,5 +25,4 @@ public interface AlgaeIntakeIO {
   default void setIntakeOpenLoop(double output) {}
 
   default void setIntakeVelocity(double velocity) {}
-
 }

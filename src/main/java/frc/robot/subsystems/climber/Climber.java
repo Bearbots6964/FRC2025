@@ -20,7 +20,10 @@ public class Climber extends SubsystemBase {
 
   private final ClimberPivotIO pivotIO;
   private final ClimberPivotIOInputsAutoLogged pivotInputs = new ClimberPivotIOInputsAutoLogged();
-  private final Alert overcurrentAlert = new Alert("Bicep pivot is hitting current limit! You're stuck on something, is the winch engaged?", AlertType.kWarning);
+  private final Alert overcurrentAlert =
+      new Alert(
+          "Bicep pivot is hitting current limit! You're stuck on something, is the winch engaged?",
+          AlertType.kWarning);
   private boolean climbing = false;
 
   public Climber(WinchIO winchIO, ClimberPivotIO pivotIO) {

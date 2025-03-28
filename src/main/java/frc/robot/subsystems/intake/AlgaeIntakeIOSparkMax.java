@@ -22,9 +22,7 @@ public class AlgaeIntakeIOSparkMax implements AlgaeIntakeIO {
   protected double targetArmPosition;
   protected double targetIntakeVelocity;
 
-  public AlgaeIntakeIOSparkMax(
-      SparkBaseConfig armMotorConfig,
-      SparkBaseConfig intakeMotorConfig) {
+  public AlgaeIntakeIOSparkMax(SparkBaseConfig armMotorConfig, SparkBaseConfig intakeMotorConfig) {
     armMotor = new SparkMax(Constants.AlgaeIntakeConstants.getArmMotorID(), MotorType.kBrushless);
     tryUntilOk(
         armMotor,
@@ -57,7 +55,6 @@ public class AlgaeIntakeIOSparkMax implements AlgaeIntakeIO {
     inputs.intakeMotorCurrent = intakeMotor.getOutputCurrent();
     inputs.intakeMotorVoltage = intakeMotor.getAppliedOutput() * intakeMotor.getBusVoltage();
     inputs.intakeMotorVelocity = intakeMotor.getEncoder().getVelocity();
-
   }
 
   @Override
@@ -81,5 +78,4 @@ public class AlgaeIntakeIOSparkMax implements AlgaeIntakeIO {
     targetIntakeVelocity = velocity;
     intakeController.setReference(velocity, SparkMax.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
-
 }

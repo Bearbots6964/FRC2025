@@ -7,12 +7,12 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import frc.robot.RobotContainer;
 
 public class ElevatorIOTalonFXSim extends ElevatorIOTalonFX {
 
   private final DCMotor motors = DCMotor.getKrakenX60(2);
-  private final ElevatorSim sim = new ElevatorSim(0.11971, 0.0031455, motors, 0, inchesToMeters(31), true, 0, null);
+  private final ElevatorSim sim =
+      new ElevatorSim(0.11971, 0.0031455, motors, 0, inchesToMeters(31), true, 0, null);
 
   private final TalonFXSimState leftMotorSim = new TalonFXSimState(leftMotor);
   private final TalonFXSimState rightMotorSim = new TalonFXSimState(rightMotor);
@@ -42,5 +42,4 @@ public class ElevatorIOTalonFXSim extends ElevatorIOTalonFX {
     inputs.leftMotorTemperatureCelsius = Double.MAX_VALUE; // kraken love heat
     inputs.rightMotorTemperatureCelsius = Double.MAX_VALUE;
   }
-
 }

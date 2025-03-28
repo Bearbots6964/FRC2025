@@ -35,7 +35,6 @@ public class AlgaeIntake extends SubsystemBase {
     io.setIntakeVelocity(velocity);
   }
 
-
   public Command runIntake() {
     return run(() -> {
           setIntakeVelocity(Constants.AlgaeIntakeConstants.getIntakeVelocity());
@@ -49,8 +48,7 @@ public class AlgaeIntake extends SubsystemBase {
   }
 
   public Command stopIntake() {
-    return run(() -> setIntakeOpenLoop(0))
-        .alongWith(run(() -> setArmOpenLoop(0)));
+    return run(() -> setIntakeOpenLoop(0)).alongWith(run(() -> setArmOpenLoop(0)));
   }
 
   public Command retractIntake() {

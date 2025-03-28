@@ -14,9 +14,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.AprilTagPositions;
-import frc.robot.Robot;
 import frc.robot.subsystems.FieldConstants;
-import lombok.val;
 import org.littletonrobotics.junction.Logger;
 
 public final class ReefLocations {

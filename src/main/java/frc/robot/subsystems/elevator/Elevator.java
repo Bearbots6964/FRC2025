@@ -29,9 +29,7 @@ public class Elevator extends SubsystemBase {
 
   private double targetPosition;
 
-  @Getter
-  private MechanismLigament2d mechanism;
-
+  @Getter private MechanismLigament2d mechanism;
 
   public Elevator(ElevatorIO io) {
     this.io = io;
@@ -49,8 +47,9 @@ public class Elevator extends SubsystemBase {
 
       targetPosition = inputs.rightMotorPositionRotations;
     }
-    mechanism = new MechanismLigament2d("Elevator", inchesToMeters(37.0), 90, inchesToMeters(2.0), new Color8Bit(
-        Color.kGray));
+    mechanism =
+        new MechanismLigament2d(
+            "Elevator", inchesToMeters(37.0), 90, inchesToMeters(2.0), new Color8Bit(Color.kGray));
   }
 
   public void setRotations(double rotations) {

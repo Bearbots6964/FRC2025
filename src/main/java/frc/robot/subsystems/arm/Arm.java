@@ -21,23 +21,35 @@ public class Arm extends SubsystemBase {
   private final ArmIO io;
   private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
   private final SysIdRoutine sysId;
-  @Getter
-  private final MechanismLigament2d firstSegment;
+  @Getter private final MechanismLigament2d firstSegment;
   private final MechanismLigament2d secondSegment;
 
   public Arm(ArmIO io) {
     this.io = io;
 
-    sysId = new SysIdRoutine(
-        new SysIdRoutine.Config(Units.Volts.per(Units.Second).of(0.0625), Units.Volts.of(0.2), null,
-                                (state) -> SignalLogger.writeString("Arm/SysIDState",
-                                                                    state.toString())),
-        new SysIdRoutine.Mechanism((voltage -> runCharacterization(voltage.in(Units.Volts))), null,
-                                   this));
-    firstSegment = new MechanismLigament2d("Arm First Segment", inchesToMeters(13.48), 23.5,
-                                           inchesToMeters(2.0), new Color8Bit(Color.kGray));
-    secondSegment = new MechanismLigament2d("Arm Second Segment", inchesToMeters(8.6), -61.75,
-                                            inchesToMeters(2.0), new Color8Bit(Color.kGray));
+    sysId =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Units.Volts.per(Units.Second).of(0.0625),
+                Units.Volts.of(0.2),
+                null,
+                (state) -> SignalLogger.writeString("Arm/SysIDState", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage -> runCharacterization(voltage.in(Units.Volts))), null, this));
+    firstSegment =
+        new MechanismLigament2d(
+            "Arm First Segment",
+            inchesToMeters(13.48),
+            23.5,
+            inchesToMeters(2.0),
+            new Color8Bit(Color.kGray));
+    secondSegment =
+        new MechanismLigament2d(
+            "Arm Second Segment",
+            inchesToMeters(8.6),
+            -61.75,
+            inchesToMeters(2.0),
+            new Color8Bit(Color.kGray));
     firstSegment.append(secondSegment);
   }
 
@@ -74,7 +86,8 @@ public class Arm extends SubsystemBase {
   }
 
   public Command moveArmToAngle(Double angle) {
-    return run(() -> io.setArmAngle(angle)).until(() -> Math.abs(inputs.armAxisAngle - angle) < 3.0)
+    return run(() -> io.setArmAngle(angle))
+        .until(() -> Math.abs(inputs.armAxisAngle - angle) < 3.0)
         .withName("Move Arm to Angle");
   }
 
@@ -83,12 +96,12 @@ public class Arm extends SubsystemBase {
   }
 
   public Command moveArmAngleDelta(Double delta) {
-    return runOnce(() -> io.setAngleDelta(delta)).until(() -> io.getDistanceFromGoal() < 3.0)
+    return runOnce(() -> io.setAngleDelta(delta))
+        .until(() -> io.getDistanceFromGoal() < 3.0)
         .withName("Move Arm Delta");
   }
 
   public double getArmAngle() { // degrees
     return inputs.armAxisAngle;
   }
-
 }
