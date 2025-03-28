@@ -535,7 +535,7 @@ class RobotContainer {
                     PathfindingFactories.pathfindToCoralStationAlternate(
                         drive, coralStation, driveTranslationalControlSupplier
                     ).withName("Drive to $coralStation Coral Station (Queued, alternate)")
-                }).ignoringDisable(true).alongWith(
+                }).ignoringDisable(true).andThen(
                         otherCommandQueue.addButDoNotStartAsCommand({
                             SuperstructureCommands.preCoralPickup(elevator, arm, climber)
                                 .withName("Superstructure Algae Intake (queued, auto-added)")
@@ -618,7 +618,7 @@ class RobotContainer {
             )
         )
         NamedCommands.registerCommand(
-            "Pre-Coral Pickup", SuperstructureCommands.homeWithoutSafety(elevator, arm, climber)
+            "Pre-Coral Pickup", arm.moveArmToAngle(90.0).alongWith(elevator.goToPosition(37.0))
         )
         NamedCommands.registerCommand(
             "Fix Pivot",
