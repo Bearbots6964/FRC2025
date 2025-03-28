@@ -242,7 +242,7 @@ object PathfindingFactories {
 
     private fun getSpecificReefSidePose(reef: Reef): Pose2d {
         val aprilTagsToAlignTo = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS
-        val alliance = DriverStation.getAlliance().get()
+        val alliance = if (DriverStation.getAlliance().isPresent) DriverStation.getAlliance().get() else Alliance.Red
         val aprilTagNum: Int = when (reef) {
             A, B, AB_ALGAE -> when (alliance) {
                 Alliance.Red -> 7
