@@ -59,7 +59,10 @@ import kotlin.math.pow
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
+@Suppress("GrazieInspection")
 class RobotContainer {
+    /* in the reefed scape. straight up "pushing it". and by "it", haha, well. let's justr say. My code */
+
     // Subsystems
     private var drive: Drive
     private var vision: Vision
@@ -555,17 +558,7 @@ class RobotContainer {
                         }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
                     ).withName("Queue Drive to $coralStation Coral Station (alternate)")
             )
-        }/*
-        for (coralStation in PathfindingFactories.CoralStationSide.entries) {
-            SmartDashboard.putData(
-                autoQueue.addAsCommand({
-                    PathfindingFactories.finalLineupToSpecificCoralStation(
-                        drive, coralStation
-                    ).withName("Final Lineup to " + coralStation.name + " Coral Station (Queued)")
-                }).withName("Queue Final Lineup to " + coralStation.name + " Coral Station")
-            )
         }
-        */
 
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
