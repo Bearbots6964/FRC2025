@@ -630,7 +630,7 @@ class RobotContainer {
                 SuperstructureCommands.l4WithoutSafety(
                     elevator, arm
                 )
-            ).andThen(climber.moveClimberToIntakePosition())
+            ).andThen(climber.moveClimberToIntakePosition().withDeadline(Commands.waitSeconds(1.0)))
         )
         NamedCommands.registerCommand(
             "Pick Up and L4",
