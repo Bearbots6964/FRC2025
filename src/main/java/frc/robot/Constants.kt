@@ -104,7 +104,7 @@ object Constants {
              * Elevator height states.
              */
             object ElevatorState {
-                const val HOME = 27.2
+                const val HOME = 45.3891363535
                 const val L1 = 5.0
                 const val L2 = 39.4
                 const val L3 = 104.2

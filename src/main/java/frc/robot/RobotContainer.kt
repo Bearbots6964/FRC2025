@@ -618,7 +618,7 @@ class RobotContainer {
             )
         )
         NamedCommands.registerCommand(
-            "Pre-Coral Pickup", SuperstructureCommands.preCoralPickup(elevator, arm, climber)
+            "Pre-Coral Pickup", SuperstructureCommands.homeWithoutSafety(elevator, arm, climber)
         )
         NamedCommands.registerCommand(
             "Fix Pivot",

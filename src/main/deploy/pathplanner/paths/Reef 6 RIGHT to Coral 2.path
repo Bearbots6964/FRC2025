@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.9427294921875,
-        "y": 5.2078759765625
+        "x": 3.9425933111087104,
+        "y": 5.196416183154062
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2469087043274647,
-        "y": 5.831182796896264
+        "x": 3.246772523248675,
+        "y": 5.819723003487826
       },
       "isLocked": false,
       "linkedName": "Reef 6 RIGHT"
@@ -59,7 +59,7 @@
     },
     {
       "name": "Pre-Coral Pickup",
-      "waypointRelativePos": 0.1503689717294901,
+      "waypointRelativePos": 0.1649372921286031,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -80,7 +80,7 @@
   "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -58.75500000000001
+    "rotation": -59.99999999999999
   },
   "useDefaultConstraints": true
 }
