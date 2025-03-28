@@ -292,7 +292,8 @@ object PathfindingFactories {
                 translateCoordinates(
                     inFrontOfAprilTag,
                     closestPose.rotation.degrees + 90,
-                    PathfindingConstants.lateralDistanceFromReefMeters
+                    // Offset measured by pit team
+                    PathfindingConstants.lateralDistanceFromReefMeters - 0.0381
                 )
             }
 
@@ -300,7 +301,8 @@ object PathfindingFactories {
                 translateCoordinates(
                     inFrontOfAprilTag,
                     closestPose.rotation.degrees + 90,
-                    -PathfindingConstants.lateralDistanceFromReefMeters
+                    // Offset measured by pit team
+                    -PathfindingConstants.lateralDistanceFromReefMeters - 0.0127
                 )
             }
 
