@@ -537,7 +537,7 @@ class RobotContainer {
                     ).withName("Drive to $coralStation Coral Station (Queued, alternate)")
                 }).ignoringDisable(true).andThen(
                         otherCommandQueue.addButDoNotStartAsCommand({
-                            SuperstructureCommands.preCoralPickup(elevator, arm, climber)
+                            SuperstructureCommands.algaeIntake(elevator, arm, climber)
                                 .withName("Superstructure Algae Intake (queued, auto-added)")
                         }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
                     ).andThen(
