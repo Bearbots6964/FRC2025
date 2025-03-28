@@ -344,17 +344,8 @@ class RobotContainer {
         // Operator controller bindings
         operatorController.a().onTrue(algaeIntake.runIntake())
         operatorController.b().onTrue(algaeIntake.retractIntake())
-        operatorController.a().whileTrue(
-            SuperstructureCommands.home(elevator, arm, climber)
-        )
-        operatorController.b().whileTrue(Commands.runOnce({
-            otherCommandQueue.cancelCurrent()
-        }))
         driveController.y().onTrue(Commands.runOnce({
             otherCommandQueue.start()
-        }))
-        operatorController.y().whileTrue(Commands.runOnce({
-            nextSuperstructureCommand = Constants.SuperstructureConstants.SuperstructureState.L4
         }))
         operatorController.rightTrigger().whileTrue(
             elevator.velocityCommand({ -operatorController.rightY }).alongWith(
@@ -375,6 +366,7 @@ class RobotContainer {
         operatorController.leftStick().whileTrue(climber.moveClimberToCageCatchPositionNoStop())
         operatorController.rightStick().onTrue(climber.climb())
         operatorController.start().whileTrue(climber.moveClimberOpenLoop({ -0.5 }, { 0.0 }))
+        operatorController.back().whileTrue(climber.moveClimberOpenLoop({ 0.5 }, { 0.0 }))
 
         // Mark IV controller bindings
 
