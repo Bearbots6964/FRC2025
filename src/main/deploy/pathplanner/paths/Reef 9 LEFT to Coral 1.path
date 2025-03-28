@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.982796273912702,
-        "y": 5.2409984204676245
+        "x": 3.720171223677598,
+        "y": 2.9725327838550912
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.574919686075728,
-        "y": 6.519509593228053
+        "x": 3.207365781494496,
+        "y": 2.2401707137547855
       },
       "isLocked": false,
-      "linkedName": "Reef 6 LEFT"
+      "linkedName": "Reef 9 LEFT"
     },
     {
       "anchor": {
-        "x": 1.248998188585455,
-        "y": 7.091104322482135
+        "x": 1.17703125,
+        "y": 1.057812499999999
       },
       "prevControl": {
-        "x": 1.6751136817166976,
-        "y": 6.583279652682923
+        "x": 1.576276874075268,
+        "y": 1.6279943422236043
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Upper Coral Station"
+      "linkedName": "Lower Coral Station"
     }
   ],
   "rotationTargets": [],
@@ -33,12 +33,12 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.09901607538802659,
+      "maxWaypointRelativePos": 0.15,
       "constraints": {
         "maxVelocity": 0.75,
-        "maxAcceleration": 4.0,
+        "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
+        "maxAngularAcceleration": 240.0,
         "nominalVoltage": 12.0,
         "unlimited": false
       }
@@ -49,24 +49,14 @@
     {
       "name": "deposit",
       "waypointRelativePos": 0,
-      "endWaypointRelativePos": 0.14729420731707307,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "deposit"
-        }
-      }
+      "endWaypointRelativePos": null,
+      "command": null
     },
     {
       "name": "Pre-Coral Pickup",
-      "waypointRelativePos": 0.15070676274944567,
+      "waypointRelativePos": 0.10848161948416356,
       "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Pre-Coral Pickup"
-        }
-      }
+      "command": null
     }
   ],
   "globalConstraints": {
@@ -78,14 +68,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": -53.51
+    "velocity": 0.0,
+    "rotation": 55.0
   },
   "reversed": false,
   "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 59.99999999999999
   },
   "useDefaultConstraints": true
 }

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7516009909444483,
-        "y": 6.943568174567069
+        "x": 1.5494430294485395,
+        "y": 6.662024621867569
       },
       "isLocked": false,
       "linkedName": "Upper Coral Station"
@@ -31,7 +31,14 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Fix Pivot and L4",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -42,7 +49,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.43339988527746603
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "New Folder",

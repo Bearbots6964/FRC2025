@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3262890625,
-        "y": 4.305107421874999
+        "x": 2.150670182167183,
+        "y": 4.15532135800938
       },
       "isLocked": false,
       "linkedName": "Reef 7 RIGHT"
@@ -20,8 +20,8 @@
         "y": 4.166161988826067
       },
       "prevControl": {
-        "x": 0.9970675898010847,
-        "y": 4.210713746323021
+        "x": 1.0048654256041012,
+        "y": 4.170110600123301
       },
       "nextControl": null,
       "isLocked": false,
@@ -60,7 +60,7 @@
   "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.43339988527746603
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }

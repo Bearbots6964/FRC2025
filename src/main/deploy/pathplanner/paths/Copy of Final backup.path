@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6968115234375,
-        "y": 5.0519140625
+        "x": 3.1917628944694223,
+        "y": 3.84502525205736
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.3762539062090733,
-        "y": 5.340234309685041
+        "x": 2.1612961364737187,
+        "y": 3.84502525205736
       },
       "isLocked": false,
-      "linkedName": "Reef 7 LEFT"
+      "linkedName": "Reef 10 LEFT"
     },
     {
       "anchor": {
-        "x": 1.248998188585455,
-        "y": 7.091104322482135
+        "x": 0.7620726055913157,
+        "y": 3.9509438440397187
       },
       "prevControl": {
-        "x": 2.1394571720006534,
-        "y": 6.337520892135666
+        "x": 1.013785565782279,
+        "y": 3.9509438440397187
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Upper Coral Station"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,9 +33,9 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.190470828713969,
+      "maxWaypointRelativePos": 0.1836057618388684,
       "constraints": {
-        "maxVelocity": 1.0,
+        "maxVelocity": 0.75,
         "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -49,38 +49,32 @@
     {
       "name": "deposit",
       "waypointRelativePos": 0,
-      "endWaypointRelativePos": 0.19099916851441245,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "deposit"
         }
       }
-    },
-    {
-      "name": "Pre-Coral Pickup",
-      "waypointRelativePos": 0.18901572893569832,
-      "endWaypointRelativePos": null,
-      "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 240.0,
+    "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -53.51
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

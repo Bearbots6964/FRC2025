@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.0358837890625,
-        "y": 6.13771484375
+        "x": 8.12473990452754,
+        "y": 6.181041357114717
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.411450590923066,
-        "y": 6.196690911745777
+        "x": 7.134273636938234,
+        "y": 6.181041357114717
       },
       "isLocked": false,
-      "linkedName": "Middle Cage"
+      "linkedName": "Middle Barge"
     },
     {
       "anchor": {
-        "x": 4.970430298774475,
-        "y": 5.234628475677073
+        "x": 4.982796273912702,
+        "y": 5.2409984204676245
       },
       "prevControl": {
-        "x": 5.4486328845351295,
-        "y": 5.874175400147894
+        "x": 5.413677255279019,
+        "y": 5.987306172209224
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
