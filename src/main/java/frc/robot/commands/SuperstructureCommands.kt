@@ -78,7 +78,7 @@ object SuperstructureCommands {
     fun preCoralPickup(e: Elevator, a: Arm, c: Climber): Command {
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.PRE_CORAL_PICKUP)
-                .alongWith(c.moveClimberToCageCatchPosition())
+                .alongWith(c.moveClimberToIntakePosition())
                 .andThen(a.moveArmToAngle(ArmConstants.ArmState.PRE_CORAL_PICKUP))
         ).withName("Superstructure to Pre Coral Pickup Position")
     }
