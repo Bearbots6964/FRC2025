@@ -104,7 +104,7 @@ public class Climber extends SubsystemBase {
               climbing = true;
             })
         .andThen(
-            run(() -> winchIO.setWinchOpenLoop(0.60))
+            run(() -> winchIO.setWinchOpenLoop(0.75))
                 .until(
                     () -> pivotIO.getPivotPosition() > ClimberConstants.getPivotClimbedPosition()))
         .andThen(
