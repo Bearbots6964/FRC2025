@@ -69,8 +69,8 @@ object Constants {
                 // without having to use an initializer block.
                 it.ClosedLoopGeneral.ContinuousWrap = false
                 it.MotorOutput.NeutralMode = NeutralModeValue.Brake
-                it.CurrentLimits.StatorCurrentLimit = 20.0
-                it.CurrentLimits.SupplyCurrentLimit = 20.0
+                it.CurrentLimits.StatorCurrentLimit = 120.0
+                it.CurrentLimits.SupplyCurrentLimit = 70.0
 
                 it // Implicit return.
                 // This is really the only downside to using this, as it can look random.
@@ -83,8 +83,8 @@ object Constants {
             val rightMotorConfig: TalonFXConfiguration = TalonFXConfiguration().let {
                 it.ClosedLoopGeneral.ContinuousWrap = false
                 it.MotorOutput.NeutralMode = NeutralModeValue.Brake
-                it.CurrentLimits.StatorCurrentLimit = 20.0
-                it.CurrentLimits.SupplyCurrentLimit = 20.0
+                it.CurrentLimits.StatorCurrentLimit = 120.0
+                it.CurrentLimits.SupplyCurrentLimit = 70.0
                 it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
                 it.Slot0.kS = 0.087054
@@ -93,9 +93,9 @@ object Constants {
                 it.Slot0.kG = 0.10784
                 it.Slot0.kP = 0.8 // sysid suggests 0.067039
 
-                it.MotionMagic.MotionMagicCruiseVelocity = 200.0
-                it.MotionMagic.MotionMagicAcceleration = 400.0
-                it.MotionMagic.MotionMagicJerk = 1000.0
+                it.MotionMagic.MotionMagicCruiseVelocity = 250.0
+                it.MotionMagic.MotionMagicAcceleration = 500.0
+                it.MotionMagic.MotionMagicJerk = 0.0
 
                 it
             }

@@ -194,6 +194,7 @@ class Robot : LoggedRobot() {
         if (autonomousCommand != null) {
             autonomousCommand!!.cancel()
         }
+        robotContainer.fixArm()
     }
 
     /** This function is called periodically during operator control.  */

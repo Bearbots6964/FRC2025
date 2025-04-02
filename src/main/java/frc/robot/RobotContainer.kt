@@ -239,7 +239,10 @@ class RobotContainer {
         configureButtonBindings()
 
         setUpDashboardCommands()
-
+        if (climber.position > 40.0) elevator.goToPosition(40.0)
+            .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
+            .andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber))
+            .schedule()
     }
 
 
@@ -493,28 +496,23 @@ class RobotContainer {
                 PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.CD_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.GH_ALGAE, PathfindingFactories.Reef.IJ_ALGAE, PathfindingFactories.Reef.KL_ALGAE -> {
                     SmartDashboard.putData(
                         driveQueue.addButDoNotStartAsCommand({
-                            PathfindingFactories.pathfindToReefAlternate(
-                                drive,
-                                reef,
-                                driveTranslationalControlSupplier
-                            )
-                        }).andThen(superstructureQueue.addButDoNotStartAsCommand({
-                            SuperstructureCommands.goToPosition(
-                                elevator, arm, climber, when (reef) {
-                                    PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
-                                    else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
-                                }
-                            )
-                        })).withName("\nQueue Reef " + reef.name + "\n")
-                            .ignoringDisable(true)
+                        PathfindingFactories.pathfindToReefAlternate(
+                            drive, reef, driveTranslationalControlSupplier
+                        )
+                    }).andThen(superstructureQueue.addButDoNotStartAsCommand({
+                        SuperstructureCommands.goToPosition(
+                            elevator, arm, climber, when (reef) {
+                                PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
+                                else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
+                            }
+                        )
+                    })).withName("\nQueue Reef " + reef.name + "\n").ignoringDisable(true)
                     )
                 }
 
                 else -> SmartDashboard.putData(driveQueue.addButDoNotStartAsCommand({
                     PathfindingFactories.pathfindToReefAlternate(
-                        drive,
-                        reef,
-                        driveTranslationalControlSupplier
+                        drive, reef, driveTranslationalControlSupplier
                     )
                 }).withName("\nQueue Reef " + reef.name + "\n").ignoringDisable(true))
 
@@ -562,8 +560,7 @@ class RobotContainer {
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
             val commands: Command = when (position) {
-                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand(
-                    {
+                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand({
                         SuperstructureCommands.goToPosition(
                             elevator, arm, climber, position
                         ).withName("Superstructure to " + position.name + " Position (Queued)")
@@ -574,8 +571,7 @@ class RobotContainer {
                         ).withName("Score in $position (queued, auto-added)")
                     })
 
-                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand(
-                    {
+                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand({
                         SuperstructureCommands.goToPosition(elevator, arm, climber, position)
                             .withName("Superstructure to $position Position (Queued)")
                     },
@@ -674,23 +670,20 @@ class RobotContainer {
             )
         )
         NamedCommands.registerCommand(
-            "Low Algae",
-            SuperstructureCommands.goToPosition(
-                elevator, arm, climber,
+            "Low Algae", SuperstructureCommands.goToPosition(
+                elevator,
+                arm,
+                climber,
                 Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
-            )
-                .alongWith(
-                    clawIntake.intakeWithoutStoppingForAlgae()
-                        .withName("Run Intake (auto-added)")
+            ).alongWith(
+                    clawIntake.intakeWithoutStoppingForAlgae().withName("Run Intake (auto-added)")
                 )
         )
         NamedCommands.registerCommand(
-            "Spit Out",
-            clawIntake.outtakeFaster()
+            "Spit Out", clawIntake.outtakeFaster()
         )
         NamedCommands.registerCommand(
-            "Barge Algae",
-            SuperstructureCommands.goToPosition(
+            "Barge Algae", SuperstructureCommands.goToPosition(
                 elevator,
                 arm,
                 climber,
@@ -709,5 +702,12 @@ class RobotContainer {
         Logger.recordOutput(
             "RobotContainer/Superstructure Queue", superstructureQueue.struct, superstructureQueue
         )
+    }
+
+    fun fixArm() {
+        if (climber.position > 40.0) elevator.goToPosition(40.0)
+            .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
+            .andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber))
+            .schedule()
     }
 }
