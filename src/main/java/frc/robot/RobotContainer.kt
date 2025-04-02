@@ -505,7 +505,7 @@ class RobotContainer {
                                     else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
                                 }
                             )
-                        })).withName("\nQueue Reef alternate " + reef.name + "\n")
+                        })).withName("\nQueue Reef " + reef.name + "\n")
                             .ignoringDisable(true)
                     )
                 }
