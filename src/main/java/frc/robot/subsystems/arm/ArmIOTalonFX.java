@@ -46,7 +46,7 @@ public class ArmIOTalonFX implements ArmIO {
     pivotMotorPosition = pivotMotor.getPosition();
     pivotMotorVelocity = pivotMotor.getVelocity();
     pivotMotorVoltage = pivotMotor.getMotorVoltage();
-    pivotMotorCurrent = pivotMotor.getSupplyCurrent();
+    pivotMotorCurrent = pivotMotor.getStatorCurrent();
 
     var pos = pivotMotorPosition.getValue().in(Units.Rotations);
     if (pos < -1) {

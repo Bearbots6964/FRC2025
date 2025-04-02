@@ -530,7 +530,7 @@ object Constants {
 
             it.ExternalFeedback.ExternalFeedbackSensorSource =
                 ExternalFeedbackSensorSourceValue.PulseWidth
-            it.ExternalFeedback.RotorToSensorRatio = 45.0
+            it.ExternalFeedback.RotorToSensorRatio = 100.0
             it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
             it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.5
             it.ExternalFeedback.AbsoluteSensorOffset = -0.47

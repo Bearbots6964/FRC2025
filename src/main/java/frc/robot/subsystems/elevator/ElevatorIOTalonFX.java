@@ -80,8 +80,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     rightMotorVoltage = rightMotor.getMotorVoltage();
     leftMotorTemperature = leftMotor.getDeviceTemp();
     rightMotorTemperature = rightMotor.getDeviceTemp();
-    leftMotorCurrent = leftMotor.getSupplyCurrent();
-    rightMotorCurrent = rightMotor.getSupplyCurrent();
+    leftMotorCurrent = leftMotor.getStatorCurrent();
+    rightMotorCurrent = rightMotor.getStatorCurrent();
 
     targetPosition = rightMotorPosition.getValue().in(Units.Rotations);
   }
