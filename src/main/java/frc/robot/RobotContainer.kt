@@ -489,13 +489,38 @@ class RobotContainer {
         //    )
         //}
         for (reef in PathfindingFactories.Reef.entries) {
-            SmartDashboard.putData(
-                driveQueue.addButDoNotStartAsCommand({
+            when (reef) {
+                PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.CD_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.GH_ALGAE, PathfindingFactories.Reef.IJ_ALGAE, PathfindingFactories.Reef.KL_ALGAE -> {
+                    SmartDashboard.putData(
+                        driveQueue.addButDoNotStartAsCommand({
+                            PathfindingFactories.pathfindToReefAlternate(
+                                drive,
+                                reef,
+                                driveTranslationalControlSupplier
+                            )
+                        }).andThen(superstructureQueue.addButDoNotStartAsCommand({
+                            SuperstructureCommands.goToPosition(
+                                elevator, arm, climber, when (reef) {
+                                    PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
+                                    else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
+                                }
+                            )
+                        })).withName("\nQueue Reef alternate " + reef.name + "\n")
+                            .ignoringDisable(true)
+                    )
+                }
+
+                else -> SmartDashboard.putData(driveQueue.addButDoNotStartAsCommand({
                     PathfindingFactories.pathfindToReefAlternate(
-                        drive, reef, driveTranslationalControlSupplier
-                    ).withName("Reef " + reef.name + " (Queued, alternate)")
-                }).withName("Queue Reef alternate " + reef.name).ignoringDisable(true)
-            )
+                        drive,
+                        reef,
+                        driveTranslationalControlSupplier
+                    )
+                }).withName("\nQueue Reef " + reef.name + "\n").ignoringDisable(true))
+
+
+            }
+
         }
 
         //for (reef in PathfindingFactories.Reef.entries) {
@@ -577,33 +602,41 @@ class RobotContainer {
                 commands.withName("Queue Superstructure $position Position").ignoringDisable(true)
             )
         }
-        SmartDashboard.putData(superstructureQueue.addButDoNotStartAsCommand({
-            SuperstructureCommands.pickUpCoral(
-                elevator, arm, clawIntake, climber
-            ).withName("Pick up coral (queued)")
-        }).withName("Queue pick up coral").ignoringDisable(true))
-        SmartDashboard.putData(superstructureQueue.addButDoNotStartAsCommand({
-            SuperstructureCommands.score(
-                elevator, arm, clawIntake
-            ).withName("Score (queued)")
-        }).withName("Queue score").ignoringDisable(true))
+        SmartDashboard.putData(
+            superstructureQueue.addButDoNotStartAsCommand(
+                {
+                    SuperstructureCommands.pickUpCoral(
+                        elevator, arm, clawIntake, climber
+                    ).withName("Pick up coral (queued)")
+                }).withName("Queue pick up coral").ignoringDisable(true)
+        )
+        SmartDashboard.putData(
+            superstructureQueue.addButDoNotStartAsCommand(
+                {
+                    SuperstructureCommands.score(
+                        elevator, arm, clawIntake
+                    ).withName("Score (queued)")
+                }).withName("Queue score").ignoringDisable(true)
+        )
 
         SmartDashboard.putData(
-            driveQueue.addButDoNotStartAsCommand({
-                PathfindingFactories.pathfindToPosition(
-                    drive, Pose2d(
-                        9.43, 3.2, Rotation2d()
-                    ).let {
-                        if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-                                .get() == DriverStation.Alliance.Blue
-                        ) FlippingUtil.flipFieldPose(it) else it
-                    }, driveTranslationalControlSupplier
-                )
-            }).withName("Pathfind to April Tag 14")
+            driveQueue.addButDoNotStartAsCommand(
+                {
+                    PathfindingFactories.pathfindToPosition(
+                        drive, Pose2d(
+                            9.43, 3.2, Rotation2d()
+                        ).let {
+                            if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+                                    .get() == DriverStation.Alliance.Blue
+                            ) FlippingUtil.flipFieldPose(it) else it
+                        }, driveTranslationalControlSupplier
+                    )
+                }).withName("Pathfind to April Tag 14")
         )
 
         if (Constants.currentMode == Constants.Mode.SIM) SmartDashboard.putData(
-            Commands.runOnce({ driveQueue.start() }).withName("Execute (sim-exclusive)")
+            Commands.runOnce(
+                { driveQueue.start() }).withName("Execute (sim-exclusive)")
         )
 
     }
