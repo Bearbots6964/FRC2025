@@ -43,7 +43,7 @@ public class WinchIOTalonFX implements WinchIO {
 
     winchMotorPosition = winchMotor.getPosition();
     winchMotorVelocity = winchMotor.getVelocity();
-    winchMotorCurrent = winchMotor.getSupplyCurrent();
+    winchMotorCurrent = winchMotor.getTorqueCurrent();
     winchMotorVoltage = winchMotor.getMotorVoltage();
   }
 

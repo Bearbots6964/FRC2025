@@ -1,0 +1,63 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Copy of Copy of Copy of Barge to Reef 6 LEFT"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Fix Pivot and L4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "deposit"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "New New New New New Path"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "New New New New New New Path"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Spit Out"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

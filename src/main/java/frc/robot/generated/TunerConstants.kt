@@ -160,7 +160,7 @@ object TunerConstants {
     private const val backLeftDriveMotorId = 7
     private const val backLeftSteerMotorId = 9
     private const val backLeftEncoderId = 8
-    private val backLeftEncoderOffset: Angle = Units.Rotations.of(0.37744140625)
+    private val backLeftEncoderOffset: Angle = Units.Rotations.of(0.20361328125)
     private const val backLeftSteerMotorInverted = true
     private const val backLeftEncoderInverted = false
 

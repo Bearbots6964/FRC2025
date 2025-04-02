@@ -14,18 +14,19 @@ package frc.robot
 
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.auto.NamedCommands
+import com.pathplanner.lib.util.FlippingUtil
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
-import edu.wpi.first.units.Units
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.Commands
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.VisionConstants.robotToBackLeftCamera
 import frc.robot.Constants.VisionConstants.robotToBackRightCamera
@@ -44,6 +45,7 @@ import frc.robot.subsystems.intake.AlgaeIntakeIO
 import frc.robot.subsystems.intake.AlgaeIntakeIOSparkMax
 import frc.robot.subsystems.vision.*
 import frc.robot.util.CommandQueue
+import frc.robot.util.Elastic
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
@@ -79,7 +81,7 @@ class RobotContainer {
     private val driveController = CommandXboxController(0)
     private val operatorController = CommandXboxController(1)
 
-    private val autoQueue: CommandQueue = CommandQueue().withCallback {
+    private val driveQueue: CommandQueue = CommandQueue().withCallback {
         Commands.race(
             Commands.waitSeconds(0.5), Commands.run({
                 driveController.setRumble(
@@ -89,7 +91,7 @@ class RobotContainer {
                 Runnable { driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0) })
         )
     }
-    private val otherCommandQueue: CommandQueue = CommandQueue().withCallback {
+    private val superstructureQueue: CommandQueue = CommandQueue().withCallback {
         Commands.race(
             Commands.waitSeconds(0.5), Commands.run({
                 driveController.setRumble(
@@ -98,43 +100,33 @@ class RobotContainer {
             }).finallyDo(
                 Runnable { driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0) })
         )
-    }.withName("Other Command Queue")
+    }.withName("Superstructure Queue")
 
     // Dashboard inputs
     private lateinit var autoChooser: LoggedDashboardChooser<Command>
 
-    private var nextSuperstructureCommand: Constants.SuperstructureConstants.SuperstructureState =
-        Constants.SuperstructureConstants.SuperstructureState.HOME
-
-    private val speedAt12Volts = TunerConstants.speedAt12Volts.`in`(Units.MetersPerSecond)
-
-    val driveTranslationalControlSupplier: Supplier<Translation2d> = Supplier<Translation2d> {
-        var xControl: Double = -driveController.leftY
-        var yControl: Double = -driveController.leftX
-        val magnitude = hypot(xControl, yControl)
-        if (magnitude > 1) {
-            xControl /= magnitude
-            yControl /= magnitude
-        } else if (magnitude > 1e-6) {
-            val scalar = (MathUtil.applyDeadband(magnitude, .06) / magnitude).pow(2.0)
-            xControl *= scalar
-            yControl *= scalar
+    private val driveTranslationalControlSupplier: Supplier<Translation2d> =
+        Supplier<Translation2d> {
+            var xControl: Double = -driveController.leftY
+            var yControl: Double = -driveController.leftX
+            val magnitude = hypot(xControl, yControl)
+            if (magnitude > 1) {
+                xControl /= magnitude
+                yControl /= magnitude
+            } else if (magnitude > 1e-6) {
+                val scalar = (MathUtil.applyDeadband(magnitude, .06) / magnitude).pow(2.0)
+                xControl *= scalar
+                yControl *= scalar
+            }
+            Translation2d(xControl, yControl)
         }
-        Translation2d(xControl, yControl)
-    }
-
-    companion object {
-
-
-    }
-
 
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
-        autoQueue.setName("Auto Queue")
+        driveQueue.name = ("Auto Queue")
         SmartDashboard.putData(CommandScheduler.getInstance())
-        SmartDashboard.putData("Auto Queue", autoQueue)
-        SmartDashboard.putData("Other Command Queue", otherCommandQueue)
+        SmartDashboard.putData("Auto Queue", driveQueue)
+        SmartDashboard.putData("Other Command Queue", superstructureQueue)
         when (Constants.currentMode) {
             Constants.Mode.REAL -> {
                 // Real robot, instantiate hardware IO implementations
@@ -156,11 +148,6 @@ class RobotContainer {
                         Constants.VisionConstants.backLeftCameraName, robotToBackLeftCamera
                     )
                 )
-                arm = Arm(
-                    ArmIOTalonFX(
-                        Constants.SuperstructureConstants.ArmConstants.talonConfig
-                    )
-                )
                 clawIntake = ClawIntake(
                     ClawIntakeIOSparkMax(Constants.SuperstructureConstants.ClawIntakeConstants.sparkConfig)
                 )
@@ -172,6 +159,11 @@ class RobotContainer {
                     )
                 )
 
+                arm = Arm(
+                    ArmIOTalonFX(
+                        Constants.SuperstructureConstants.ArmConstants.talonConfig
+                    ), elevator.elevatorLigament
+                )
                 algaeIntake = AlgaeIntake(
                     AlgaeIntakeIOSparkMax(
                         Constants.AlgaeIntakeConstants.armConfig,
@@ -210,15 +202,15 @@ class RobotContainer {
                     ) { driveSimulation!!.simulatedDriveTrainPose }, VisionIOPhotonVisionSim(
                         Constants.VisionConstants.backLeftCameraName, robotToBackLeftCamera
                     ) { driveSimulation!!.simulatedDriveTrainPose })
-                arm = Arm(
-                    ArmIOTalonFXSim(
-
-                    )
-                )
                 clawIntake = ClawIntake(object : ClawIntakeIO {})
                 elevator = Elevator(object : ElevatorIO {})
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
 
+                arm = Arm(
+                    ArmIOTalonFXSim(
+
+                    ), elevator.elevatorLigament
+                )
                 algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
             }
 
@@ -233,7 +225,7 @@ class RobotContainer {
                 vision = Vision(drive, object : VisionIO {}, object : VisionIO {})
 
                 elevator = Elevator(object : ElevatorIO {})
-                arm = Arm(object : ArmIO {})
+                arm = Arm(object : ArmIO {}, elevator.elevatorLigament)
                 clawIntake = ClawIntake(object : ClawIntakeIO {})
                 algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
@@ -242,7 +234,6 @@ class RobotContainer {
         addNamedCommands()
 
         setUpAutoChooser()
-
 
         // Configure the button bindings
         configureButtonBindings()
@@ -275,7 +266,7 @@ class RobotContainer {
         )
 
         // Switch to X pattern when X button is pressed
-        driveController.x().onTrue(Commands.runOnce({ autoQueue.start() }))
+        driveController.x().onTrue(Commands.runOnce({ driveQueue.start() }))
 
         // Pathfinding commands
 
@@ -292,7 +283,7 @@ class RobotContainer {
             )
             else elevator.goToPositionDelta(10.0)).withName("Move Elevator Down")
                 .alongWith(arm.moveArmAngleDelta(-30.0).withName("Move Arm Down"))
-                .alongWith(drive.backUpBy().withName("Back Up"))
+                .alongWith(drive.backUp().withName("Back Up"))
         )
 
         // Arm control for left trigger
@@ -314,14 +305,14 @@ class RobotContainer {
             Commands.runOnce(resetGyro, drive).ignoringDisable(true)
         )
 
-        driveController.pov(90).onTrue(autoQueue.addButDoNotStartAsCommand({
+        driveController.pov(90).onTrue(driveQueue.addButDoNotStartAsCommand({
             PathfindingFactories.pathfindToCoralStationAlternate(
                 drive,
                 PathfindingFactories.CoralStationSide.RIGHT,
                 driveTranslationalControlSupplier
             )
         }))
-        driveController.pov(180).onTrue(autoQueue.addButDoNotStartAsCommand({
+        driveController.pov(180).onTrue(driveQueue.addButDoNotStartAsCommand({
             PathfindingFactories.pathfindToCoralStationAlternate(
                 drive, PathfindingFactories.CoralStationSide.LEFT, driveTranslationalControlSupplier
             )
@@ -342,20 +333,21 @@ class RobotContainer {
         //)
 
         // Operator controller bindings
-        operatorController.a().onTrue(algaeIntake.runIntake())
+        operatorController.a().whileTrue(algaeIntake.runIntake())
         operatorController.b().onTrue(algaeIntake.retractIntake())
         driveController.y().onTrue(Commands.runOnce({
-            otherCommandQueue.start()
+            superstructureQueue.start()
         }))
         operatorController.rightTrigger().whileTrue(
             elevator.velocityCommand({ -operatorController.rightY }).alongWith(
                 arm.moveArm({ -operatorController.leftY }),
             ),
         )
-        operatorController.leftTrigger().onTrue(
-            Commands.runOnce({ clawIntake.setIntakeGrabbed(true) }),
-        ).onFalse(
-            Commands.runOnce({ clawIntake.setIntakeGrabbed(false) }),
+        operatorController.leftTrigger().whileTrue(
+            climber.moveClimberToCageCatchPositionNoStop()
+        )
+        operatorController.x().onTrue(
+            climber.climb()
         )
 
         operatorController.leftBumper()
@@ -363,8 +355,6 @@ class RobotContainer {
         operatorController.rightBumper()
             .whileTrue(clawIntake.spinFlywheel(-Constants.SuperstructureConstants.ClawIntakeConstants.clawIntakePercent * 2.0))
 
-        operatorController.leftStick().whileTrue(climber.moveClimberToCageCatchPositionNoStop())
-        operatorController.rightStick().onTrue(climber.climb())
         operatorController.start().whileTrue(climber.moveClimberOpenLoop({ -0.5 }, { 0.0 }))
         operatorController.back().whileTrue(climber.moveClimberOpenLoop({ 0.5 }, { 0.0 }))
 
@@ -374,21 +364,15 @@ class RobotContainer {
         //Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
         //    SuperstructureCommands.home(elevator, arm)
         //)
-    }
 
-    private fun coralPickup(): SequentialCommandGroup = elevator.goToPosition(60.0).andThen(
-        arm.moveArmToAngle(8.0)
-    ).andThen(
-        elevator.goToPosition(30.0)
-    ).andThen(
-        elevator.goToPosition(45.0)
-    ).andThen(
-        arm.moveArmToAngle(25.0)
-    ).andThen(
-        //elevator.goToPosition(10.0).alongWith(
-        arm.moveArmToAngle(170.0)
-        //)
-    )
+        Trigger {
+            DriverStation.getEventName() != "" && DriverStation.getMatchTime() <= 20.0
+        }.onTrue(
+            Commands.runOnce({
+                Elastic.selectTab("DROPCICK (Endgame)")
+            })
+        )
+    }
 
     val autonomousCommand: Command
         /**
@@ -397,13 +381,6 @@ class RobotContainer {
          * @return the command to run in autonomous
          */
         get() = autoChooser.get()
-
-    fun resetSimulationField() {
-        if (Constants.currentMode != Constants.Mode.SIM) return
-
-        driveSimulation!!.setSimulationWorldPose(Pose2d(3.0, 3.0, Rotation2d()))
-        SimulatedArena.getInstance().resetFieldForAuto()
-    }
 
     fun displaySimFieldToAdvantageScope() {
         if (Constants.currentMode != Constants.Mode.SIM) return
@@ -477,12 +454,19 @@ class RobotContainer {
             "Elevator SysId (Dynamic Reverse)",
             elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
+        // </editor-fold>
 
     }
 
     private fun setUpDashboardCommands() {
 
 
+        SmartDashboard.putData(
+
+            driveQueue.clearAllAsCommand().withName("Clear Auto Queue").alongWith(
+                superstructureQueue.clearAllAsCommand().withName("Clear Superstructure Queue")
+            ).withName("\nCLEAR ALL QUEUES\n")
+        )
         SmartDashboard.putData(
             elevator.homeElevator().deadlineFor(arm.moveArmToAngleWithoutEnding(90.0))
                 .withName("Home Elevator")
@@ -498,7 +482,7 @@ class RobotContainer {
         // add individual reef goto commands to queue
         //for (reef in PathfindingFactories.Reef.entries) {
         //    SmartDashboard.putData(
-        //        autoQueue.addAsCommand({
+        //        driveQueue.addAsCommand({
         //            PathfindingFactories.pathfindToSpecificReef(drive, reef)
         //                .withName("Reef " + reef.name + " (Queued)")
         //        }).withName("Queue Reef " + reef.name)
@@ -506,7 +490,7 @@ class RobotContainer {
         //}
         for (reef in PathfindingFactories.Reef.entries) {
             SmartDashboard.putData(
-                autoQueue.addButDoNotStartAsCommand({
+                driveQueue.addButDoNotStartAsCommand({
                     PathfindingFactories.pathfindToReefAlternate(
                         drive, reef, driveTranslationalControlSupplier
                     ).withName("Reef " + reef.name + " (Queued, alternate)")
@@ -516,7 +500,7 @@ class RobotContainer {
 
         //for (reef in PathfindingFactories.Reef.entries) {
         //    SmartDashboard.putData(
-        //        autoQueue.addAsCommand({
+        //        driveQueue.addAsCommand({
         //            PathfindingFactories.finalLineupToSpecificReef(drive, reef)
         //                .withName("Final Lineup to Reef " + reef.name + " (Queued)")
         //        }).withName("Queue Final Lineup to Reef " + reef.name)
@@ -524,36 +508,37 @@ class RobotContainer {
         //}
         for (coralStation in PathfindingFactories.CoralStationSide.entries) {
 //            SmartDashboard.putData(
-//                autoQueue.addAsCommand({
+//                driveQueue.addAsCommand({
 //                    PathfindingFactories.pathfindToSpecificCoralStation(
 //                        drive, coralStation
 //                    ).withName("Drive to " + coralStation.name + " Coral Station (Queued)")
 //                }).withName("Queue Drive to " + coralStation.name + " Coral Station")
 //            )
             SmartDashboard.putData(
-                autoQueue.addButDoNotStartAsCommand({
+                driveQueue.addButDoNotStartAsCommand({
                     PathfindingFactories.pathfindToCoralStationAlternate(
                         drive, coralStation, driveTranslationalControlSupplier
                     ).withName("Drive to $coralStation Coral Station (Queued, alternate)")
                 }).ignoringDisable(true).andThen(
-                        otherCommandQueue.addButDoNotStartAsCommand({
-                            SuperstructureCommands.algaeIntake(elevator, arm, climber)
-                                .withName("Superstructure Algae Intake (queued, auto-added)")
-                        }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
-                    ).andThen(
+                    superstructureQueue.addButDoNotStartAsCommand({
+                        SuperstructureCommands.algaeIntake(elevator, arm, climber)
+                            .withName("Superstructure Algae Intake (queued, auto-added)")
+                    }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
+                ).andThen(
 
-                        otherCommandQueue.addButDoNotStartAsCommand({
-                            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber)
-                                .withName("Superstructure Coral Pickup (queued, auto-added)")
-                        }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
-                    ).withName("Queue Drive to $coralStation Coral Station (alternate)")
+                    superstructureQueue.addButDoNotStartAsCommand({
+                        SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber)
+                            .withName("Superstructure Coral Pickup (queued, auto-added)")
+                    }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
+                ).withName("\n\n$coralStation Coral Station\n\n")
             )
         }
 
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
             val commands: Command = when (position) {
-                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> otherCommandQueue.addButDoNotStartAsCommand({
+                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand(
+                    {
                         SuperstructureCommands.goToPosition(
                             elevator, arm, climber, position
                         ).withName("Superstructure to " + position.name + " Position (Queued)")
@@ -564,7 +549,8 @@ class RobotContainer {
                         ).withName("Score in $position (queued, auto-added)")
                     })
 
-                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> otherCommandQueue.addButDoNotStartAsCommand({
+                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand(
+                    {
                         SuperstructureCommands.goToPosition(elevator, arm, climber, position)
                             .withName("Superstructure to $position Position (Queued)")
                     },
@@ -581,7 +567,7 @@ class RobotContainer {
                         ).withName("Superstructure to Barge Launch Position (Queued, auto-added)")
                     })
 
-                else -> otherCommandQueue.addButDoNotStartAsCommand({
+                else -> superstructureQueue.addButDoNotStartAsCommand({
                     SuperstructureCommands.goToPosition(
                         elevator, arm, climber, position
                     ).withName("Superstructure to " + position.name + " Position (Queued)")
@@ -591,19 +577,33 @@ class RobotContainer {
                 commands.withName("Queue Superstructure $position Position").ignoringDisable(true)
             )
         }
-        SmartDashboard.putData(otherCommandQueue.addButDoNotStartAsCommand({
+        SmartDashboard.putData(superstructureQueue.addButDoNotStartAsCommand({
             SuperstructureCommands.pickUpCoral(
                 elevator, arm, clawIntake, climber
             ).withName("Pick up coral (queued)")
         }).withName("Queue pick up coral").ignoringDisable(true))
-        SmartDashboard.putData(otherCommandQueue.addButDoNotStartAsCommand({
+        SmartDashboard.putData(superstructureQueue.addButDoNotStartAsCommand({
             SuperstructureCommands.score(
                 elevator, arm, clawIntake
             ).withName("Score (queued)")
         }).withName("Queue score").ignoringDisable(true))
 
+        SmartDashboard.putData(
+            driveQueue.addButDoNotStartAsCommand({
+                PathfindingFactories.pathfindToPosition(
+                    drive, Pose2d(
+                        9.43, 3.2, Rotation2d()
+                    ).let {
+                        if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+                                .get() == DriverStation.Alliance.Blue
+                        ) FlippingUtil.flipFieldPose(it) else it
+                    }, driveTranslationalControlSupplier
+                )
+            }).withName("Pathfind to April Tag 14")
+        )
+
         if (Constants.currentMode == Constants.Mode.SIM) SmartDashboard.putData(
-            Commands.runOnce({ autoQueue.start() }).withName("Execute (sim-exclusive)")
+            Commands.runOnce({ driveQueue.start() }).withName("Execute (sim-exclusive)")
         )
 
     }
@@ -640,10 +640,41 @@ class RobotContainer {
                 )
             )
         )
+        NamedCommands.registerCommand(
+            "Low Algae",
+            SuperstructureCommands.goToPosition(
+                elevator, arm, climber,
+                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
+            )
+                .alongWith(
+                    clawIntake.intakeWithoutStoppingForAlgae()
+                        .withName("Run Intake (auto-added)")
+                )
+        )
+        NamedCommands.registerCommand(
+            "Spit Out",
+            clawIntake.outtakeFaster()
+        )
+        NamedCommands.registerCommand(
+            "Barge Algae",
+            SuperstructureCommands.goToPosition(
+                elevator,
+                arm,
+                climber,
+                Constants.SuperstructureConstants.SuperstructureState.BARGE_LAUNCH
+            )
+        )
     }
 
     fun stopQueue() {
-        autoQueue.clearAll()
-        otherCommandQueue.clearAll()
+        driveQueue.clearAll()
+        superstructureQueue.clearAll()
+    }
+
+    fun periodic() {
+        Logger.recordOutput("RobotContainer/Drivebase Queue", driveQueue.struct, driveQueue)
+        Logger.recordOutput(
+            "RobotContainer/Superstructure Queue", superstructureQueue.struct, superstructureQueue
+        )
     }
 }

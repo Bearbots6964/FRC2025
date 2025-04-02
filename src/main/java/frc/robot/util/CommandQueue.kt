@@ -1,9 +1,15 @@
 package frc.robot.util
 
+import edu.wpi.first.util.protobuf.ProtobufSerializable
 import edu.wpi.first.util.sendable.Sendable
 import edu.wpi.first.util.sendable.SendableBuilder
+import edu.wpi.first.util.struct.Struct
+import edu.wpi.first.util.struct.StructSerializable
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
+import us.hebi.quickbuf.ProtoMessage
+import java.io.Serializable
+import java.nio.ByteBuffer
 
 /**
  * A utility class for managing and executing a queue of commands sequentially.
@@ -13,12 +19,13 @@ import edu.wpi.first.wpilibj2.command.Commands
  * Yes, I checked with the maintainers.
  */
 class CommandQueue : Sendable {
+
     /**
      * The internal queue holding the commands to be executed. Each element in the
      * list is a lambda expression that returns a [Command]. This allows for lazy
      * instantiation of commands.
      */
-    private val queue = mutableListOf<() -> Command>()
+    val queue = mutableListOf<() -> Command>()
 
     /**
      * The command that is currently being executed by the queue.
@@ -30,20 +37,23 @@ class CommandQueue : Sendable {
      * Defaults to "STOPPED". This message is often used to indicate a specific state,
      * such as when the queue is paused.
      */
-    private var state: CommandQueueState = CommandQueueState.IDLE
+    var state: CommandQueueState = CommandQueueState.IDLE
 
     /**
      * The name of this command queue, used for identification in logging and the
      * SmartDashboard.
      * Defaults to "CommandQueue (name me!)".
      */
-    private var name: String = "CommandQueue"
+    var name: String = "CommandQueue"
+
+    final val struct = CommandQueueStruct()
 
     private var callbackCommand: () -> Command = Commands::none
     fun withCallback(command: () -> Command): CommandQueue {
         callbackCommand = command
         return this
     }
+
     /**
      * Adds one or more commands to the queue. If the queue was previously empty,
      * the first command added will be started immediately.
@@ -90,8 +100,9 @@ class CommandQueue : Sendable {
     fun addButDoNotStart(vararg command: () -> Command) {
         queue.addAll(command)
     }
+
     fun addButDoNotStartAsCommand(vararg command: () -> Command): Command {
-        return Commands.runOnce({queue.addAll(command)}).alongWith(callbackCommand.invoke())
+        return Commands.runOnce({ queue.addAll(command) }).alongWith(callbackCommand.invoke())
     }
 
     /**
@@ -130,6 +141,14 @@ class CommandQueue : Sendable {
         state = CommandQueueState.IDLE
     }
 
+    fun clearAllAsCommand(): Command = Commands.runOnce({
+        queue.clear()
+        if (currentCommand.isScheduled) {
+            currentCommand.cancel()
+        }
+        state = CommandQueueState.IDLE
+    })
+
     /**
      * Cancels the command that is currently being executed by the queue. If no
      * command is running, this method has no effect.
@@ -138,7 +157,8 @@ class CommandQueue : Sendable {
     fun cancelCurrent() {
         if (currentCommand.isScheduled) {
             currentCommand.cancel()
-            state = CommandQueueState.RUNNING // to offset INTERRUPTED set by the finallyDo() decorator
+            state =
+                CommandQueueState.RUNNING // to offset INTERRUPTED set by the finallyDo() decorator
         }
     }
 
@@ -148,9 +168,6 @@ class CommandQueue : Sendable {
      *
      * @param message The string to set as the special message.
      */
-    fun setState(state: CommandQueueState) {
-        this.state = state
-    }
 
     /**
      * Sets the name of the command queue. This name is used for identification,
@@ -158,9 +175,6 @@ class CommandQueue : Sendable {
      *
      * @param name The name to set for the command queue.
      */
-    fun setName(name: String) {
-        this.name = name
-    }
 
     /**
      * Returns the name of the command queue. This overrides the default [toString]
@@ -182,7 +196,8 @@ class CommandQueue : Sendable {
         if (queue.isNotEmpty()) {
             state = CommandQueueState.RUNNING
             currentCommand = queue.removeAt(0).invoke()
-            currentCommand.finallyDo(this::commandFinishedCallback).handleInterrupt { state = CommandQueueState.INTERRUPTED }.schedule()
+            currentCommand.finallyDo(this::commandFinishedCallback)
+                .handleInterrupt { state = CommandQueueState.INTERRUPTED }.schedule()
         } else state = CommandQueueState.IDLE
     }
 
@@ -301,72 +316,80 @@ class CommandQueue : Sendable {
         }
     }
 
-/**
- * Represents the different states that a CommandQueue can be in.
- * This enum is used to track and communicate the current operational status
- * of a CommandQueue instance.
- */
-enum class CommandQueueState {
     /**
-     * Indicates that the queue is empty and not executing any commands.
+     * Represents the different states that a CommandQueue can be in.
+     * This enum is used to track and communicate the current operational status
+     * of a CommandQueue instance.
      */
-    IDLE {
+    enum class CommandQueueState {
         /**
-         * Returns a string representation of the `IDLE` state.
-         * @return "Idle..."
+         * Indicates that the queue is empty and not executing any commands.
          */
-        override fun toString(): String {
-            return "Idle..."
-        }
-    },
-    /**
-     * Indicates that the queue is actively executing commands.
-     */
-    RUNNING {
+        IDLE {
+            /**
+             * Returns a string representation of the `IDLE` state.
+             * @return "Idle..."
+             */
+            override fun toString(): String {
+                return "Idle..."
+            }
+        },
+
         /**
-         * Returns a string representation of the `RUNNING` state.
-         * @return "Running..."
+         * Indicates that the queue is actively executing commands.
          */
-        override fun toString(): String {
-            return "Running..."
-        }
-    },
-    /**
-     * Indicates that the queue's execution has been temporarily suspended.
-     */
-    PAUSED {
+        RUNNING {
+            /**
+             * Returns a string representation of the `RUNNING` state.
+             * @return "Running..."
+             */
+            override fun toString(): String {
+                return "Running..."
+            }
+        },
+
         /**
-         * Returns a string representation of the `PAUSED` state.
-         * @return "Paused!"
+         * Indicates that the queue's execution has been temporarily suspended.
          */
-        override fun toString(): String {
-            return "Paused!"
-        }
-    },
-    /**
-     * Indicates that the queue is in a callback state, typically used for synchronization
-     * between different command queues.
-     */
-    CALLBACK {
+        PAUSED {
+            /**
+             * Returns a string representation of the `PAUSED` state.
+             * @return "Paused!"
+             */
+            override fun toString(): String {
+                return "Paused!"
+            }
+        },
+
         /**
-         * Returns a string representation of the `CALLBACK` state.
-         * @return "Callback!"
+         * Indicates that the queue is in a callback state, typically used for synchronization
+         * between different command queues.
          */
-        override fun toString(): String {
-            return "Callback!"
-        }
-    },
-    /**
-     * Indicates that the queue's execution was interrupted, typically due to
-     * a command being cancelled.
-     */
-    INTERRUPTED {
+        CALLBACK {
+            /**
+             * Returns a string representation of the `CALLBACK` state.
+             * @return "Callback!"
+             */
+            override fun toString(): String {
+                return "Callback!"
+            }
+        },
+
         /**
-         * Returns a string representation of the `INTERRUPTED` state.
-         * @return "Interrupted!"
+         * Indicates that the queue's execution was interrupted, typically due to
+         * a command being cancelled.
          */
-        override fun toString(): String {
-            return "Interrupted!"
+        INTERRUPTED {
+            /**
+             * Returns a string representation of the `INTERRUPTED` state.
+             * @return "Interrupted!"
+             */
+            override fun toString(): String {
+                return "Interrupted!"
+            }
         }
     }
-}}
+    fun dumpFromStruct(names: Array<String>) {
+        queue.addAll(names.map { name -> { Commands.runOnce({ println("$name run from struct") }) }})
+    }
+}

@@ -16,11 +16,11 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement
 import com.pathplanner.lib.commands.PathfindingCommand
-import edu.wpi.first.hal.FRCNetComm
+import edu.wpi.first.hal.FRCNetComm.tInstances.*
+import edu.wpi.first.hal.FRCNetComm.tResourceType.*
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.net.WebServer
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Filesystem
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -33,10 +33,7 @@ import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.NT4Publisher
 import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
-import kotlin.math.roundToInt
 
-import edu.wpi.first.hal.FRCNetComm.tInstances.*
-import edu.wpi.first.hal.FRCNetComm.tResourceType.*
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -76,7 +73,7 @@ class Robot : LoggedRobot() {
                 setUseTiming(false) // Run as fast as possible
                 val logPath = LogFileUtil.findReplayLog()
                 Logger.setReplaySource(WPILOGReader(logPath))
-                Logger.addDataReceiver(WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")))
+                Logger.addDataReceiver(WPILOGWriter(addPathSuffix(logPath, "_sim")))
             }
         }
         //Logger.registerURCL(URCL.startExternal())
@@ -164,6 +161,7 @@ class Robot : LoggedRobot() {
         //Threads.setCurrentThreadPriority(true, 99)
         CommandScheduler.getInstance().run()
         //Threads.setCurrentThreadPriority(false, 10)
+        robotContainer.periodic()
     }
 
     /** This function is called once when the robot is disabled.  */
@@ -221,5 +219,29 @@ class Robot : LoggedRobot() {
         robotContainer.displaySimFieldToAdvantageScope()
     }
 
-
+    /**
+     * Adds a suffix to the given path (e.g. "test.wpilog" -> "test_sim.wpilog").
+     *
+     *
+     *
+     * If the input path already contains the suffix, an index will be added
+     * instead.
+     */
+    fun addPathSuffix(path: String, suffix: String): String {
+        val dotIndex = path.lastIndexOf(".")
+        if (dotIndex == -1) {
+            return path
+        }
+        val basename = path.substring(0, dotIndex)
+        val extension = path.substring(dotIndex)
+        if (basename.endsWith(suffix)) {
+            return basename + "_2" + extension
+        } else if (basename.matches((".+" + suffix + "_[0-9]+$").toRegex())) {
+            val splitIndex = basename.lastIndexOf("_")
+            val index = basename.substring(splitIndex + 1).toInt()
+            return (basename.substring(0, splitIndex) + "_" + (index + 1).toString() + extension)
+        } else {
+            return basename + suffix + extension
+        }
+    }
 }

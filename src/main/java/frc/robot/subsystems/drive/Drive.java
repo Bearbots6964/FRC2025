@@ -480,7 +480,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    *
    * @return a Command that will back the robot up
    */
-  public Command backUpBy() {
+  public Command backUp() {
     return run(() -> runVelocity(new ChassisSpeeds(-0.25, 0, 0)))
         .raceWith(Commands.waitSeconds(1.5))
         .withName("Back Up");
@@ -581,7 +581,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                   var sample =
                       repulsorFieldPlanner.sampleField(
                           poseEstimator.getEstimatedPosition().getTranslation(),
-                          maxLinearSpeedMetersPerSec * .50,
+                          maxLinearSpeedMetersPerSec * .65,
                           1.75);
 
                   // calculate feedforward and feedback

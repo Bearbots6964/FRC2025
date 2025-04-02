@@ -1,9 +1,13 @@
 package frc.robot.subsystems.climber;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
@@ -11,7 +15,12 @@ import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class Climber extends SubsystemBase {
 
@@ -25,10 +34,23 @@ public class Climber extends SubsystemBase {
           "Bicep pivot is hitting current limit! You're stuck on something, is the winch engaged?",
           AlertType.kWarning);
   private boolean climbing = false;
+  private final LoggedMechanismLigament2d supportMechanism;
+  private final LoggedMechanismLigament2d pivot;
+  @AutoLogOutput
+  private final LoggedMechanism2d mechanism;
 
   public Climber(WinchIO winchIO, ClimberPivotIO pivotIO) {
     this.winchIO = winchIO;
     this.pivotIO = pivotIO;
+    mechanism =
+        new LoggedMechanism2d(Units.inchesToMeters(29.5), Units.inchesToMeters(29.5));
+    LoggedMechanismRoot2d mechanismRoot2d =
+        mechanism.getRoot(
+            "Climber Base", Units.inchesToMeters(2.0), Units.inchesToMeters(1.75));
+    supportMechanism = mechanismRoot2d.append(new LoggedMechanismLigament2d("Climber Support", Units.inchesToMeters(12.5), 90.0, 6.0, new Color8Bit(
+        Color.kGray)));
+    pivot = supportMechanism.append(new LoggedMechanismLigament2d("Climber Pivot", Units.inchesToMeters(14), -50.0, 6.0, new Color8Bit(Color.kBlack)));
+    pivot.append(new LoggedMechanismLigament2d("Intake Finger", Units.inchesToMeters(15.0), -21.6, 2.0, new Color8Bit(Color.kSilver)));
   }
 
   public void periodic() {
@@ -38,6 +60,7 @@ public class Climber extends SubsystemBase {
     Logger.processInputs("Climber Pivot", pivotInputs);
 
     overcurrentAlert.set(pivotInputs.pivotAppliedCurrentAmps > 35.0);
+    pivot.setAngle(-pivotInputs.pivotPositionDegrees);
 
     if (DriverStation.isDisabled()) {
       winchIO.stopWinch();
@@ -52,7 +75,6 @@ public class Climber extends SubsystemBase {
         })
         .withName("Move Climber");
   }
-
   public Command moveClimberVelocity(DoubleSupplier winchOutput, DoubleSupplier pivotOutput) {
     return run(() -> {
           winchIO.setWinchVelocity(winchOutput.getAsDouble());
@@ -104,7 +126,7 @@ public class Climber extends SubsystemBase {
               climbing = true;
             })
         .andThen(
-            run(() -> winchIO.setWinchOpenLoop(0.75))
+            run(() -> winchIO.setWinchOpenLoop(1.0))
                 .until(
                     () -> pivotIO.getPivotPosition() > ClimberConstants.getPivotClimbedPosition()))
         .andThen(

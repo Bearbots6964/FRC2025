@@ -19,6 +19,7 @@ import frc.robot.commands.PathfindingFactories.Reef.*
 import frc.robot.subsystems.drive.Drive
 import frc.robot.subsystems.vision.Vision
 import java.util.function.Supplier
+import kotlin.jvm.optionals.getOrElse
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.sin
@@ -94,6 +95,8 @@ object PathfindingFactories {
         val targetPose = getSpecificReefSidePose(reef)
         return Commands.runOnce({Vision.setBackCamerasEnabled(false)}).andThen(drive.followRepulsorField(targetPose, nudge)).andThen(Commands.runOnce({Vision.setBackCamerasEnabled(true)}))
     }
+
+    fun pathfindToPosition(drive: Drive, targetPose: Pose2d, nudge: Supplier<Translation2d>): Command = drive.followRepulsorField(targetPose, nudge)
 
     fun finalLineupToNearestReef(drive: Drive, side: ReefSides): Command {
         val currentPose = drive.pose
@@ -218,7 +221,7 @@ object PathfindingFactories {
     }
 
     private fun getSpecificCoralStationPose(side: CoralStationSide): Pose2d {
-        val alliance = DriverStation.getAlliance().get()
+        val alliance = DriverStation.getAlliance().getOrElse { Alliance.Red }
         val tagPose = if (alliance == Alliance.Red) {
             if (side == CoralStationSide.LEFT) AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[1]
             else AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]

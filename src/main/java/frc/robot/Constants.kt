@@ -430,7 +430,7 @@ object Constants {
         )
 
         // Basic filtering thresholds
-        var maxAmbiguity: Double = 0.2
+        var maxAmbiguity: Double = 0.05
         var maxZError: Double = 0.25
 
         // Standard deviation baselines, for 1 meter distance and 1 tag
@@ -443,9 +443,9 @@ object Constants {
         @JvmStatic
         var cameraStdDevFactors: DoubleArray = doubleArrayOf(
             1.0, // Front right camera
-            1.0, // Back right camera
+            3.0, // Back right camera
             1.0, // Front left camera
-            1.0  // Back left camera
+            3.0  // Back left camera
         )
 
         // Multipliers to apply for MegaTag 2 observations
@@ -555,8 +555,8 @@ object Constants {
             it.MotorOutput.NeutralMode = NeutralModeValue.Brake
             it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
-            it.CurrentLimits.SupplyCurrentLimit = 20.0
-            it.CurrentLimits.StatorCurrentLimit = 20.0
+            it.CurrentLimits.SupplyCurrentLimit = 70.0
+            it.CurrentLimits.StatorCurrentLimit = 120.0
 
             it.MotionMagic.MotionMagicCruiseVelocity = 10.0
             it.MotionMagic.MotionMagicAcceleration = 20.0

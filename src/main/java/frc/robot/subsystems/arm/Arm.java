@@ -15,16 +15,17 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 public class Arm extends SubsystemBase {
 
   private final ArmIO io;
   private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
   private final SysIdRoutine sysId;
-  @Getter private final MechanismLigament2d firstSegment;
-  private final MechanismLigament2d secondSegment;
+  public final LoggedMechanismLigament2d firstSegment;
+  private final LoggedMechanismLigament2d secondSegment;
 
-  public Arm(ArmIO io) {
+  public Arm(ArmIO io, LoggedMechanismLigament2d mechanism) {
     this.io = io;
 
     sysId =
@@ -37,26 +38,27 @@ public class Arm extends SubsystemBase {
             new SysIdRoutine.Mechanism(
                 (voltage -> runCharacterization(voltage.in(Units.Volts))), null, this));
     firstSegment =
-        new MechanismLigament2d(
+        mechanism.append(new LoggedMechanismLigament2d(
             "Arm First Segment",
             inchesToMeters(13.48),
             23.5,
-            inchesToMeters(2.0),
-            new Color8Bit(Color.kGray));
+            6.0,
+            new Color8Bit(Color.kOrange)
+            ));
     secondSegment =
-        new MechanismLigament2d(
+        firstSegment.append(new LoggedMechanismLigament2d(
             "Arm Second Segment",
             inchesToMeters(8.6),
-            -61.75,
-            inchesToMeters(2.0),
-            new Color8Bit(Color.kGray));
-    firstSegment.append(secondSegment);
+            -60.0,
+            6.0,
+            new Color8Bit(Color.kDenim)
+            ));
   }
 
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Arm", inputs);
-    firstSegment.setAngle(inputs.armAxisAngle + 23.5);
+    firstSegment.setAngle(inputs.armAxisAngle + 270 + 23.5);
 
     if (DriverStation.isDisabled()) {
       io.stopArm();
