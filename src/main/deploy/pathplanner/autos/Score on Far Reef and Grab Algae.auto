@@ -28,12 +28,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "deposit"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "New New New New New Path"

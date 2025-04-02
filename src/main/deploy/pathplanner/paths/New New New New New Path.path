@@ -33,6 +33,17 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "deposit",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.07128256651884696,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deposit"
+        }
+      }
+    },
+    {
       "name": "Low Algae",
       "waypointRelativePos": 0.07883522727272717,
       "endWaypointRelativePos": null,
