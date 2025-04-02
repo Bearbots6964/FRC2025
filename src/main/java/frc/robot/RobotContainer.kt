@@ -19,6 +19,7 @@ import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
@@ -620,14 +621,14 @@ class RobotContainer {
                 {
                     PathfindingFactories.pathfindToPosition(
                         drive, Pose2d(
-                            9.43, 3.2, Rotation2d()
+                            9.91, 1.49, Rotation2d(Units.Degrees.of(25.02))
                         ).let {
                             if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                                     .get() == DriverStation.Alliance.Blue
                             ) FlippingUtil.flipFieldPose(it) else it
                         }, driveTranslationalControlSupplier
                     )
-                }).withName("Pathfind to April Tag 14")
+                }).withName("Pathfind to Home Cage")
         )
 
         if (Constants.currentMode == Constants.Mode.SIM) SmartDashboard.putData(
