@@ -164,7 +164,7 @@ object Constants {
              */
             @JvmStatic
             val talonConfig: TalonFXSConfiguration = TalonFXSConfiguration().let {
-                it.CurrentLimits.StatorCurrentLimit = 40.0
+                it.CurrentLimits.StatorCurrentLimit = 120.0
                 it.CurrentLimits.StatorCurrentLimitEnable = true
 
                 it.ExternalFeedback.ExternalFeedbackSensorSource =
