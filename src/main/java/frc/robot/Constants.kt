@@ -408,7 +408,7 @@ object Constants {
             Units.Inches.of((29.5 / 2) - 1.3125),
             Units.Inches.of(-((29.5 / 2) - 3.75)),
             Units.Inches.of(8.125),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(35.0)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(29.7519624246517)),
         )
         var robotToBackRightCamera: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
@@ -420,7 +420,7 @@ object Constants {
             Units.Inches.of((29.5 / 2) - 1.125),
             Units.Inches.of((29.5 / 2) - 3.375),
             Units.Inches.of(8.25),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-35.0)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-29.0002328338357)),
         )
         var robotToBackLeftCamera: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
