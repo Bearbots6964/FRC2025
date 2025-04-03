@@ -411,7 +411,7 @@ object Constants {
             Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(29.2519624246517)),
         )
         var robotToBackRightCamera: Transform3d = Transform3d(
-            Units.Inches.of(-((29.5 / 2) - 1.8125)),
+            Units.Inches.of(-12.5),
             Units.Inches.of(-((29.5 / 2) - 1.5)),
             Units.Inches.of(8.0),
             Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(220.0)),
