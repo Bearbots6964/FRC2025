@@ -50,13 +50,23 @@
       "name": "deposit",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": 0.17300963137472303,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deposit"
+        }
+      }
     },
     {
       "name": "Pre-Coral Pickup",
-      "waypointRelativePos": 0.1758592017738359,
+      "waypointRelativePos": 0.22081139135254987,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Pre-Coral Pickup"
+        }
+      }
     }
   ],
   "globalConstraints": {
