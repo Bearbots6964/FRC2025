@@ -43,6 +43,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter
 class Robot : LoggedRobot() {
     private var autonomousCommand: Command? = null
     private val robotContainer: RobotContainer
+    private var firstDisable = false
 
     init {
         // Record metadata
@@ -170,6 +171,9 @@ class Robot : LoggedRobot() {
     override fun disabledInit() {
         robotContainer.stopQueue()
         Companion.inTeleop = false
+        if (firstDisable) {
+            robotContainer.setUpDashboardCommands()
+        }
     }
 
     /** This function is called periodically when disabled.  */
@@ -179,6 +183,7 @@ class Robot : LoggedRobot() {
     override fun autonomousInit() {
         Companion.inTeleop = false
         autonomousCommand = robotContainer.autonomousCommand
+        firstDisable = true
 
         // schedule the autonomous command (example)
         if (autonomousCommand != null) {

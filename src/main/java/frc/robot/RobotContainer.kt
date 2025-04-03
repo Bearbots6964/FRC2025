@@ -22,7 +22,6 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.GenericHID
-import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -126,9 +125,6 @@ class RobotContainer {
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
         driveQueue.name = ("Auto Queue")
-        SmartDashboard.putData(CommandScheduler.getInstance())
-        SmartDashboard.putData("Auto Queue", driveQueue)
-        SmartDashboard.putData("Other Command Queue", superstructureQueue)
         when (Constants.currentMode) {
             Constants.Mode.REAL -> {
                 // Real robot, instantiate hardware IO implementations
@@ -240,7 +236,6 @@ class RobotContainer {
         // Configure the button bindings
         configureButtonBindings()
 
-        setUpDashboardCommands()
         if (climber.position > 40.0) elevator.goToPosition(40.0)
             .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
             .andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber))
@@ -463,7 +458,7 @@ class RobotContainer {
 
     }
 
-    private fun setUpDashboardCommands() {
+    fun setUpDashboardCommands() {
 
 
         SmartDashboard.putData(
@@ -498,17 +493,28 @@ class RobotContainer {
                 PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.CD_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.GH_ALGAE, PathfindingFactories.Reef.IJ_ALGAE, PathfindingFactories.Reef.KL_ALGAE -> {
                     SmartDashboard.putData(
                         driveQueue.addButDoNotStartAsCommand({
-                        PathfindingFactories.pathfindToReefAlternate(
-                            drive, reef, driveTranslationalControlSupplier
-                        )
-                    }).andThen(superstructureQueue.addButDoNotStartAsCommand({
-                        SuperstructureCommands.goToPosition(
-                            elevator, arm, climber, when (reef) {
-                                PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
-                                else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
-                            }
-                        )
-                    })).withName("\nQueue Reef " + reef.name + "\n").ignoringDisable(true)
+                            PathfindingFactories.pathfindToReefAlternate(
+                                drive, reef, driveTranslationalControlSupplier
+                            )
+                        }).andThen(
+                            superstructureQueue.addButDoNotStartAsCommand({
+                                SuperstructureCommands.goToPosition(
+                                    elevator, arm, climber, when (reef) {
+                                        PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
+                                        else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
+                                    }
+                                )
+                            }, {
+                                clawIntake.intakeWithoutStoppingForAlgae()
+                            }, {
+                                SuperstructureCommands.goToPosition(
+                                    elevator,
+                                    arm,
+                                    climber,
+                                    Constants.SuperstructureConstants.SuperstructureState.BARGE_LAUNCH
+                                )
+                            })
+                        ).withName("\nQueue Reef " + reef.name + "\n").ignoringDisable(true)
                     )
                 }
 
@@ -562,7 +568,8 @@ class RobotContainer {
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
             val commands: Command = when (position) {
-                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand({
+                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand(
+                    {
                         SuperstructureCommands.goToPosition(
                             elevator, arm, climber, position
                         ).withName("Superstructure to " + position.name + " Position (Queued)")
@@ -573,7 +580,8 @@ class RobotContainer {
                         ).withName("Score in $position (queued, auto-added)")
                     })
 
-                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand({
+                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand(
+                    {
                         SuperstructureCommands.goToPosition(elevator, arm, climber, position)
                             .withName("Superstructure to $position Position (Queued)")
                     },
@@ -651,6 +659,9 @@ class RobotContainer {
                 { driveQueue.start() }).withName("Execute (sim-exclusive)")
         )
 
+        SmartDashboard.putData(CommandScheduler.getInstance())
+        SmartDashboard.putData("Auto Queue", driveQueue)
+        SmartDashboard.putData("Other Command Queue", superstructureQueue)
     }
 
 
@@ -692,8 +703,8 @@ class RobotContainer {
                 climber,
                 Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
             ).alongWith(
-                    clawIntake.intakeWithoutStoppingForAlgae().withName("Run Intake (auto-added)")
-                )
+                clawIntake.intakeWithoutStoppingForAlgae().withName("Run Intake (auto-added)")
+            )
         )
         NamedCommands.registerCommand(
             "Spit Out", clawIntake.outtakeFaster()

@@ -49,12 +49,12 @@
     {
       "name": "deposit",
       "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
+      "endWaypointRelativePos": 0.17300963137472303,
       "command": null
     },
     {
       "name": "Pre-Coral Pickup",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.1758592017738359,
       "endWaypointRelativePos": null,
       "command": null
     }
