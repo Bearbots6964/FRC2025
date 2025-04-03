@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.03,
-        "y": 5.27
+        "x": 4.969505462171187,
+        "y": 5.228737329210319
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.622123412163027,
-        "y": 6.548511172760428
+        "x": 5.561628874334214,
+        "y": 6.507248501970747
       },
       "isLocked": false,
       "linkedName": "Reef 6 LEFT"
@@ -71,7 +71,7 @@
   ],
   "globalConstraints": {
     "maxVelocity": 5.0,
-    "maxAcceleration": 5.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 240.0,
     "nominalVoltage": 12.0,

@@ -663,7 +663,7 @@ class RobotContainer {
             )
         )
         NamedCommands.registerCommand(
-            "Pre-Coral Pickup", arm.moveArmToAngle(90.0).alongWith(elevator.goToPosition(37.0))
+            "Pre-Coral Pickup", arm.moveArmToAngle(130.0).alongWith(elevator.goToPosition(37.0))
         )
         NamedCommands.registerCommand(
             "Fix Pivot",

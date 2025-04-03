@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.997900858792391,
-        "y": 2.8174748408329946
+        "x": 5.007864357601165,
+        "y": 2.8402931387277466
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.800602276294262,
-        "y": 1.4671705989094517
+        "x": 5.8105657751030355,
+        "y": 1.4899888968042037
       },
       "isLocked": false,
       "linkedName": "Reef 8 LEFT"
     },
     {
       "anchor": {
-        "x": 1.17703125,
-        "y": 1.057812499999999
+        "x": 1.09740234375,
+        "y": 1.0419482421874988
       },
       "prevControl": {
-        "x": 1.3391283547751847,
-        "y": 1.2893111570833464
+        "x": 1.2594994485251847,
+        "y": 1.2734468992708463
       },
       "nextControl": null,
       "isLocked": false,
@@ -70,7 +70,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 240.0,

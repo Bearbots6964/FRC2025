@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.17703125,
-        "y": 1.057812499999999
+        "x": 1.09740234375,
+        "y": 1.0419482421874988
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6589786586246094,
-        "y": 1.746104730981762
+        "x": 1.5793497523746094,
+        "y": 1.730240473169262
       },
       "isLocked": false,
       "linkedName": "Lower Coral Station"
@@ -40,7 +40,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 240.0,
