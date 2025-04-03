@@ -149,6 +149,8 @@ class Robot : LoggedRobot() {
                 )
             )
         }
+
+        var inTeleop = false
     }
 
     /** This function is called periodically during all modes.  */
@@ -167,6 +169,7 @@ class Robot : LoggedRobot() {
     /** This function is called once when the robot is disabled.  */
     override fun disabledInit() {
         robotContainer.stopQueue()
+        Companion.inTeleop = false
     }
 
     /** This function is called periodically when disabled.  */
@@ -174,6 +177,7 @@ class Robot : LoggedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class.  */
     override fun autonomousInit() {
+        Companion.inTeleop = false
         autonomousCommand = robotContainer.autonomousCommand
 
         // schedule the autonomous command (example)
@@ -195,6 +199,7 @@ class Robot : LoggedRobot() {
             autonomousCommand!!.cancel()
         }
         robotContainer.fixArm()
+        Companion.inTeleop = true
     }
 
     /** This function is called periodically during operator control.  */

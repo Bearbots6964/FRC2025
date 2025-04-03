@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.GenericHID
+import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -370,7 +371,7 @@ class RobotContainer {
         //)
 
         Trigger {
-            DriverStation.getEventName() != "" && DriverStation.getMatchTime() <= 20.0
+            DriverStation.getMatchTime() <= 21.0 && Robot.inTeleop
         }.onTrue(
             Commands.runOnce({
                 Elastic.selectTab("DROPCICK (Endgame)")
