@@ -167,7 +167,7 @@ object SuperstructureCommands {
             SuperstructureState.L4 -> e.goToPositionDelta(-35.0).alongWith(
                 f.outtake()
             ).alongWith(
-                a.moveArmAngleDelta(-10.0)
+                a.moveArmAngleDelta(-13.0)
             ).withDeadline(
                 Commands.waitSeconds(0.5).andThen(d.backUp())
             ).withName("Score L4")
