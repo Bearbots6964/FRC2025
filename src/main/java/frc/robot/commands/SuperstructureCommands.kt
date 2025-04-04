@@ -79,7 +79,7 @@ object SuperstructureCommands {
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.PRE_CORAL_PICKUP)
                 .alongWith(c.moveClimberToIntakePosition())
-                .andThen(a.moveArmToAngle(ArmConstants.ArmState.PRE_CORAL_PICKUP))
+                .alongWith(a.moveArmToAngle(ArmConstants.ArmState.PRE_CORAL_PICKUP))
         ).withName("Superstructure to Pre Coral Pickup Position")
     }
 
