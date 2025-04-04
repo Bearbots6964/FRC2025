@@ -35,11 +35,24 @@
     {
       "name": "Barge Algae",
       "waypointRelativePos": 0.029535060975609755,
-      "endWaypointRelativePos": null,
+      "endWaypointRelativePos": 1.0,
       "command": {
-        "type": "named",
+        "type": "parallel",
         "data": {
-          "name": "Barge Algae"
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Barge Algae"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Run Intake"
+              }
+            }
+          ]
         }
       }
     }

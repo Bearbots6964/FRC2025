@@ -675,6 +675,7 @@ class RobotContainer {
         NamedCommands.registerCommand(
             "Lock Wheels", Commands.run({drive.stopWithX()}, drive)
         )
+        NamedCommands.registerCommand("Run Intake", clawIntake.intakeWithoutStoppingForAlgae())
     }
 
     fun stopQueue() {
