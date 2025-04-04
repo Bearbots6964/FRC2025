@@ -690,7 +690,7 @@ class RobotContainer {
         )
         NamedCommands.registerCommand(
             "Pick Up and L4",
-            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber).raceWith(Commands.waitSeconds(5.0)).andThen(
+            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber).raceWith(Commands.waitSeconds(3.75)).andThen(
                 SuperstructureCommands.l4WithoutSafety(
                     elevator, arm
                 )

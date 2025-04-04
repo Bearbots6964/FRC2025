@@ -153,7 +153,7 @@ object SuperstructureCommands {
             ).alongWith(
                 f.outtakeFaster()
             ).raceWith(
-                d.backUp()
+                Commands.waitSeconds(0.5).andThen(d.backUp())
             ).withName("Score L2")
 
             SuperstructureState.L3 -> e.goToPositionDelta(-5.0).alongWith(
@@ -161,7 +161,7 @@ object SuperstructureCommands {
             ).alongWith(
                 f.outtakeFaster()
             ).withDeadline(
-                d.backUp()
+                Commands.waitSeconds(0.5).andThen(d.backUp())
             ).withName("Score L3")
 
             SuperstructureState.L4 -> e.goToPositionDelta(-35.0).alongWith(

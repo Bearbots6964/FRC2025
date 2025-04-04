@@ -481,8 +481,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
    * @return a Command that will back the robot up
    */
   public Command backUp() {
-    return run(() -> runVelocity(new ChassisSpeeds(-0.25, 0, 0)))
-        .raceWith(Commands.waitSeconds(1.5))
+    return run(() -> runVelocity(new ChassisSpeeds(-0.5, 0, 0)))
+        .raceWith(Commands.waitSeconds(0.5))
         .withName("Back Up");
   }
 
