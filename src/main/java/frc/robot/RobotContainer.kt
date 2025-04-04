@@ -552,9 +552,9 @@ class RobotContainer {
                     ).withName("Drive to $coralStation Coral Station (Queued, alternate)")
                 }).ignoringDisable(true).andThen(
                     superstructureQueue.addButDoNotStartAsCommand({
-                        SuperstructureCommands.algaeIntake(elevator, arm, climber)
-                            .withName("Superstructure Algae Intake (queued, auto-added)")
-                    }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
+                        SuperstructureCommands.preCoralPickup(elevator, arm, climber)
+                            .withName("Superstructure Pre-Coral Pickup (queued, auto-added)")
+                    }).withName("Queue Superstructure Pre-Coral Pickup").ignoringDisable(true)
                 ).andThen(
 
                     superstructureQueue.addButDoNotStartAsCommand({
@@ -690,7 +690,7 @@ class RobotContainer {
         )
         NamedCommands.registerCommand(
             "Pick Up and L4",
-            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber).andThen(
+            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber).raceWith(Commands.waitSeconds(5.0)).andThen(
                 SuperstructureCommands.l4WithoutSafety(
                     elevator, arm
                 )

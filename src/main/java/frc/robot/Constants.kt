@@ -139,7 +139,7 @@ object Constants {
                 const val L2 = -62.93
                 const val L3 = -67.85
                 const val L4 = 55.81
-                const val PRE_CORAL_PICKUP = HOME
+                const val PRE_CORAL_PICKUP = 130.0
                 const val CORAL_PICKUP = 218.125
                 const val BARGE_LAUNCH = 77.0
                 const val ALGAE_INTAKE = -64.77
