@@ -107,7 +107,7 @@ object Constants {
                 const val HOME = 45.3891363535
                 const val L1 = 5.0
                 const val L2 = 39.4
-                const val L3 = 104.2
+                const val L3 = 104.2 + rotationsPerInch
                 const val L4 = 68.475 + 3.65 // TODO: Find actual value
                 const val PRE_CORAL_PICKUP = 0.0
                 const val CORAL_PICKUP = 44.6

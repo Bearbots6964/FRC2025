@@ -36,18 +36,6 @@ public class Elevator extends SubsystemBase {
   public Elevator(ElevatorIO io) {
     this.io = io;
     if (ElevatorConstants.SYSID_PROFILING_ENABLED) {
-      SignalLogger.setPath("/U/sysidlogs/");
-      SignalLogger.start();
-      sysIdRoutine =
-          new SysIdRoutine(
-              new Config(
-                  null,
-                  Volts.of(4),
-                  null,
-                  (state) -> SignalLogger.writeString("state", state.toString())),
-              new Mechanism((v) -> io.setVoltage(v.in(Volts)), null, this));
-
-      targetPosition = inputs.rightMotorPositionRotations;
     }
     mechanism = new LoggedMechanism2d(Units.inchesToMeters(29.5), Units.inchesToMeters(75.0));
     elevatorRoot =

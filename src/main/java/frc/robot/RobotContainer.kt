@@ -408,52 +408,7 @@ class RobotContainer {
         autoChooser.addOption(
             "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive)
         )
-        autoChooser.addOption(
-            "Drive SysId (Quasistatic Forward)",
-            drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-        )
-        autoChooser.addOption(
-            "Drive SysId (Quasistatic Reverse)",
-            drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-        )
-        autoChooser.addOption(
-            "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward)
-        )
-        autoChooser.addOption(
-            "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-        )
-        autoChooser.addOption(
-            "Arm SysId (Quasistatic Forward)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-        )
-        autoChooser.addOption(
-            "Arm SysId (Quasistatic Reverse)", arm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-        )
-        autoChooser.addOption(
-            "Arm SysId (Dynamic Forward)", arm.sysIdDynamic(SysIdRoutine.Direction.kForward)
-        )
-        autoChooser.addOption(
-            "Arm SysId (Dynamic Reverse)", arm.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-        )
 
-        autoChooser.addOption(
-            "Elevator SysId (Quasistatic Forward)",
-            elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-        )
-
-        autoChooser.addOption(
-            "Elevator SysId (Quasistatic Reverse)",
-            elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-        )
-
-        autoChooser.addOption(
-            "Elevator SysId (Dynamic Forward)",
-            elevator.sysIdDynamic(SysIdRoutine.Direction.kForward)
-        )
-
-        autoChooser.addOption(
-            "Elevator SysId (Dynamic Reverse)",
-            elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-        )
         // </editor-fold>
 
     }
@@ -716,6 +671,9 @@ class RobotContainer {
                 climber,
                 Constants.SuperstructureConstants.SuperstructureState.BARGE_LAUNCH
             )
+        )
+        NamedCommands.registerCommand(
+            "Lock Wheels", Commands.run({drive.stopWithX()}, drive)
         )
     }
 

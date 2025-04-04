@@ -19,22 +19,12 @@ public class Arm extends SubsystemBase {
 
   private final ArmIO io;
   private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
-  private final SysIdRoutine sysId;
   public final LoggedMechanismLigament2d firstSegment;
   private final LoggedMechanismLigament2d secondSegment;
 
   public Arm(ArmIO io, LoggedMechanismLigament2d mechanism) {
     this.io = io;
 
-    sysId =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                Units.Volts.per(Units.Second).of(0.0625),
-                Units.Volts.of(0.2),
-                null,
-                (state) -> SignalLogger.writeString("Arm/SysIDState", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage -> runCharacterization(voltage.in(Units.Volts))), null, this));
     firstSegment =
         mechanism.append(
             new LoggedMechanismLigament2d(
@@ -67,17 +57,6 @@ public class Arm extends SubsystemBase {
     return runOnce(io::setGoalToCurrent).andThen(run(io::stopArm)).withName("Arm Stop");
   }
 
-  private void runCharacterization(double output) {
-    io.setArmOpenLoop(output);
-  }
-
-  public Command sysIdDynamic(Direction direction) {
-    return sysId.dynamic(direction);
-  }
-
-  public Command sysIdQuasistatic(Direction direction) {
-    return sysId.quasistatic(direction);
-  }
 
   // TODO: Command Factories?
 

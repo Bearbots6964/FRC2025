@@ -118,10 +118,10 @@ object SuperstructureCommands {
     }
 
     fun ensureSuperstructureSafety(e: Elevator, a: Arm, c: Climber): Command {
-        return if (e.position < Constants.SuperstructureConstants.ElevatorConstants.armClearancePosition && a.armAngle < ArmConstants.safeAngle) a.moveArmToAngle(
+        return if ((e.position < Constants.SuperstructureConstants.ElevatorConstants.armClearancePosition) && (a.armAngle < ArmConstants.safeAngle)) a.moveArmToAngle(
             ArmConstants.safeAngle
         ).withName("Ensure Superstructure Safety")
-        else if (e.position < 20.0 && a.armAngle > 200.0 && c.position > -30.0) c.moveClimberToCageCatchPosition()
+        else if ((e.position < 20.0) && (a.armAngle > 200.0) && (c.position > -30.0)) c.moveClimberToCageCatchPosition()
             .withName("Ensure Superstructure Safety")
         else Commands.none()
     }
@@ -152,12 +152,12 @@ object SuperstructureCommands {
                 a.moveArmAngleDelta(20.0)
             ).alongWith(
                 f.outtakeFaster()
-            ).raceWith(
+            ).withDeadline(
                 Commands.waitSeconds(0.5).andThen(d.backUp())
             ).withName("Score L2")
 
             SuperstructureState.L3 -> e.goToPositionDelta(-5.0).alongWith(
-                a.moveArmAngleDelta(25.0)
+                a.moveArmAngleDelta(28.0)
             ).alongWith(
                 f.outtakeFaster()
             ).withDeadline(
@@ -208,7 +208,7 @@ object SuperstructureCommands {
             ensureSuperstructureSafety(e, a, c),
             Commands.parallel(
                 e.goToPosition(ElevatorState.CORAL_PICKUP),
-                a.moveArmToAngle(ArmConstants.ArmState.CORAL_PICKUP).until({ a.armAngle > 200.0 }),
+                a.moveArmToAngle(ArmConstants.ArmState.CORAL_PICKUP).until { a.armAngle > 200.0 },
                 c.moveClimberToCageCatchPosition()
             ),
             f.intake().deadlineFor(c.pivotToPosition(0.0)),
