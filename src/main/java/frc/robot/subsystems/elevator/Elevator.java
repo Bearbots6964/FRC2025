@@ -5,10 +5,6 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Constants.SuperstructureConstants.ElevatorConstants;
 import frc.robot.Constants.SuperstructureConstants.SuperstructureState;
 import java.util.function.DoubleSupplier;
-import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -36,8 +31,7 @@ public class Elevator extends SubsystemBase {
   private final LoggedMechanismRoot2d elevatorRoot;
   private SysIdRoutine sysIdRoutine;
   private double targetPosition;
-  @AutoLogOutput
-  private LoggedMechanism2d mechanism;
+  @AutoLogOutput private LoggedMechanism2d mechanism;
 
   public Elevator(ElevatorIO io) {
     this.io = io;
@@ -56,8 +50,13 @@ public class Elevator extends SubsystemBase {
       targetPosition = inputs.rightMotorPositionRotations;
     }
     mechanism = new LoggedMechanism2d(Units.inchesToMeters(29.5), Units.inchesToMeters(75.0));
-    elevatorRoot = mechanism.getRoot("Elevator Base", Units.inchesToMeters(6.0 + 14.75), Units.inchesToMeters(1.75));
-    elevatorLigament = elevatorRoot.append(new LoggedMechanismLigament2d("Elevator", Units.inchesToMeters(37.0), 90.0, 6.0, new Color8Bit(Color.kGray)));
+    elevatorRoot =
+        mechanism.getRoot(
+            "Elevator Base", Units.inchesToMeters(6.0 + 14.75), Units.inchesToMeters(1.75));
+    elevatorLigament =
+        elevatorRoot.append(
+            new LoggedMechanismLigament2d(
+                "Elevator", Units.inchesToMeters(37.0), 90.0, 6.0, new Color8Bit(Color.kGray)));
   }
 
   public void setRotations(double rotations) {
@@ -72,8 +71,9 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
-    elevatorLigament.setLength(inchesToMeters(
-        inputs.rightMotorPositionRotations / ElevatorConstants.rotationsPerInch + 37));
+    elevatorLigament.setLength(
+        inchesToMeters(
+            inputs.rightMotorPositionRotations / ElevatorConstants.rotationsPerInch + 37));
   }
 
   /**
@@ -121,26 +121,35 @@ public class Elevator extends SubsystemBase {
    * @return Command to go to a specific position
    */
   public Command goToPosition(SuperstructureState state) {
-    targetPosition = switch (state) {
-      case L1 -> ElevatorConstants.ElevatorState.L1;
-      case L2 -> ElevatorConstants.ElevatorState.L2;
-      case L3 -> ElevatorConstants.ElevatorState.L3;
-      case L4 -> ElevatorConstants.ElevatorState.L4;
-      default -> ElevatorConstants.ElevatorState.HOME;
-    };
-    return run(() -> setRotations(switch (state) {
-      case L1 -> ElevatorConstants.ElevatorState.L1;
-      case L2 -> ElevatorConstants.ElevatorState.L2;
-      case L3 -> ElevatorConstants.ElevatorState.L3;
-      case L4 -> ElevatorConstants.ElevatorState.L4;
-      default -> ElevatorConstants.ElevatorState.HOME;
-    })).until(() -> Math.abs(inputs.rightMotorPositionRotations - switch (state) {
-      case L1 -> ElevatorConstants.ElevatorState.L1;
-      case L2 -> ElevatorConstants.ElevatorState.L2;
-      case L3 -> ElevatorConstants.ElevatorState.L3;
-      case L4 -> ElevatorConstants.ElevatorState.L4;
-      default -> ElevatorConstants.ElevatorState.HOME;
-    }) < ElevatorConstants.elevatorTolerance);
+    targetPosition =
+        switch (state) {
+          case L1 -> ElevatorConstants.ElevatorState.L1;
+          case L2 -> ElevatorConstants.ElevatorState.L2;
+          case L3 -> ElevatorConstants.ElevatorState.L3;
+          case L4 -> ElevatorConstants.ElevatorState.L4;
+          default -> ElevatorConstants.ElevatorState.HOME;
+        };
+    return run(() ->
+            setRotations(
+                switch (state) {
+                  case L1 -> ElevatorConstants.ElevatorState.L1;
+                  case L2 -> ElevatorConstants.ElevatorState.L2;
+                  case L3 -> ElevatorConstants.ElevatorState.L3;
+                  case L4 -> ElevatorConstants.ElevatorState.L4;
+                  default -> ElevatorConstants.ElevatorState.HOME;
+                }))
+        .until(
+            () ->
+                Math.abs(
+                        inputs.rightMotorPositionRotations
+                            - switch (state) {
+                              case L1 -> ElevatorConstants.ElevatorState.L1;
+                              case L2 -> ElevatorConstants.ElevatorState.L2;
+                              case L3 -> ElevatorConstants.ElevatorState.L3;
+                              case L4 -> ElevatorConstants.ElevatorState.L4;
+                              default -> ElevatorConstants.ElevatorState.HOME;
+                            })
+                    < ElevatorConstants.elevatorTolerance);
   }
 
   /**
@@ -151,8 +160,8 @@ public class Elevator extends SubsystemBase {
    * @return Command to move the elevator up or down a specific number of rotations
    */
   public Command goToPositionDelta(double delta) {
-    return runOnce(() -> io.setPositionDelta(delta)).until(
-            () -> io.getDistanceFromGoal() < ElevatorConstants.elevatorTolerance)
+    return runOnce(() -> io.setPositionDelta(delta))
+        .until(() -> io.getDistanceFromGoal() < ElevatorConstants.elevatorTolerance)
         .withName("Elevator to Position");
   }
 
@@ -164,9 +173,12 @@ public class Elevator extends SubsystemBase {
    */
   public Command goToPosition(double position) {
     targetPosition = position;
-    return run(() -> setRotations(position)).until(
-        () -> Math.abs(inputs.rightMotorPositionRotations - position)
-            < ElevatorConstants.elevatorTolerance).withName("Elevator to Position");
+    return run(() -> setRotations(position))
+        .until(
+            () ->
+                Math.abs(inputs.rightMotorPositionRotations - position)
+                    < ElevatorConstants.elevatorTolerance)
+        .withName("Elevator to Position");
   }
 
   /**
@@ -186,14 +198,19 @@ public class Elevator extends SubsystemBase {
    * @return Command to home the elevator
    */
   public Command homeElevator() {
-    return Commands.sequence(runOnce(() -> io.setSoftLimitsEnabled(false)),
-                             velocityCommand(() -> -0.25).until(() -> inputs.limitSwitchPressed),
-                             runOnce(io::zero), run(() -> setRotations(5)).until(
-            () -> Math.abs(inputs.rightMotorPositionRotations - 5)
-                < ElevatorConstants.elevatorTolerance),
-                             velocityCommand(() -> -0.05).until(() -> inputs.limitSwitchPressed),
-                             runOnce(io::zero), runOnce(() -> io.setOpenLoop(0.0)),
-                             runOnce(() -> io.setSoftLimitsEnabled(true)));
+    return Commands.sequence(
+        runOnce(() -> io.setSoftLimitsEnabled(false)),
+        velocityCommand(() -> -0.25).until(() -> inputs.limitSwitchPressed),
+        runOnce(io::zero),
+        run(() -> setRotations(5))
+            .until(
+                () ->
+                    Math.abs(inputs.rightMotorPositionRotations - 5)
+                        < ElevatorConstants.elevatorTolerance),
+        velocityCommand(() -> -0.05).until(() -> inputs.limitSwitchPressed),
+        runOnce(io::zero),
+        runOnce(() -> io.setOpenLoop(0.0)),
+        runOnce(() -> io.setSoftLimitsEnabled(true)));
   }
 
   public void lockPosition() {
