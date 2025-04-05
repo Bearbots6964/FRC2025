@@ -111,7 +111,7 @@ object Constants {
                 const val L4 = 68.475 + 3.65 // TODO: Find actual value
                 const val PRE_CORAL_PICKUP = 0.0
                 const val CORAL_PICKUP = 44.6
-                const val BARGE_LAUNCH = 100.93
+                const val BARGE_LAUNCH = 105.93
                 const val ALGAE_INTAKE = 0.0
                 const val UPPER_REEF_ALGAE = 48.8
                 const val LOWER_REEF_ALGAE = 3.0 * rotationsPerInch
