@@ -420,7 +420,7 @@ object Constants {
             Units.Inches.of((29.5 / 2) - 1.125),
             Units.Inches.of((29.5 / 2) - 3.375),
             Units.Inches.of(8.25),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-29.0002328338357)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-17.2), Units.Degrees.of(-31.0)),
         )
         var robotToBackLeftCamera: Transform3d = Transform3d(
             Units.Inches.of(-((29.5 / 2) - 1.8125)),
@@ -458,7 +458,7 @@ object Constants {
         /**
          * Final distance from the coral station in meters.
          */
-        const val finalDistanceFromCoralStationMeters = 0.3737 // 16.77 inches
+        const val finalDistanceFromCoralStationMeters = 0.4118 // 16.77 inches
 
         /**
          * Distance from the goal at which pathfinding should end.
