@@ -149,7 +149,7 @@ object SuperstructureCommands {
         return when (s) {
             SuperstructureState.L1 -> Commands.runOnce({ Robot.reportError("Cannot score at L1") })
             SuperstructureState.L2 -> e.goToPositionDelta(-5.0).alongWith(
-                a.moveArmAngleDelta(20.0)
+                a.moveArmAngleDelta(23.0)
             ).alongWith(
                 f.outtakeFaster()
             ).withDeadline(

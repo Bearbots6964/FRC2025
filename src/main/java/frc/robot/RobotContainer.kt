@@ -272,7 +272,7 @@ class RobotContainer {
 
         // Reduced speed drive when B button is pressed
         driveController.b().onTrue(
-            SuperstructureCommands.home(elevator, arm, climber)
+            SuperstructureCommands.preCoralPickup(elevator, arm, climber)
         )
 
 
