@@ -296,7 +296,7 @@ object PathfindingFactories {
                     inFrontOfAprilTag,
                     closestPose.rotation.degrees + 90,
                     // Offset measured by pit team
-                    PathfindingConstants.lateralDistanceFromReefMeters - 0.0381
+                    PathfindingConstants.lateralDistanceFromReefMeters
                 )
             }
 
