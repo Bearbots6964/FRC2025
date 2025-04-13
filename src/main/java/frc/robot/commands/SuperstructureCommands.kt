@@ -16,6 +16,7 @@ import frc.robot.subsystems.intake.AlgaeIntake
 
 object SuperstructureCommands {
     var reefPosition = SuperstructureState.L1
+    var coralGrabbed = false
     fun l1(e: Elevator, a: Arm, c: Climber): Command {
         reefPosition = SuperstructureState.L1
         return ensureSuperstructureSafety(e, a, c).andThen(
@@ -212,6 +213,7 @@ object SuperstructureCommands {
                 c.moveClimberToCageCatchPosition()
             ),
             f.intake().deadlineFor(c.pivotToPosition(0.0)),
+            Commands.runOnce({ coralGrabbed = true }).withName("Set Coral Grabbed"),
             e.goToPosition(ElevatorState.CORAL_PICKUP + 45.0)
         ).withName("Pick Up Coral")
     }

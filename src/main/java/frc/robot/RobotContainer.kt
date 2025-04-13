@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Constants.VisionConstants.robotToBackLeftCamera
 import frc.robot.Constants.VisionConstants.robotToBackRightCamera
 import frc.robot.Constants.VisionConstants.robotToFrontLeftCamera
@@ -515,7 +514,7 @@ class RobotContainer {
                     superstructureQueue.addButDoNotStartAsCommand({
                         SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber)
                             .withName("Superstructure Coral Pickup (queued, auto-added)")
-                    }).withName("Queue Superstructure Algae Intake").ignoringDisable(true)
+                    }).withName("Queue Superstructure Coral Pickup").ignoringDisable(true)
                 ).withName("\n\n$coralStation Coral Station\n\n")
             )
         }
@@ -523,8 +522,7 @@ class RobotContainer {
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
             val commands: Command = when (position) {
-                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand(
-                    {
+                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand({
                         SuperstructureCommands.goToPosition(
                             elevator, arm, climber, position
                         ).withName("Superstructure to " + position.name + " Position (Queued)")
@@ -535,8 +533,7 @@ class RobotContainer {
                         ).withName("Score in $position (queued, auto-added)")
                     })
 
-                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand(
-                    {
+                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand({
                         SuperstructureCommands.goToPosition(elevator, arm, climber, position)
                             .withName("Superstructure to $position Position (Queued)")
                     },
@@ -645,11 +642,12 @@ class RobotContainer {
         )
         NamedCommands.registerCommand(
             "Pick Up and L4",
-            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber).raceWith(Commands.waitSeconds(3.75)).andThen(
-                SuperstructureCommands.l4WithoutSafety(
-                    elevator, arm
+            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber)
+                .raceWith(Commands.waitSeconds(3.75)).andThen(
+                    SuperstructureCommands.l4WithoutSafety(
+                        elevator, arm
+                    )
                 )
-            )
         )
         NamedCommands.registerCommand(
             "Low Algae", SuperstructureCommands.goToPosition(
@@ -673,7 +671,7 @@ class RobotContainer {
             )
         )
         NamedCommands.registerCommand(
-            "Lock Wheels", Commands.run({drive.stopWithX()}, drive)
+            "Lock Wheels", Commands.run({ drive.stopWithX() }, drive)
         )
         NamedCommands.registerCommand("Run Intake", clawIntake.intakeWithoutStoppingForAlgae())
     }

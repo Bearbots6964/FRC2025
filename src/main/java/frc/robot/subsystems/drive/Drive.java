@@ -72,6 +72,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.Getter;
+import lombok.Setter;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
@@ -147,6 +148,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
       new SwervePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
   @Getter private Zone currentZone = Zone.NONE;
   private com.pathplanner.lib.util.swerve.SwerveSetpoint lastSetpoint;
+
+  @Getter @Setter
+  private double pathfindingSpeed = maxLinearSpeedMetersPerSec * 0.75;
 
   public Drive(
       GyroIO gyroIO,
@@ -581,7 +585,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                   var sample =
                       repulsorFieldPlanner.sampleField(
                           poseEstimator.getEstimatedPosition().getTranslation(),
-                          maxLinearSpeedMetersPerSec * .75,
+                          getPathfindingSpeed(),
                           1.75);
 
                   // calculate feedforward and feedback
