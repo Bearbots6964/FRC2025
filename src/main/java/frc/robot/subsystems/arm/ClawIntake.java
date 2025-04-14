@@ -13,6 +13,7 @@ public class ClawIntake extends SubsystemBase {
   private final ClawIntakeIO io;
   private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
   @Getter public boolean manuallySetToGrabbed = false;
+  @Getter public boolean grabbed = false;
 
   public ClawIntake(ClawIntakeIO io) {
     this.io = io;
@@ -25,6 +26,7 @@ public class ClawIntake extends SubsystemBase {
     if (DriverStation.isDisabled()) {
       io.stopIntake();
     }
+    grabbed = inputs.thingGripped;
   }
 
   public Command spinFlywheel(Double output) {

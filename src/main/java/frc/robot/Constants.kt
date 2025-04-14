@@ -185,7 +185,13 @@ object Constants {
                 it.Slot0.kG = 0.75
                 it.Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
-                it.MotionMagic.MotionMagicCruiseVelocity = 1.25
+                it.Slot1.kP = 5.0
+                it.Slot1.kS = 0.51518
+                it.Slot1.kV = 1.1
+                it.Slot1.kA = 0.61
+                it.Slot1.kG = 0.75
+                it.Slot1.GravityType = GravityTypeValue.Arm_Cosine
+                it.MotionMagic.MotionMagicCruiseVelocity = 1.0
                 it.MotionMagic.MotionMagicAcceleration = 1.5
                 it.MotionMagic.MotionMagicJerk = 4.0
 
@@ -540,10 +546,12 @@ object Constants {
             it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
             it.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Units.Degrees.of(-45.0).`in`(Units.Rotations)
 
-            it.MotionMagic.MotionMagicCruiseVelocity = 0.325
-            it.MotionMagic.MotionMagicAcceleration = 12.0
+            it.MotionMagic.MotionMagicCruiseVelocity = 50.0
+            it.MotionMagic.MotionMagicAcceleration = 6.0
 
-            it.Slot0.kP = 20.0
+            it.Slot0.kP = 40.0
+            it.Slot0.kV = 4.0
+            it.Slot0.kA = 0.2
 
             it
         }

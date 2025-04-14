@@ -7,6 +7,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import edu.wpi.first.math.MathUtil;
@@ -24,6 +25,8 @@ public class ArmIOTalonFX implements ArmIO {
   protected final TalonFXSConfiguration pivotConfig;
 
   protected final MotionMagicVoltage motionMagicPositionRequest;
+  protected final MotionMagicVoltage motionMagicSlower;
+  protected final PositionVoltage positionVoltage;
   protected final VoltageOut voltageRequest = new VoltageOut(0.0);
   protected final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0.0);
 
@@ -56,6 +59,9 @@ public class ArmIOTalonFX implements ArmIO {
 
     motionMagicPositionRequest =
         new MotionMagicVoltage(Units.Degrees.of(MathUtil.clamp(targetPosition, -70.0, 225.0)));
+    motionMagicSlower = new MotionMagicVoltage(Units.Degrees.of(targetPosition));
+    motionMagicSlower.withSlot(2);
+    positionVoltage = new PositionVoltage(Units.Degrees.of(targetPosition)).withSlot(1);
   }
 
   @Override
@@ -103,7 +109,7 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void stopArm() {
-    pivotMotor.setControl(motionMagicPositionRequest);
+    pivotMotor.setControl(positionVoltage.withPosition(Units.Degrees.of(targetPosition)));
   }
 
   @Override

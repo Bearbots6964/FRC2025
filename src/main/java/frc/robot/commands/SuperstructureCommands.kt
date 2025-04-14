@@ -1,5 +1,6 @@
 package frc.robot.commands
 
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import frc.robot.Constants
@@ -13,6 +14,7 @@ import frc.robot.subsystems.climber.Climber
 import frc.robot.subsystems.drive.Drive
 import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.intake.AlgaeIntake
+import java.util.function.Supplier
 
 object SuperstructureCommands {
     var reefPosition = SuperstructureState.L1
@@ -52,8 +54,7 @@ object SuperstructureCommands {
     fun l4WithoutSafety(e: Elevator, a: Arm): Command {
         reefPosition = SuperstructureState.L4
         return e.goToPosition(SuperstructureState.L4)
-            .alongWith(a.moveArmToAngle(ArmConstants.ArmState.L4))
-            .withName("Superstructure to L4")
+            .alongWith(a.moveArmToAngle(ArmConstants.ArmState.L4)).withName("Superstructure to L4")
     }
 
     fun coralStationPosition(e: Elevator, a: Arm, c: Climber): Command {
@@ -95,6 +96,12 @@ object SuperstructureCommands {
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.ALGAE_INTAKE)
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.ALGAE_INTAKE))
+        ).withName("Superstructure to Algae Intake Position")
+    }
+
+    fun algaeIntakeWithoutArm(e: Elevator, a: Arm, c: Climber): Command {
+        return ensureSuperstructureSafety(e, a, c).andThen(
+            e.goToPosition(ElevatorState.ALGAE_INTAKE)
         ).withName("Superstructure to Algae Intake Position")
     }
 
@@ -144,6 +151,21 @@ object SuperstructureCommands {
         }
     }
 
+    fun goToPositionWithoutSafety(e: Elevator, a: Arm, c: Climber, s: SuperstructureState): Command {
+        return when (s) {
+            SuperstructureState.L1 -> l1(e, a, c)
+            SuperstructureState.L2 -> l2(e, a, c)
+            SuperstructureState.L3 -> l3(e, a, c)
+            SuperstructureState.L4 -> l4WithoutSafety(e, a)
+            SuperstructureState.CORAL_PICKUP -> coralStationPosition(e, a, c)
+            SuperstructureState.HOME -> home(e, a, c)
+            SuperstructureState.PRE_CORAL_PICKUP -> preCoralPickup(e, a, c)
+            SuperstructureState.BARGE_LAUNCH -> bargeLaunch(e, a, c)
+            SuperstructureState.ALGAE_INTAKE -> algaeIntake(e, a, c)
+            SuperstructureState.UPPER_REEF_ALGAE -> upperReefAlgae(e, a, c)
+            SuperstructureState.LOWER_REEF_ALGAE -> lowerReefAlgae(e, a, c)
+        }
+    }
     fun scoreAtPosition(
         e: Elevator, a: Arm, f: ClawIntake, d: Drive, s: SuperstructureState
     ): Command {
@@ -224,13 +246,77 @@ object SuperstructureCommands {
         ).withName("Score")
     }
 
-    fun algaeIntakeProtocol(e: Elevator, a: Arm, c: Climber, i: AlgaeIntake, f: ClawIntake): Command {
+    fun algaeIntakeProtocol(
+        e: Elevator, a: Arm, c: Climber, i: AlgaeIntake, f: ClawIntake
+    ): Command {
         return Commands.sequence(
             algaeIntake(e, a, c),
-            i.runIntake()
-                .alongWith(f.intakeWithoutStoppingForAlgae()),
+            i.runIntake().alongWith(f.intakeWithoutStoppingForAlgae()),
             a.moveArmToAngle(ArmConstants.ArmState.LOWER_REEF_ALGAE),
             i.retractIntake()
         ).withName("Algae Intake Protocol")
+    }
+
+    fun fullCycle(
+        elevator: Elevator, arm: Arm, climber: Climber, intake: ClawIntake, drive: Drive
+    ): Command {
+        return Commands.parallel(
+            Commands.sequence(
+                Commands.runOnce({ drive.setPathfindingSpeedPercent(0.25) }),
+                PathfindingFactories.pathfindToReefAlternate(
+                    drive, PathfindingFactories.Reef.A
+                ) { Translation2d() }.alongWith(Commands.waitUntil { intake.grabbed }
+                    .andThen(Commands.runOnce({ drive.setPathfindingSpeedPercent(0.50) }))),
+            ),
+
+            Commands.sequence(
+                pickUpCoral(elevator, arm, intake, climber)
+                    //Commands.waitUntil { intake.grabbed }
+                    .andThen(Commands.runOnce({ drive.setPathfindingSpeedPercent(0.50) })),
+                Commands.waitUntil(drive::nearGoal).andThen(
+                    l4(elevator, arm, climber)
+                )
+            )
+
+        ).withName("Full Cycle")
+    }
+
+    fun fullCycle(
+        elevator: Elevator,
+        arm: Arm,
+        climber: Climber,
+        intake: ClawIntake,
+        drive: Drive,
+        reef: Supplier<PathfindingFactories.Reef>,
+        position: Supplier<SuperstructureState>,
+        driveCommand: Command,
+        waitCommand: () -> Command,
+    ): Command {
+        return Commands.parallel(
+            Commands.sequence(
+                Commands.runOnce({ drive.setPathfindingSpeedPercent(0.25) }),
+                Commands.defer({
+                    PathfindingFactories.pathfindToReefAlternate(
+                        drive, reef.get()
+                    ) { Translation2d() }
+                }, setOf(drive)).alongWith(Commands.waitUntil { intake.grabbed }
+            ),
+
+            Commands.sequence(
+                pickUpCoral(elevator, arm, intake, climber)
+                    //Commands.waitUntil { intake.grabbed }
+                    .andThen(Commands.runOnce({ drive.setPathfindingSpeedPercent(0.50) })),
+                Commands.waitUntil(drive::nearGoal).andThen(
+                    goToPositionWithoutSafety(elevator, arm, climber, position.get())
+                )
+            )
+        ).andThen(
+            waitCommand.invoke().alongWith(Commands.waitSeconds(2.0))
+                .deadlineFor(driveCommand.alongWith(arm.stop()))
+        ).andThen(
+            Commands.defer({
+                scoreAtPosition(elevator, arm, intake, drive, position.get())
+            }, setOf(elevator, arm, intake, drive))
+        ).withName("Full Cycle")
     }
 }

@@ -56,6 +56,9 @@ public class Arm extends SubsystemBase {
   public Command stop() {
     return runOnce(io::setGoalToCurrent).andThen(run(io::stopArm)).withName("Arm Stop");
   }
+  public Command setGoalToCurrent() {
+    return runOnce(io::setGoalToCurrent);
+  }
 
 
   // TODO: Command Factories?

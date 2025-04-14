@@ -81,6 +81,10 @@ class RobotContainer {
     private val driveController = CommandXboxController(0)
     private val operatorController = CommandXboxController(1)
 
+    private var nextReef = PathfindingFactories.Reef.A
+    private var nextStation = PathfindingFactories.CoralStationSide.LEFT
+    private var nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
+
     private val driveQueue: CommandQueue = CommandQueue().withCallback {
         Commands.race(
             Commands.waitSeconds(0.5), Commands.run({
@@ -365,7 +369,7 @@ class RobotContainer {
         //)
 
         Trigger {
-            DriverStation.getMatchTime() <= 21.0 && Robot.inTeleop
+            DriverStation.getMatchTime() <= 21.0 && Robot.inTeleop && DriverStation.isFMSAttached()
         }.onTrue(
             Commands.runOnce({
                 Elastic.selectTab("DROPCICK (Endgame)")
@@ -614,12 +618,88 @@ class RobotContainer {
         SmartDashboard.putData(CommandScheduler.getInstance())
         SmartDashboard.putData("Auto Queue", driveQueue)
         SmartDashboard.putData("Other Command Queue", superstructureQueue)
+
+        SmartDashboard.putData(
+            Commands.defer(
+                {
+                    PathfindingFactories.pathfindToCoralStationAlternate(
+                        drive, nextStation, driveTranslationalControlSupplier
+                    )
+                }, setOf(drive)
+            ).deadlineFor(
+                SuperstructureCommands.preCoralPickup(elevator, arm, climber)
+            ).finallyDo(Runnable { arm.stop() }).andThen(
+        Commands.run({ drive.stopWithX() }, drive).withDeadline(
+            Commands.waitUntil(driveController.rightBumper()::getAsBoolean).withName("lock")
+        )
+        ).andThen(
+        SuperstructureCommands.fullCycle(
+            elevator,
+            arm,
+            climber,
+            clawIntake,
+            drive,
+            { nextReef },
+            { nextPosition },
+            DriveCommands.joystickDrive(
+                drive,
+                { -driveController.leftY * 0.25 },
+                { -driveController.leftX * 0.25 },
+                { -driveController.rightX * 0.25 }).alongWith(
+                Commands.run({
+                    driveController.setRumble(
+                        GenericHID.RumbleType.kBothRumble, 1.0
+                    )
+                }),
+
+                ).finallyDo { ->
+                driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
+            },
+            { Commands.waitUntil(driveController.rightBumper()::getAsBoolean) }))
+        .withName("good luck"))
+        for (reef in PathfindingFactories.Reef.entries) {
+            SmartDashboard.putData(
+                Commands.runOnce({ nextReef = reef }).withName("Select Reef $reef")
+            )
+        }
+        for (station in PathfindingFactories.CoralStationSide.entries) {
+            SmartDashboard.putData(
+                Commands.runOnce({ nextStation = station })
+                    .withName("Select Coral Station $station")
+            )
+        }
+        for (pos in setOf(
+            Constants.SuperstructureConstants.SuperstructureState.L2,
+            Constants.SuperstructureConstants.SuperstructureState.L3,
+            Constants.SuperstructureConstants.SuperstructureState.L4
+        )) {
+            SmartDashboard.putData(
+                Commands.runOnce({ nextPosition = pos }).withName("Select Position $pos")
+            )
+        }
+
+        SmartDashboard.putData(
+            drive.followRepulsorField(Pose2d(15.7, 4.0, Rotation2d(Units.Degrees.of(180.0))))
+                .alongWith(
+                    SuperstructureCommands.algaeIntakeWithoutArm(elevator, arm, climber)
+                ).andThen(
+                    clawIntake.outtake().alongWith(
+                        Commands.run(
+                            { drive.stopWithX() }, drive
+                        )
+                    ).withDeadline(Commands.waitSeconds(5.0))
+                ).withName("Reset (RED ONLY)")
+        )
     }
 
 
     private fun addNamedCommands() {
-        NamedCommands.registerCommand("home", SuperstructureCommands.home(elevator, arm, climber))
-        NamedCommands.registerCommand("L4", SuperstructureCommands.l4WithoutSafety(elevator, arm))
+        NamedCommands.registerCommand(
+            "home", SuperstructureCommands.home(elevator, arm, climber)
+        )
+        NamedCommands.registerCommand(
+            "L4", SuperstructureCommands.l4WithoutSafety(elevator, arm)
+        )
         NamedCommands.registerCommand(
             "deposit", SuperstructureCommands.scoreAtPositionWithoutDrive(
                 elevator, arm, clawIntake, Constants.SuperstructureConstants.SuperstructureState.L4
@@ -631,23 +711,29 @@ class RobotContainer {
         NamedCommands.registerCommand(
             "Fix Pivot",
             elevator.goToPosition(40.0).deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
-                .andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber))
+                .andThen(
+                    SuperstructureCommands.algaeIntakeWithoutSafety(
+                        elevator, arm, climber
+                    )
+                )
         )
         NamedCommands.registerCommand(
             "Fix Pivot and L4", climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }).withDeadline(
                 SuperstructureCommands.l4WithoutSafety(
                     elevator, arm
                 )
-            ).andThen(climber.moveClimberToIntakePosition().withDeadline(Commands.waitSeconds(1.0)))
+            ).andThen(
+                climber.moveClimberToIntakePosition().withDeadline(Commands.waitSeconds(1.0))
+            )
         )
         NamedCommands.registerCommand(
-            "Pick Up and L4",
-            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber)
-                .raceWith(Commands.waitSeconds(3.75)).andThen(
-                    SuperstructureCommands.l4WithoutSafety(
-                        elevator, arm
-                    )
+            "Pick Up and L4", SuperstructureCommands.pickUpCoral(
+                elevator, arm, clawIntake, climber
+            ).raceWith(Commands.waitSeconds(3.75)).andThen(
+                SuperstructureCommands.l4WithoutSafety(
+                    elevator, arm
                 )
+            )
         )
         NamedCommands.registerCommand(
             "Low Algae", SuperstructureCommands.goToPosition(
@@ -673,7 +759,9 @@ class RobotContainer {
         NamedCommands.registerCommand(
             "Lock Wheels", Commands.run({ drive.stopWithX() }, drive)
         )
-        NamedCommands.registerCommand("Run Intake", clawIntake.intakeWithoutStoppingForAlgae())
+        NamedCommands.registerCommand(
+            "Run Intake", clawIntake.intakeWithoutStoppingForAlgae()
+        )
     }
 
     fun stopQueue() {
@@ -682,7 +770,9 @@ class RobotContainer {
     }
 
     fun periodic() {
-        Logger.recordOutput("RobotContainer/Drivebase Queue", driveQueue.struct, driveQueue)
+        Logger.recordOutput(
+            "RobotContainer/Drivebase Queue", driveQueue.struct, driveQueue
+        )
         Logger.recordOutput(
             "RobotContainer/Superstructure Queue", superstructureQueue.struct, superstructureQueue
         )
@@ -690,8 +780,10 @@ class RobotContainer {
 
     fun fixArm() {
         if (climber.position > 40.0) elevator.goToPosition(40.0)
-            .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
-            .andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber))
-            .schedule()
+            .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 })).andThen(
+                SuperstructureCommands.algaeIntakeWithoutSafety(
+                    elevator, arm, climber
+                )
+            ).schedule()
     }
 }

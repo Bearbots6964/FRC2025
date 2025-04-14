@@ -63,7 +63,7 @@ object TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private val slipCurrent: Current = Units.Amps.of(75.0)
+    private val slipCurrent: Current = Units.Amps.of(40.0)
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -94,7 +94,7 @@ object TunerConstants {
 
     private const val driveGearRatio = 6.746031746031747
     private const val steerGearRatio = 21.428571428571427
-    private val kWheelRadius: Distance = Units.Inches.of(1.987)
+    private val kWheelRadius: Distance = Units.Inches.of(1.969)
 
     private const val invertLeftSide = false
     private const val invertRightSide = true
