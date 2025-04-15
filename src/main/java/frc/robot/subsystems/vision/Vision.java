@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
@@ -34,11 +35,8 @@ public class Vision extends SubsystemBase {
   List<Pose3d> robotPosesAccepted = new ArrayList<>();
   List<Pose3d> robotPosesRejected = new ArrayList<>();
 
+  @Setter
   static boolean backCamerasEnabled = true;
-
-  public static void setBackCamerasEnabled(boolean enabled) {
-    backCamerasEnabled = enabled;
-  }
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -75,15 +73,14 @@ public class Vision extends SubsystemBase {
     allRobotPosesRejected.clear();
 
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
-      if ((cameraIndex == 1 || cameraIndex == 3) && !backCamerasEnabled) {
-        continue;
+      if (!((cameraIndex == 1 || cameraIndex == 3) && !backCamerasEnabled)) {
+        io[cameraIndex].updateInputs(inputs[cameraIndex]);
+        Logger.processInputs("Vision/Camera" + cameraIndex, inputs[cameraIndex]);
+
+        disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
+
+        processCameraData(cameraIndex);
       }
-      io[cameraIndex].updateInputs(inputs[cameraIndex]);
-      Logger.processInputs("Vision/Camera" + cameraIndex, inputs[cameraIndex]);
-
-      disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
-
-      processCameraData(cameraIndex);
     }
 
     // Log summary data (less frequently if needed)

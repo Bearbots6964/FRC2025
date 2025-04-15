@@ -16,7 +16,6 @@ import frc.robot.subsystems.vision.Vision
 import java.util.function.Supplier
 import kotlin.jvm.optionals.getOrElse
 import kotlin.math.cos
-import kotlin.math.hypot
 import kotlin.math.sin
 
 object PathfindingFactories {
@@ -25,7 +24,6 @@ object PathfindingFactories {
     ): Command = drive.followRepulsorField(getSpecificCoralStationPose(side), nudge)
 
     fun pathfindToReef(drive: Drive, reef: Reef, nudge: Supplier<Translation2d>): Command {
-        val currentPose = drive.pose
         val targetPose = getSpecificReefSidePose(reef)
         return Commands.runOnce({ Vision.setBackCamerasEnabled(false) })
             .andThen(drive.followRepulsorField(targetPose, nudge))
@@ -217,9 +215,4 @@ object PathfindingFactories {
 
         return Pose2d(newXCoord, newYCoord, originalPose.rotation)
     }
-
-    private fun findDistanceBetween(pose1: Pose2d, pose2: Pose2d): Double {
-        return hypot(pose1.x - pose2.x, pose1.y - pose2.y)
-    }
-    // </editor-fold>
 }
