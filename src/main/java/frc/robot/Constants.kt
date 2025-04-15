@@ -5,7 +5,6 @@ import com.ctre.phoenix6.configs.TalonFXSConfiguration
 import com.ctre.phoenix6.signals.*
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.RobotConfig
-import com.pathplanner.lib.path.PathConstraints
 import com.revrobotics.spark.config.SparkBaseConfig
 import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.apriltag.AprilTagFieldLayout
@@ -14,7 +13,6 @@ import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Transform3d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.system.plant.DCMotor
-import edu.wpi.first.math.util.Units.degreesToRadians
 import edu.wpi.first.math.util.Units.inchesToMeters
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.*
@@ -368,24 +366,6 @@ object Constants {
             it.closedLoop.velocityFF(0.0002)
             it
         }
-
-        /** Configuration for the left flywheel motor. */
-        @JvmStatic
-        val leftFlywheelConfig = SparkMaxConfig().let {
-            it.idleMode(SparkBaseConfig.IdleMode.kCoast)
-            it.smartCurrentLimit(20)
-            it.inverted(true)
-            it
-        }
-
-        /** Configuration for the right flywheel motor. */
-        @JvmStatic
-        val rightFlywheelConfig = SparkMaxConfig().let {
-            it.idleMode(SparkBaseConfig.IdleMode.kCoast)
-            it.smartCurrentLimit(20)
-            it.inverted(false)
-            it
-        }
     }
 
     object VisionConstants {
@@ -449,15 +429,11 @@ object Constants {
         @JvmStatic
         var cameraStdDevFactors: DoubleArray = doubleArrayOf(
             1.0, // Front right camera
-            3.0, // Back right camera
+            5.0, // Back right camera
             1.0, // Front left camera
-            3.0  // Back left camera
+            5.0  // Back left camera
         )
 
-        // Multipliers to apply for MegaTag 2 observations
-        var linearStdDevMegatag2Factor: Double = 0.5 // More stable than full 3D solve
-        var angularStdDevMegatag2Factor: Double =
-            Double.POSITIVE_INFINITY // No rotation data available
     }
 
     object PathfindingConstants {
@@ -467,33 +443,10 @@ object Constants {
         const val finalDistanceFromCoralStationMeters = 0.4118 // 16.77 inches
 
         /**
-         * Distance from the goal at which pathfinding should end.
-         */
-        const val pathfindingEndDistanceFromGoal = 0.3
-
-        /**
-         * Final distance from the reef in meters.
-         */
-        const val finalDistanceFromReefMeters = 0.5022342
-
-        /**
          * Lateral distance from the reef in meters.
          */
         const val lateralDistanceFromReefMeters = 0.1686306
 
-        /**
-         * Pathfinding constraints for the robot.
-         */
-        @JvmStatic
-        val pathfindingConstraints = PathConstraints(
-            1.0, 1.0, degreesToRadians(540.0), degreesToRadians(720.0)
-        )
-
-        /**
-         * Constraints for the final lineup of the robot.
-         */
-        @JvmStatic
-        val finalLineupConstraints = PathConstraints(0.6, 1.0, 2 * Math.PI, 4 * Math.PI)
     }
 
     object ClimberConstants {
@@ -542,9 +495,11 @@ object Constants {
             it.ExternalFeedback.AbsoluteSensorOffset = -0.47
 
             it.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
-            it.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units.Degrees.of(60.0).`in`(Units.Rotations)
+            it.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+                Units.Degrees.of(60.0).`in`(Units.Rotations)
             it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
-            it.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Units.Degrees.of(-45.0).`in`(Units.Rotations)
+            it.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+                Units.Degrees.of(-45.0).`in`(Units.Rotations)
 
             it.MotionMagic.MotionMagicCruiseVelocity = 50.0
             it.MotionMagic.MotionMagicAcceleration = 6.0
