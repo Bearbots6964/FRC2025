@@ -151,7 +151,9 @@ object SuperstructureCommands {
         }
     }
 
-    fun goToPositionWithoutSafety(e: Elevator, a: Arm, c: Climber, s: SuperstructureState): Command {
+    fun goToPositionWithoutSafety(
+        e: Elevator, a: Arm, c: Climber, s: SuperstructureState
+    ): Command {
         return when (s) {
             SuperstructureState.L1 -> l1(e, a, c)
             SuperstructureState.L2 -> l2(e, a, c)
@@ -166,6 +168,7 @@ object SuperstructureCommands {
             SuperstructureState.LOWER_REEF_ALGAE -> lowerReefAlgae(e, a, c)
         }
     }
+
     fun scoreAtPosition(
         e: Elevator, a: Arm, f: ClawIntake, d: Drive, s: SuperstructureState
     ): Command {
@@ -263,7 +266,7 @@ object SuperstructureCommands {
         return Commands.parallel(
             Commands.sequence(
                 Commands.runOnce({ drive.setPathfindingSpeedPercent(0.25) }),
-                PathfindingFactories.pathfindToReefAlternate(
+                PathfindingFactories.pathfindToReef(
                     drive, PathfindingFactories.Reef.A
                 ) { Translation2d() }.alongWith(Commands.waitUntil { intake.grabbed }
                     .andThen(Commands.runOnce({ drive.setPathfindingSpeedPercent(0.50) }))),
@@ -296,18 +299,18 @@ object SuperstructureCommands {
             Commands.sequence(
                 Commands.runOnce({ drive.setPathfindingSpeedPercent(0.25) }),
                 Commands.defer({
-                    PathfindingFactories.pathfindToReefAlternate(
+                    PathfindingFactories.pathfindToReef(
                         drive, reef.get()
                     ) { Translation2d() }
-                }, setOf(drive)).alongWith(Commands.waitUntil { intake.grabbed }
-            ),
+                }, setOf(drive)).alongWith(Commands.waitUntil { intake.grabbed }),
 
-            Commands.sequence(
-                pickUpCoral(elevator, arm, intake, climber)
-                    //Commands.waitUntil { intake.grabbed }
-                    .andThen(Commands.runOnce({ drive.setPathfindingSpeedPercent(0.50) })),
-                Commands.waitUntil(drive::nearGoal).andThen(
-                    goToPositionWithoutSafety(elevator, arm, climber, position.get())
+                Commands.sequence(
+                    pickUpCoral(elevator, arm, intake, climber)
+                        //Commands.waitUntil { intake.grabbed }
+                        .andThen(Commands.runOnce({ drive.setPathfindingSpeedPercent(0.50) })),
+                    Commands.waitUntil(drive::nearGoal).andThen(
+                        goToPositionWithoutSafety(elevator, arm, climber, position.get())
+                    )
                 )
             )
         ).andThen(

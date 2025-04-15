@@ -1,8 +1,5 @@
 package frc.robot.commands
 
-import com.pathplanner.lib.auto.AutoBuilder
-import com.pathplanner.lib.path.GoalEndState
-import com.pathplanner.lib.path.PathPlannerPath
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Transform2d
@@ -13,8 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import frc.robot.AprilTagPositions
 import frc.robot.Constants.PathfindingConstants
-import frc.robot.Robot
-import frc.robot.RobotContainer
 import frc.robot.commands.PathfindingFactories.Reef.*
 import frc.robot.subsystems.drive.Drive
 import frc.robot.subsystems.vision.Vision
@@ -25,200 +20,23 @@ import kotlin.math.hypot
 import kotlin.math.sin
 
 object PathfindingFactories {
-    //<editor-fold desc="Coral Station Pathfinding">
-    // Nearest pathfinding
-    fun pathfindToNearestCoralStation(drive: Drive): Command = AutoBuilder.pathfindToPose(
-        getClosestCoralStationAprilTagPose(drive.pose).let {
-            translateCoordinates(
-                it, it.rotation.degrees, -PathfindingConstants.pathfindingEndDistanceFromGoal
-            )
-        }, PathfindingConstants.pathfindingConstraints, 0.0
-    )
-
-    fun finalLineupToNearestCoralStation(drive: Drive): Command {
-        val currentPose = drive.pose
-        val targetPose = getClosestCoralStationAprilTagPose(currentPose)
-        val path = PathPlannerPath(
-            PathPlannerPath.waypointsFromPoses(
-                listOf(
-                    currentPose, targetPose
-                )
-            ),
-            PathfindingConstants.finalLineupConstraints,
-            null,
-            GoalEndState(0.0, targetPose.rotation)
-        )
-        path.preventFlipping = true
-        return AutoBuilder.followPath(path)
-    }
-
-    // Specific pathfinding
-    fun pathfindToSpecificCoralStation(drive: Drive, side: CoralStationSide): Command =
-        AutoBuilder.pathfindToPose(
-            getSpecificCoralStationPose(side), PathfindingConstants.pathfindingConstraints, 0.0
-        )
-
-    fun finalLineupToSpecificCoralStation(drive: Drive, side: CoralStationSide): Command {
-        val currentPose = drive.pose
-        val targetPose = getSpecificCoralStationPose(side)
-        val path = PathPlannerPath(
-            PathPlannerPath.waypointsFromPoses(
-                listOf(
-                    currentPose, targetPose
-                )
-            ),
-            PathfindingConstants.finalLineupConstraints,
-            null,
-            GoalEndState(0.0, targetPose.rotation)
-        )
-        path.preventFlipping = true
-        return AutoBuilder.followPath(path)
-    }
-
-    // Alternate pathfinding
-    fun pathfindToCoralStationAlternate(
+    fun pathfindToCoralStation(
         drive: Drive, side: CoralStationSide, nudge: Supplier<Translation2d>
     ): Command = drive.followRepulsorField(getSpecificCoralStationPose(side), nudge)
-    //</editor-fold>
 
-    // <editor-fold desc="Reef Pathfinding">
-    fun pathfindToNearestReef(drive: Drive, side: ReefSides): Command {
-        val currentPose = drive.pose
-        val targetPose = getClosestReefAprilTagPose(currentPose, side)
-        return AutoBuilder.pathfindToPose(
-            targetPose, PathfindingConstants.pathfindingConstraints, 0.0
-        )
-    }
-
-    fun pathfindToReefAlternate(drive: Drive, reef: Reef, nudge: Supplier<Translation2d>): Command {
+    fun pathfindToReef(drive: Drive, reef: Reef, nudge: Supplier<Translation2d>): Command {
         val currentPose = drive.pose
         val targetPose = getSpecificReefSidePose(reef)
-        return Commands.runOnce({Vision.setBackCamerasEnabled(false)}).andThen(drive.followRepulsorField(targetPose, nudge)).andThen(Commands.runOnce({Vision.setBackCamerasEnabled(true)}))
+        return Commands.runOnce({ Vision.setBackCamerasEnabled(false) })
+            .andThen(drive.followRepulsorField(targetPose, nudge))
+            .andThen(Commands.runOnce({ Vision.setBackCamerasEnabled(true) }))
     }
 
-    fun pathfindToPosition(drive: Drive, targetPose: Pose2d, nudge: Supplier<Translation2d>): Command = drive.followRepulsorField(targetPose, nudge)
-
-    fun finalLineupToNearestReef(drive: Drive, side: ReefSides): Command {
-        val currentPose = drive.pose
-        val targetPose = getClosestReefAprilTagPose(currentPose, side)
-        val path = PathPlannerPath(
-            PathPlannerPath.waypointsFromPoses(
-                listOf(
-                    currentPose, targetPose
-                )
-            ),
-            PathfindingConstants.finalLineupConstraints,
-            null,
-            GoalEndState(0.0, targetPose.rotation)
-        )
-        path.preventFlipping = true
-        return AutoBuilder.followPath(path)
-    }
-
-    fun pathfindToSpecificReef(drive: Drive, reef: Reef): Command {
-        val currentPose = drive.pose
-        val targetPose = getSpecificReefSidePose(reef)
-        return AutoBuilder.pathfindToPose(
-            targetPose, PathfindingConstants.pathfindingConstraints, 0.0
-        )
-    }
-
-    fun finalLineupToSpecificReef(drive: Drive, reef: Reef): Command {
-        val currentPose = drive.pose
-        val targetPose = getSpecificReefSidePose(reef)
-        val path = PathPlannerPath(
-            PathPlannerPath.waypointsFromPoses(
-                listOf(
-                    currentPose, targetPose
-                )
-            ),
-            PathfindingConstants.finalLineupConstraints,
-            null,
-            GoalEndState(0.0, targetPose.rotation)
-        )
-        path.preventFlipping = true
-        return AutoBuilder.followPath(path)
-    }
+    fun pathfindToPosition(
+        drive: Drive, targetPose: Pose2d, nudge: Supplier<Translation2d>
+    ): Command = drive.followRepulsorField(targetPose, nudge)
 
     // </editor-fold>
-
-    // <editor-fold desc="Utility Methods">
-    private fun getClosestCoralStationAprilTagPose(currentPose: Pose2d): Pose2d {
-        val aprilTagsToAlignTo = HashMap<Int, Pose2d>()
-        val alliance = DriverStation.getAlliance().get()
-        if (alliance == Alliance.Red) {
-            aprilTagsToAlignTo[1] = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[1]!!
-            aprilTagsToAlignTo[2] = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]!!
-        } else {
-            aprilTagsToAlignTo[12] = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[12]!!
-            aprilTagsToAlignTo[13] = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[13]!!
-        }
-
-        var closestPose = Pose2d()
-        var closestDistance = Double.MAX_VALUE
-
-        for ((_, pose) in aprilTagsToAlignTo) {
-            val distance = findDistanceBetween(currentPose, pose)
-            if (distance < closestDistance) {
-                closestDistance = distance
-                closestPose = pose
-            }
-        }
-
-        return translateCoordinates(
-            closestPose,
-            closestPose.rotation.degrees,
-            -PathfindingConstants.finalDistanceFromCoralStationMeters
-        )
-    }
-
-    private fun getClosestReefAprilTagPose(currentPose: Pose2d, side: ReefSides): Pose2d {
-        var aprilTagsToAlignTo = AprilTagPositions.WELDED_BLUE_CORAL_APRIL_TAG_POSITIONS
-        val alliance = DriverStation.getAlliance().get()
-        if (alliance == Alliance.Red) {
-            aprilTagsToAlignTo = AprilTagPositions.WELDED_RED_CORAL_APRIL_TAG_POSITIONS
-        }
-
-        var closestPose = Pose2d()
-        var closestDistance = Double.MAX_VALUE
-
-        for ((_, pose) in aprilTagsToAlignTo) {
-            val distance = findDistanceBetween(currentPose, pose)
-            if (distance < closestDistance) {
-                closestDistance = distance
-                closestPose = pose
-            }
-        }
-
-        val inFrontOfAprilTag: Pose2d = translateCoordinates(
-            closestPose,
-            closestPose.rotation.degrees,
-            -PathfindingConstants.finalDistanceFromReefMeters
-        )
-        val leftOrRightOfAprilTag: Pose2d = when (side) {
-            ReefSides.LEFT -> {
-                translateCoordinates(
-                    inFrontOfAprilTag,
-                    closestPose.rotation.degrees + 90,
-                    PathfindingConstants.lateralDistanceFromReefMeters
-                )
-            }
-
-            ReefSides.RIGHT -> {
-                translateCoordinates(
-                    inFrontOfAprilTag,
-                    closestPose.rotation.degrees + 90,
-                    -PathfindingConstants.lateralDistanceFromReefMeters
-                )
-            }
-
-            else -> {
-                inFrontOfAprilTag
-            }
-        }
-
-        return leftOrRightOfAprilTag
-    }
 
     private fun getSpecificCoralStationPose(side: CoralStationSide): Pose2d {
         val alliance = DriverStation.getAlliance().getOrElse { Alliance.Red }
@@ -236,16 +54,15 @@ object PathfindingFactories {
             -PathfindingConstants.finalDistanceFromCoralStationMeters
         ).let {
             translateCoordinates(
-                it,
-                it.rotation.degrees + 90,
-                0.06985
+                it, it.rotation.degrees + 90, 0.06985
             )
         }
     }
 
     private fun getSpecificReefSidePose(reef: Reef): Pose2d {
         val aprilTagsToAlignTo = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS
-        val alliance = if (DriverStation.getAlliance().isPresent) DriverStation.getAlliance().get() else Alliance.Red
+        val alliance = if (DriverStation.getAlliance().isPresent) DriverStation.getAlliance()
+            .get() else Alliance.Red
         val aprilTagNum: Int = when (reef) {
             A, B, AB_ALGAE -> when (alliance) {
                 Alliance.Red -> 7
@@ -293,8 +110,7 @@ object PathfindingFactories {
         val leftOrRightOfAprilTag: Pose2d = when (side) {
             ReefSides.LEFT -> {
                 translateCoordinates(
-                    inFrontOfAprilTag,
-                    closestPose.rotation.degrees + 90,
+                    inFrontOfAprilTag, closestPose.rotation.degrees + 90,
                     // Offset measured by pit team
                     PathfindingConstants.lateralDistanceFromReefMeters - 0.0508
                 )
@@ -302,8 +118,7 @@ object PathfindingFactories {
 
             ReefSides.RIGHT -> {
                 translateCoordinates(
-                    inFrontOfAprilTag,
-                    closestPose.rotation.degrees + 90,
+                    inFrontOfAprilTag, closestPose.rotation.degrees + 90,
                     // Offset measured by pit team
                     -PathfindingConstants.lateralDistanceFromReefMeters + 0.0127
                 )

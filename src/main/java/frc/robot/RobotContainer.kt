@@ -63,9 +63,6 @@ import kotlin.math.pow
  */
 @Suppress("GrazieInspection")
 class RobotContainer {
-    //noinspection ALL
-    /* in the reefed scape. straight up "pushing it". and by "it", haha, well. let's justr say. My code */
-
     // Subsystems
     private var drive: Drive
     private var vision: Vision
@@ -309,14 +306,14 @@ class RobotContainer {
         )
 
         driveController.pov(90).onTrue(driveQueue.addButDoNotStartAsCommand({
-            PathfindingFactories.pathfindToCoralStationAlternate(
+            PathfindingFactories.pathfindToCoralStation(
                 drive,
                 PathfindingFactories.CoralStationSide.RIGHT,
                 driveTranslationalControlSupplier
             )
         }))
         driveController.pov(180).onTrue(driveQueue.addButDoNotStartAsCommand({
-            PathfindingFactories.pathfindToCoralStationAlternate(
+            PathfindingFactories.pathfindToCoralStation(
                 drive, PathfindingFactories.CoralStationSide.LEFT, driveTranslationalControlSupplier
             )
         }))
@@ -451,7 +448,7 @@ class RobotContainer {
                 PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.CD_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.GH_ALGAE, PathfindingFactories.Reef.IJ_ALGAE, PathfindingFactories.Reef.KL_ALGAE -> {
                     SmartDashboard.putData(
                         driveQueue.addButDoNotStartAsCommand({
-                            PathfindingFactories.pathfindToReefAlternate(
+                            PathfindingFactories.pathfindToReef(
                                 drive, reef, driveTranslationalControlSupplier
                             )
                         }).andThen(
@@ -477,7 +474,7 @@ class RobotContainer {
                 }
 
                 else -> SmartDashboard.putData(driveQueue.addButDoNotStartAsCommand({
-                    PathfindingFactories.pathfindToReefAlternate(
+                    PathfindingFactories.pathfindToReef(
                         drive, reef, driveTranslationalControlSupplier
                     )
                 }).withName("\nQueue Reef " + reef.name + "\n").ignoringDisable(true))
@@ -505,7 +502,7 @@ class RobotContainer {
 //            )
             SmartDashboard.putData(
                 driveQueue.addButDoNotStartAsCommand({
-                    PathfindingFactories.pathfindToCoralStationAlternate(
+                    PathfindingFactories.pathfindToCoralStation(
                         drive, coralStation, driveTranslationalControlSupplier
                     ).withName("Drive to $coralStation Coral Station (Queued, alternate)")
                 }).ignoringDisable(true).andThen(
@@ -622,41 +619,57 @@ class RobotContainer {
         SmartDashboard.putData(
             Commands.defer(
                 {
-                    PathfindingFactories.pathfindToCoralStationAlternate(
+                    PathfindingFactories.pathfindToCoralStation(
                         drive, nextStation, driveTranslationalControlSupplier
                     )
                 }, setOf(drive)
             ).deadlineFor(
                 SuperstructureCommands.preCoralPickup(elevator, arm, climber)
             ).finallyDo(Runnable { arm.stop() }).andThen(
-        Commands.run({ drive.stopWithX() }, drive).withDeadline(
-            Commands.waitUntil(driveController.rightBumper()::getAsBoolean).withName("lock")
-        )
-        ).andThen(
-        SuperstructureCommands.fullCycle(
-            elevator,
-            arm,
-            climber,
-            clawIntake,
-            drive,
-            { nextReef },
-            { nextPosition },
-            DriveCommands.joystickDrive(
-                drive,
-                { -driveController.leftY * 0.25 },
-                { -driveController.leftX * 0.25 },
-                { -driveController.rightX * 0.25 }).alongWith(
-                Commands.run({
-                    driveController.setRumble(
-                        GenericHID.RumbleType.kBothRumble, 1.0
-                    )
-                }),
+                Commands.run({ drive.stopWithX() }, drive).withDeadline(
+                    Commands.waitUntil(driveController.rightBumper()::getAsBoolean).withName("lock")
+                )
+            ).andThen(
+                Commands.parallel(
+                    Commands.sequence(
+                        Commands.runOnce({ drive.setPathfindingSpeedPercent(0.25) }),
+                        Commands.defer({
+                            PathfindingFactories.pathfindToReef(
+                                drive, nextReef
+                            ) { Translation2d() }
+                        }, setOf(drive)).alongWith(Commands.waitUntil { clawIntake.grabbed }),
 
-                ).finallyDo { ->
-                driveController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
-            },
-            { Commands.waitUntil(driveController.rightBumper()::getAsBoolean) }))
-        .withName("good luck"))
+                        Commands.sequence(
+                            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber)
+                                //Commands.waitUntil { intake.grabbed }
+                                .andThen(Commands.runOnce({ drive.setPathfindingSpeedPercent(0.50) })),
+                            Commands.waitUntil(drive::nearGoal).andThen(
+                                Commands.defer({
+                                    SuperstructureCommands.goToPositionWithoutSafety(
+                                        elevator, arm, climber, nextPosition
+                                    )
+                                }, setOf(elevator, arm, climber))
+                            )
+                        )
+                    )
+                ).andThen(
+                    Commands.waitUntil(driveController.rightBumper()::getAsBoolean)
+                        .alongWith(Commands.waitSeconds(2.0)).deadlineFor(
+                            DriveCommands.joystickDrive(
+                                drive,
+                                { -driveController.leftY * 0.25 },
+                                { -driveController.leftX * 0.25 },
+                                { -driveController.rightX * 0.25 }).alongWith(arm.stop())
+                        )
+                ).andThen(
+                    Commands.defer({
+                        SuperstructureCommands.scoreAtPosition(
+                            elevator, arm, clawIntake, drive, nextPosition
+                        )
+                    }, setOf(elevator, arm, clawIntake, drive))
+                )
+            ).withName("good luck")
+        )
         for (reef in PathfindingFactories.Reef.entries) {
             SmartDashboard.putData(
                 Commands.runOnce({ nextReef = reef }).withName("Select Reef $reef")
