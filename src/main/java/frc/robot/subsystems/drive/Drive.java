@@ -165,6 +165,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
       ModuleIO blModuleIO,
       ModuleIO brModuleIO,
       Consumer<Pose2d> resetSimulationPoseCallBack) {
+    double initializeTime = Timer.getFPGATimestamp();
     this.gyroIO = gyroIO;
     this.resetSimulationPoseCallBack = resetSimulationPoseCallBack;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.getFrontLeft());
@@ -246,7 +247,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
           builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
         });
-
+    System.out.println("Drive initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   /** Returns an array of module translations. */

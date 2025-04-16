@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.GenericHID
+import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -50,6 +51,7 @@ import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean
 import java.util.function.Supplier
 import kotlin.math.hypot
 import kotlin.math.pow
@@ -81,6 +83,7 @@ class RobotContainer {
     private var nextReef = PathfindingFactories.Reef.A
     private var nextStation = PathfindingFactories.CoralStationSide.LEFT
     private var nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
+    private val grabAlgaeToggle = LoggedNetworkBoolean("Grab Algae Toggle", false)
 
     private val driveQueue: CommandQueue = CommandQueue().withCallback {
         Commands.race(
@@ -124,6 +127,7 @@ class RobotContainer {
 
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
+        val initializeTime: Double = Timer.getFPGATimestamp()
         driveQueue.name = ("Auto Queue")
         when (Constants.currentMode) {
             Constants.Mode.REAL -> {
@@ -229,17 +233,22 @@ class RobotContainer {
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
             }
         }
+        println("[RobotContainer] Subsystems initialized at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
         addNamedCommands()
-
+        println("[RobotContainer] Named commands initialized at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
         setUpAutoChooser()
+        println("[RobotContainer] Auto chooser initialized at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         // Configure the button bindings
         configureButtonBindings()
+        println("[RobotContainer] Button bindings configured at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         if (climber.position > 40.0) elevator.goToPosition(40.0)
             .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
             .andThen(SuperstructureCommands.algaeIntakeWithoutSafety(elevator, arm, climber))
             .schedule()
+
+        println("RobotContainer initialized in ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
     }
 
 
@@ -256,6 +265,11 @@ class RobotContainer {
             { -driveController.leftX },
             { -driveController.rightX })
 
+        // Default commands for elevator and arm
+        elevator.defaultCommand = elevator.stop()
+        arm.defaultCommand = arm.stop()
+        climber.defaultCommand = climber.moveClimberToIntakePosition()
+        clawIntake.defaultCommand = clawIntake.stop()
         // Lock to 0° when A button is held
         driveController.a().whileTrue(
             DriveCommands.joystickDriveAtAngle(
@@ -319,11 +333,6 @@ class RobotContainer {
         }))
         // </editor-fold>
 
-        // Default commands for elevator and arm
-        elevator.defaultCommand = elevator.stop()
-        arm.defaultCommand = arm.stop()
-        climber.defaultCommand = climber.moveClimberToIntakePosition()
-        clawIntake.defaultCommand = clawIntake.stop()
 
         //Trigger { abs(operatorController.leftY) > 0.1 }.whileTrue(
         //    arm.moveArm { -operatorController.leftY }
@@ -617,6 +626,7 @@ class RobotContainer {
         SmartDashboard.putData("Other Command Queue", superstructureQueue)
 
         SmartDashboard.putData(
+            // go to coral station; requires drive, arm, elevator, and climber
             Commands.defer(
                 {
                     PathfindingFactories.pathfindToCoralStation(
@@ -625,24 +635,34 @@ class RobotContainer {
                 }, setOf(drive)
             ).deadlineFor(
                 SuperstructureCommands.preCoralPickup(elevator, arm, climber)
-            ).finallyDo(Runnable { arm.stop() }).andThen(
-                Commands.run({ drive.stopWithX() }, drive).withDeadline(
-                    Commands.waitUntil(driveController.rightBumper()::getAsBoolean).withName("lock")
-                )
-            ).andThen(
-                Commands.parallel(
-                    Commands.sequence(
+            ).finallyDo(Runnable { arm.setGoalToCurrent() })
+
+                // wait until the right bumper is pressed; requires drive
+                .andThen(
+                    Commands.run({ drive.stopWithX() }, drive).withDeadline(
+                        Commands.waitUntil(driveController.rightBumper()::getAsBoolean)
+                            .withName("lock")
+                    )
+
+                    // pathfind to reef; requires drive, elevator, arm, intake, climber
+                ).andThen(
+                    Commands.parallel(
+                        Commands.sequence(
+                        // pathfinding speed; doesn't require anything
                         Commands.runOnce({ drive.setPathfindingSpeedPercent(0.25) }),
+
+
                         Commands.defer({
                             PathfindingFactories.pathfindToReef(
                                 drive, nextReef
                             ) { Translation2d() }
-                        }, setOf(drive)).alongWith(Commands.waitUntil { clawIntake.grabbed }),
+                        }, setOf(drive)).alongWith(Commands.waitUntil { clawIntake.grabbed }
+                            .andThen({ drive.setPathfindingSpeedPercent(0.50) })),
+                    ),
 
                         Commands.sequence(
-                            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber)
-                                //Commands.waitUntil { intake.grabbed }
-                                .andThen(Commands.runOnce({ drive.setPathfindingSpeedPercent(0.50) })),
+                            SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber),
+                            //Commands.waitUntil { intake.grabbed }
                             Commands.waitUntil(drive::nearGoal).andThen(
                                 Commands.defer({
                                     SuperstructureCommands.goToPositionWithoutSafety(
@@ -667,8 +687,89 @@ class RobotContainer {
                             elevator, arm, clawIntake, drive, nextPosition
                         )
                     }, setOf(elevator, arm, clawIntake, drive))
-                )
-            ).withName("good luck")
+                ).andThen(
+                    Commands.defer({
+                        if (grabAlgaeToggle.get()) {
+                            if (setOf(
+                                    PathfindingFactories.Reef.A,
+                                    PathfindingFactories.Reef.B,
+                                    PathfindingFactories.Reef.E,
+                                    PathfindingFactories.Reef.F,
+                                    PathfindingFactories.Reef.I,
+                                    PathfindingFactories.Reef.J
+                                ).contains(nextReef)
+                            ) {
+                                drive.backUp().alongWith(
+                                    SuperstructureCommands.goToPosition(
+                                        elevator,
+                                        arm,
+                                        climber,
+                                        Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
+                                    )
+                                ).andThen(
+                                    PathfindingFactories.pathfindToReef(
+                                        drive, when (nextReef) {
+                                            PathfindingFactories.Reef.A -> PathfindingFactories.Reef.AB_ALGAE
+                                            PathfindingFactories.Reef.B -> PathfindingFactories.Reef.AB_ALGAE
+                                            PathfindingFactories.Reef.E -> PathfindingFactories.Reef.EF_ALGAE
+                                            PathfindingFactories.Reef.F -> PathfindingFactories.Reef.EF_ALGAE
+                                            PathfindingFactories.Reef.I -> PathfindingFactories.Reef.IJ_ALGAE
+                                            PathfindingFactories.Reef.J -> PathfindingFactories.Reef.IJ_ALGAE
+                                            else -> nextReef
+                                        }, driveTranslationalControlSupplier
+                                    ).withDeadline(Commands.waitUntil(clawIntake::grabbed))
+                                )
+                            } else {
+                                drive.backUp().alongWith(
+                                    SuperstructureCommands.goToPosition(
+                                        elevator,
+                                        arm,
+                                        climber,
+                                        Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
+                                    )
+                                ).andThen(
+                                    PathfindingFactories.pathfindToReef(
+                                        drive, when (nextReef) {
+                                            PathfindingFactories.Reef.C -> PathfindingFactories.Reef.CD_ALGAE
+                                            PathfindingFactories.Reef.D -> PathfindingFactories.Reef.CD_ALGAE
+                                            PathfindingFactories.Reef.G -> PathfindingFactories.Reef.GH_ALGAE
+                                            PathfindingFactories.Reef.H -> PathfindingFactories.Reef.GH_ALGAE
+                                            PathfindingFactories.Reef.K -> PathfindingFactories.Reef.KL_ALGAE
+                                            PathfindingFactories.Reef.L -> PathfindingFactories.Reef.KL_ALGAE
+                                            else -> nextReef
+                                        }, driveTranslationalControlSupplier
+                                    ).withDeadline(Commands.waitUntil(clawIntake::grabbed))
+                                )
+                            }.andThen(
+                                Commands.sequence(
+                                    drive.backUp(),
+                                    Commands.runOnce({ drive.setPathfindingSpeedPercent(0.25) }),
+                                    PathfindingFactories.pathfindToPosition(
+                                        drive,
+                                        if (!DriverStation.getAlliance().isEmpty && DriverStation.getAlliance()
+                                                .get() == DriverStation.Alliance.Red
+                                        ) FlippingUtil.flipFieldPose(
+                                            Constants.PathfindingConstants.bargePosition
+                                        ) else Constants.PathfindingConstants.bargePosition,
+                                        driveTranslationalControlSupplier
+                                    )
+                                ).alongWith(
+                                    Commands.waitUntil(drive::nearGoal).andThen(
+                                        SuperstructureCommands.bargeLaunch(elevator, arm, climber)
+                                    )
+                                ).deadlineFor(
+                                    clawIntake.intakeWithoutStoppingForAlgae()
+                                )
+                            ).andThen(
+                                Commands.waitSeconds(2.0).deadlineFor(clawIntake.outtake())
+                            ).andThen(
+                                drive.backUp()
+                            ).andThen(
+                                SuperstructureCommands.algaeIntake(elevator, arm, climber)
+                            )
+                        } else Commands.none()
+                    }, setOf(drive, elevator, arm, climber, clawIntake))
+                ).withName("good luck")
         )
         for (reef in PathfindingFactories.Reef.entries) {
             SmartDashboard.putData(
@@ -780,15 +881,6 @@ class RobotContainer {
     fun stopQueue() {
         driveQueue.clearAll()
         superstructureQueue.clearAll()
-    }
-
-    fun periodic() {
-        Logger.recordOutput(
-            "RobotContainer/Drivebase Queue", driveQueue.struct, driveQueue
-        )
-        Logger.recordOutput(
-            "RobotContainer/Superstructure Queue", superstructureQueue.struct, superstructureQueue
-        )
     }
 
     fun fixArm() {

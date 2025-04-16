@@ -22,6 +22,7 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.net.WebServer
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Filesystem
+import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.generated.TunerConstants
@@ -46,6 +47,7 @@ class Robot : LoggedRobot() {
     private var firstDisable = false
 
     init {
+        val initializeTime = Timer.getFPGATimestamp()
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME)
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE)
@@ -57,6 +59,7 @@ class Robot : LoggedRobot() {
             1 -> Logger.recordMetadata("GitDirty", "Uncomitted changes")
             else -> Logger.recordMetadata("GitDirty", "Unknown")
         }
+        println("[Robot] Logger metadata recorded at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         // Set up data receivers & replay source
         when (Constants.currentMode) {
@@ -77,10 +80,12 @@ class Robot : LoggedRobot() {
                 Logger.addDataReceiver(WPILOGWriter(addPathSuffix(logPath, "_sim")))
             }
         }
+        println("[Robot] Logger data receivers set up at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
         //Logger.registerURCL(URCL.startExternal())
 
         // Start AdvantageKit logger
         Logger.start()
+        println("[Robot] Logger started at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         // Check for valid swerve config
         val modules = arrayOf<SwerveModuleConstants<*, *, *>>(
@@ -89,6 +94,7 @@ class Robot : LoggedRobot() {
             TunerConstants.BackLeft,
             TunerConstants.BackRight
         )
+
         HAL.report(
             kResourceType_Language, kLanguage_Kotlin
         )
@@ -101,6 +107,7 @@ class Robot : LoggedRobot() {
         HAL.report(kResourceType_Dashboard, kDashboard_Elastic)
         HAL.report(kResourceType_Dashboard, kDashboard_AdvantageScope)
         HAL.report(kResourceType_PDP, kPDP_REV)
+        println("[Robot] HAL reports sent at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         for (constants in modules) {
             if ((constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated) || (constants.SteerMotorType != SteerMotorArrangement.TalonFX_Integrated)) {
@@ -109,17 +116,23 @@ class Robot : LoggedRobot() {
                 )
             }
         }
+        println("[Robot] Swerve config checked at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
         WebServer.start(5800, Filesystem.getDeployDirectory().path) // For dashboard files
+        println("[Robot] Web server started at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
+        println("[Robot] RobotContainer initialized at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         // Schedule the warmup command. Significantly speeds up pathfinding after the first run.
         PathfindingCommand.warmupCommand().withName("Pathfinding Warmup").schedule()
+        println("[Robot] Pathfinding warmup command scheduled at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         // Silence joystick connection warning
         DriverStation.silenceJoystickConnectionWarning(true)
+
+        println("Robot initialization took ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
     }
 
     companion object {
@@ -164,15 +177,16 @@ class Robot : LoggedRobot() {
         //Threads.setCurrentThreadPriority(true, 99)
         CommandScheduler.getInstance().run()
         //Threads.setCurrentThreadPriority(false, 10)
-        robotContainer.periodic()
     }
 
     /** This function is called once when the robot is disabled.  */
     override fun disabledInit() {
         robotContainer.stopQueue()
-        Companion.inTeleop = false
+        inTeleop = false
         if (firstDisable) {
+            val time = Timer.getFPGATimestamp()
             robotContainer.setUpDashboardCommands()
+            println("[Robot] Dashboard commands set up in ${"%.3f".format((Timer.getFPGATimestamp() - time) * 1000.0)}ms")
         }
     }
 

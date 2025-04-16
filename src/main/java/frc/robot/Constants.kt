@@ -9,6 +9,8 @@ import com.revrobotics.spark.config.SparkBaseConfig
 import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.apriltag.AprilTagFields
+import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Transform3d
 import edu.wpi.first.math.geometry.Translation2d
@@ -446,6 +448,13 @@ object Constants {
          * Lateral distance from the reef in meters.
          */
         const val lateralDistanceFromReefMeters = 0.1686306
+
+        @JvmStatic
+        val bargePosition: Pose2d = Pose2d(
+            7.65,
+            6.58,
+            Rotation2d()
+        )
 
     }
 

@@ -40,6 +40,7 @@ public class Climber extends SubsystemBase {
   double timer = 0.0;
 
   public Climber(WinchIO winchIO, ClimberPivotIO pivotIO) {
+    double initializeTime = Timer.getFPGATimestamp();
     this.winchIO = winchIO;
     this.pivotIO = pivotIO;
     mechanism = new LoggedMechanism2d(Units.inchesToMeters(29.5), Units.inchesToMeters(29.5));
@@ -54,6 +55,7 @@ public class Climber extends SubsystemBase {
     pivot.append(
         new LoggedMechanismLigament2d("Intake Finger", Units.inchesToMeters(15.0), -21.6, 2.0,
             new Color8Bit(Color.kSilver)));
+    System.out.println("Climber initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   public void periodic() {

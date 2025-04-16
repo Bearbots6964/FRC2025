@@ -65,7 +65,7 @@ public class ClawIntake extends SubsystemBase {
   public Command outtake() {
     return run(() ->
             io.setIntakeOpenLoop(
-                SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent()))
+                SuperstructureConstants.ClawIntakeConstants.getClawIntakePercent() * 2.0))
         .finallyDo(() -> spinFlywheel(0.0))
         .withName("Outtake");
   }
