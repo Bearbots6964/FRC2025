@@ -24,6 +24,7 @@ public class Arm extends SubsystemBase {
   private final LoggedMechanismLigament2d secondSegment;
   double timer = 0.0;
   public Arm(ArmIO io, LoggedMechanismLigament2d mechanism) {
+    double initializeTime = Timer.getFPGATimestamp();
     this.io = io;
 
     firstSegment =
@@ -42,6 +43,10 @@ public class Arm extends SubsystemBase {
                 -60.0,
                 6.0,
                 new Color8Bit(Color.kDenim)));
+    System.out.println(
+        "│╠ Arm initialized in "
+            + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)
+            + "ms");
   }
 
   public void periodic() {

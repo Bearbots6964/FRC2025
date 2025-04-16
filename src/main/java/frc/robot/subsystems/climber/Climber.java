@@ -55,7 +55,7 @@ public class Climber extends SubsystemBase {
     pivot.append(
         new LoggedMechanismLigament2d("Intake Finger", Units.inchesToMeters(15.0), -21.6, 2.0,
             new Color8Bit(Color.kSilver)));
-    System.out.println("Climber initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
+    System.out.println("│╠ Climber initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   public void periodic() {

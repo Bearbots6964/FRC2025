@@ -247,7 +247,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
           builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
         });
-    System.out.println("Drive initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
+    System.out.println("│╠ Drive initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   /** Returns an array of module translations. */

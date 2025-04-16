@@ -58,7 +58,7 @@ public class Vision extends SubsystemBase {
       disconnectedAlerts[i] =
           new Alert("Vision camera " + i + " is disconnected.", AlertType.kWarning);
     }
-    System.out.println("Vision initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
+    System.out.println("│╠ Vision initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
   }
 
   /**

@@ -48,7 +48,7 @@ public class Elevator extends SubsystemBase {
         elevatorRoot.append(
             new LoggedMechanismLigament2d(
                 "Elevator", Units.inchesToMeters(37.0), 90.0, 6.0, new Color8Bit(Color.kGray)));
-    System.out.println("Elevator initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
+    System.out.println("│╠ Elevator initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   public void setRotations(double rotations) {
