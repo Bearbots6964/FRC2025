@@ -5,6 +5,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,6 +37,7 @@ public class Climber extends SubsystemBase {
   private final LoggedMechanismLigament2d pivot;
   @AutoLogOutput
   private final LoggedMechanism2d mechanism;
+  double timer = 0.0;
 
   public Climber(WinchIO winchIO, ClimberPivotIO pivotIO) {
     this.winchIO = winchIO;
@@ -55,6 +57,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void periodic() {
+    timer = Timer.getFPGATimestamp();
     winchIO.updateInputs(winchInputs);
     Logger.processInputs("Climber Winch", winchInputs);
     pivotIO.updateInputs(pivotInputs);
@@ -67,6 +70,7 @@ public class Climber extends SubsystemBase {
       winchIO.stopWinch();
       pivotIO.stopPivot();
     }
+    Logger.recordOutput("Climber/Loop Time (ms)", (Timer.getFPGATimestamp() - timer) * 1000.0);
   }
 
   public Command moveClimberOpenLoop(DoubleSupplier winchOutput, DoubleSupplier pivotOutput) {

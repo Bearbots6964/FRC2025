@@ -1,6 +1,7 @@
 package frc.robot.subsystems.arm;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SuperstructureConstants;
@@ -14,12 +15,14 @@ public class ClawIntake extends SubsystemBase {
   private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
   @Getter public boolean manuallySetToGrabbed = false;
   @Getter public boolean grabbed = false;
+  double timer = 0.0;
 
   public ClawIntake(ClawIntakeIO io) {
     this.io = io;
   }
 
   public void periodic() {
+    timer = Timer.getFPGATimestamp();
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
 
@@ -27,6 +30,7 @@ public class ClawIntake extends SubsystemBase {
       io.stopIntake();
     }
     grabbed = inputs.thingGripped;
+    Logger.recordOutput("Intake/Loop Time (ms)", (Timer.getFPGATimestamp() - timer) * 1000.0);
   }
 
   public Command spinFlywheel(Double output) {

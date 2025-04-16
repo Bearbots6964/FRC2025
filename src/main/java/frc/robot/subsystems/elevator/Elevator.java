@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,6 +33,7 @@ public class Elevator extends SubsystemBase {
   private SysIdRoutine sysIdRoutine;
   private double targetPosition;
   @AutoLogOutput private LoggedMechanism2d mechanism;
+  double timer = 0.0;
 
   public Elevator(ElevatorIO io) {
     this.io = io;
@@ -57,11 +59,13 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
+    timer = Timer.getFPGATimestamp();
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
     elevatorLigament.setLength(
         inchesToMeters(
             inputs.rightMotorPositionRotations / ElevatorConstants.rotationsPerInch + 37));
+    Logger.recordOutput("Elevator/Loop Time (ms)", (Timer.getFPGATimestamp() - timer) * 1000.0);
   }
 
   /**

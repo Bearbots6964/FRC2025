@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -9,14 +10,17 @@ public class AlgaeIntake extends SubsystemBase {
 
   private final AlgaeIntakeIO io;
   private final AlgaeIntakeIOInputsAutoLogged inputs = new AlgaeIntakeIOInputsAutoLogged();
+  double timer = 0.0;
 
   public AlgaeIntake(AlgaeIntakeIO io) {
     this.io = io;
   }
 
   public void periodic() {
+    timer = Timer.getFPGATimestamp();
     io.updateInputs(inputs);
     Logger.processInputs("Algae Intake", inputs);
+    Logger.recordOutput("Algae Intake/Loop Time (ms)", (Timer.getFPGATimestamp() - timer) * 1000.0);
   }
 
   public void setArmOpenLoop(double output) {

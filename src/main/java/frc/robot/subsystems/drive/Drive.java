@@ -52,6 +52,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -80,6 +81,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase implements Vision.VisionConsumer {
+  double timer = 0.0;
 
   public static final double DRIVE_BASE_RADIUS =
       Math.max(
@@ -244,6 +246,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
           builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
         });
+
   }
 
   /** Returns an array of module translations. */
@@ -262,6 +265,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
   @Override
   public void periodic() {
+    timer = Timer.getFPGATimestamp();
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -326,6 +330,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getCurrentMode() != Mode.SIM);
 
     Logger.recordOutput("Odometry/Zone", currentZone);
+
+    Logger.recordOutput("Swerve/Loop Time (ms)", (Timer.getFPGATimestamp() - timer) * 1000.0);
   }
 
   /**

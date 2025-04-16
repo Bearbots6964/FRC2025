@@ -11,6 +11,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,10 @@ public class Vision extends SubsystemBase {
   List<Pose3d> robotPosesAccepted = new ArrayList<>();
   List<Pose3d> robotPosesRejected = new ArrayList<>();
 
-  @Setter
-  static boolean backCamerasEnabled = true;
+  double timer = 0.0;
+  double cameraTimer = 0.0;
+
+  public static boolean backCamerasEnabled = true;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -67,12 +70,14 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
+    timer = Timer.getFPGATimestamp();
     allTagPoses.clear();
     allRobotPoses.clear();
     allRobotPosesAccepted.clear();
     allRobotPosesRejected.clear();
 
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+      cameraTimer = Timer.getFPGATimestamp();
       if (!((cameraIndex == 1 || cameraIndex == 3) && !backCamerasEnabled)) {
         io[cameraIndex].updateInputs(inputs[cameraIndex]);
         Logger.processInputs("Vision/Camera" + cameraIndex, inputs[cameraIndex]);
@@ -81,6 +86,7 @@ public class Vision extends SubsystemBase {
 
         processCameraData(cameraIndex);
       }
+      Logger.recordOutput("Vision/Camera" + cameraIndex + "/Loop Time (ms)", (Timer.getFPGATimestamp() - cameraTimer) * 1000.0);
     }
 
     // Log summary data (less frequently if needed)
@@ -90,6 +96,7 @@ public class Vision extends SubsystemBase {
         "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
     Logger.recordOutput(
         "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+    Logger.recordOutput("Vision/Loop Time (ms)", (Timer.getFPGATimestamp() - timer) * 1000.0);
   }
 
   private void processCameraData(int cameraIndex) {

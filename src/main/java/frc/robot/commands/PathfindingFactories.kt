@@ -25,9 +25,9 @@ object PathfindingFactories {
 
     fun pathfindToReef(drive: Drive, reef: Reef, nudge: Supplier<Translation2d>): Command {
         val targetPose = getSpecificReefSidePose(reef)
-        return Commands.runOnce({ Vision.setBackCamerasEnabled(false) })
+        return Commands.runOnce({ Vision.backCamerasEnabled = false })
             .andThen(drive.followRepulsorField(targetPose, nudge))
-            .andThen(Commands.runOnce({ Vision.setBackCamerasEnabled(true) }))
+            .andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
     fun pathfindToPosition(

@@ -5,6 +5,7 @@ import static edu.wpi.first.math.util.Units.inchesToMeters;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +22,7 @@ public class Arm extends SubsystemBase {
   private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
   public final LoggedMechanismLigament2d firstSegment;
   private final LoggedMechanismLigament2d secondSegment;
-
+  double timer = 0.0;
   public Arm(ArmIO io, LoggedMechanismLigament2d mechanism) {
     this.io = io;
 
@@ -44,6 +45,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void periodic() {
+    timer = Timer.getFPGATimestamp();
     io.updateInputs(inputs);
     Logger.processInputs("Arm", inputs);
     firstSegment.setAngle(inputs.armAxisAngle + 270 + 23.5);
@@ -51,6 +53,7 @@ public class Arm extends SubsystemBase {
     if (DriverStation.isDisabled()) {
       io.stopArm();
     }
+    Logger.recordOutput("Arm/Loop Time (ms)", (Timer.getFPGATimestamp() - timer) * 1000.0);
   }
 
   public Command stop() {
