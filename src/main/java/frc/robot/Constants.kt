@@ -475,7 +475,7 @@ object Constants {
          * Position of the pivot motor when the cage can catch the climber.
          */
         @JvmStatic
-        val pivotCageCatchPosition = 63.0
+        val pivotCageCatchPosition = 50.0
 
         /**
          * Position of the pivot motor when fully retracted and climbed.

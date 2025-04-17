@@ -93,7 +93,7 @@ public class Climber extends SubsystemBase {
     return runOnce(() -> {
       winchIO.setWinchBrakeMode(NeutralModeValue.Coast);
       winchIO.stopWinch();
-    }).andThen(run(() -> pivotIO.setPivotPositionDegrees(-21.6)))
+    }).andThen(run(() -> pivotIO.setPivotPositionDegrees(63.6)))
         .withName("Move Climber to Intake Position");
   }
 
