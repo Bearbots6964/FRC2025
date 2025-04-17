@@ -475,13 +475,13 @@ object Constants {
          * Position of the pivot motor when the cage can catch the climber.
          */
         @JvmStatic
-        val pivotCageCatchPosition = -45.0
+        val pivotCageCatchPosition = 63.0
 
         /**
          * Position of the pivot motor when fully retracted and climbed.
          */
         @JvmStatic
-        val pivotClimbedPosition = 52.0
+        val pivotClimbedPosition = 135.0
 
 
         /**
@@ -501,21 +501,25 @@ object Constants {
             it.ExternalFeedback.RotorToSensorRatio = 100.0
             it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
             it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.5
-            it.ExternalFeedback.AbsoluteSensorOffset = -0.47
+            it.ExternalFeedback.AbsoluteSensorOffset = -0.39
 
             it.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
             it.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-                Units.Degrees.of(60.0).`in`(Units.Rotations)
+                Units.Degrees.of(150.0).`in`(Units.Rotations)
             it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
             it.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-                Units.Degrees.of(-45.0).`in`(Units.Rotations)
+                Units.Degrees.of(45.0).`in`(Units.Rotations)
 
-            it.MotionMagic.MotionMagicCruiseVelocity = 50.0
-            it.MotionMagic.MotionMagicAcceleration = 6.0
+            it.MotionMagic.MotionMagicCruiseVelocity = 3.0
+            it.MotionMagic.MotionMagicAcceleration = 10.0
 
-            it.Slot0.kP = 40.0
+            it.Slot0.kP = 30.0
+            it.Slot0.kD = 0.1
+            it.Slot0.kS = 0.21
             it.Slot0.kV = 4.0
             it.Slot0.kA = 0.2
+            it.Slot0.kG = 0.28
+            it.Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
             it
         }
