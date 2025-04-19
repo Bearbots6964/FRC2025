@@ -699,6 +699,7 @@ class RobotContainer {
 
                         Commands.sequence(
                             SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber),
+                            Commands.runOnce({arm.setGoalToCurrent()}),
                             //Commands.waitUntil { intake.grabbed }
                             Commands.waitUntil(drive::nearGoal).andThen(
                                 Commands.defer({
