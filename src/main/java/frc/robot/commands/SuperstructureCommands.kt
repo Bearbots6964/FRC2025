@@ -237,7 +237,7 @@ object SuperstructureCommands {
                 a.moveArmToAngle(ArmConstants.ArmState.CORAL_PICKUP).until { a.armAngle > 200.0 },
                 c.moveClimberToCageCatchPosition()
             ),
-            f.intake().deadlineFor(c.pivotToPosition(0.0)),
+            f.intake().deadlineFor(c.pivotToPosition(90.0)),
             Commands.runOnce({ coralGrabbed = true }).withName("Set Coral Grabbed"),
             e.goToPosition(ElevatorState.CORAL_PICKUP + 45.0)
         ).withName("Pick Up Coral")

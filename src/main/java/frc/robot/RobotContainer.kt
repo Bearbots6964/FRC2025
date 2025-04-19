@@ -615,44 +615,44 @@ class RobotContainer {
                     ).withName("Pick up coral (queued)")
                 }).withName("Queue pick up coral").ignoringDisable(true)
         )
-        SmartDashboard.putData(
-            superstructureQueue.addButDoNotStartAsCommand(
-                {
-                    SuperstructureCommands.score(
-                        elevator, arm, clawIntake
-                    ).withName("Score (queued)")
-                }).withName("Queue score").ignoringDisable(true)
-        )
+//        SmartDashboard.putData(
+//            superstructureQueue.addButDoNotStartAsCommand(
+//                {
+//                    SuperstructureCommands.score(
+//                        elevator, arm, clawIntake
+//                    ).withName("Score (queued)")
+//                }).withName("Queue score").ignoringDisable(true)
+//        )
 
-        SmartDashboard.putData(
-            driveQueue.addButDoNotStartAsCommand(
-                {
-                    PathfindingFactories.pathfindToPosition(
-                        drive, Pose2d(
-                            8.23, 4.84, Rotation2d(Units.Degrees.of(173.55))
-                        ).let {
-                            if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-                                    .get() == DriverStation.Alliance.Red
-                            ) FlippingUtil.flipFieldPose(it) else it
-                        }, driveTranslationalControlSupplier
-                    )
-                }).withName("Pathfind to Home Cage")
-        )
+//        SmartDashboard.putData(
+//            driveQueue.addButDoNotStartAsCommand(
+//                {
+//                    PathfindingFactories.pathfindToPosition(
+//                        drive, Pose2d(
+//                            8.23, 4.84, Rotation2d(Units.Degrees.of(173.55))
+//                        ).let {
+//                            if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+//                                    .get() == DriverStation.Alliance.Red
+//                            ) FlippingUtil.flipFieldPose(it) else it
+//                        }, driveTranslationalControlSupplier
+//                    )
+//                }).withName("Pathfind to Home Cage")
+//        )
 
-        SmartDashboard.putData(
-            driveQueue.addButDoNotStartAsCommand(
-                {
-                    PathfindingFactories.pathfindToPosition(
-                        drive, Pose2d(
-                            6.92, 6.12, Rotation2d(Units.Degrees.of(0.0))
-                        ).let {
-                            if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-                                    .get() == DriverStation.Alliance.Red
-                            ) FlippingUtil.flipFieldPose(it) else it
-                        }, driveTranslationalControlSupplier
-                    )
-                }).withName("Pathfind to Barge for Algae")
-        )
+//        SmartDashboard.putData(
+//            driveQueue.addButDoNotStartAsCommand(
+//                {
+//                    PathfindingFactories.pathfindToPosition(
+//                        drive, Pose2d(
+//                            6.92, 6.12, Rotation2d(Units.Degrees.of(0.0))
+//                        ).let {
+//                            if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+//                                    .get() == DriverStation.Alliance.Red
+//                            ) FlippingUtil.flipFieldPose(it) else it
+//                        }, driveTranslationalControlSupplier
+//                    )
+//                }).withName("Pathfind to Barge for Algae")
+//        )
         if (Constants.currentMode == Constants.Mode.SIM) SmartDashboard.putData(
             runOnce(
                 { driveQueue.start() }).withName("Execute (sim-exclusive)")
