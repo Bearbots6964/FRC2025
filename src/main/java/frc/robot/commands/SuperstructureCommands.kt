@@ -239,7 +239,6 @@ object SuperstructureCommands {
             ),
             f.intake().deadlineFor(c.pivotToPosition(90.0)),
             Commands.runOnce({ coralGrabbed = true }).withName("Set Coral Grabbed"),
-            e.goToPosition(ElevatorState.CORAL_PICKUP + 45.0)
         ).withName("Pick Up Coral")
     }
 
