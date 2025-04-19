@@ -397,7 +397,7 @@ object Constants {
             Units.Inches.of((29.5 / 2) - 1.3125),
             Units.Inches.of(-((29.5 / 2) - 3.75)),
             Units.Inches.of(8.125),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-17.0), Units.Degrees.of(35.0)),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-17.0), Units.Degrees.of(30.0)),
         )
         var robotToBackRightCamera: Transform3d = Transform3d(
             Units.Inches.of(-12.5),
