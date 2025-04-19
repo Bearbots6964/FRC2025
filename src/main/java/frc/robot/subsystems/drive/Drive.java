@@ -152,7 +152,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   private com.pathplanner.lib.util.swerve.SwerveSetpoint lastSetpoint;
 
   @Getter @Setter
-  private double pathfindingSpeed = maxLinearSpeedMetersPerSec * 0.15;
+  private double pathfindingSpeed = maxLinearSpeedMetersPerSec * 0.50;
 
   public void setPathfindingSpeedPercent(double percent) {
     pathfindingSpeed = percent * maxLinearSpeedMetersPerSec;

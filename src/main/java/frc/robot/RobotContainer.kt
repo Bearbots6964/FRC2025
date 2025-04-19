@@ -686,7 +686,7 @@ class RobotContainer {
                     Commands.parallel(
                         Commands.sequence(
                         // pathfinding speed; doesn't require anything
-                        runOnce({ drive.setPathfindingSpeedPercent(0.10) }),
+                        runOnce({ drive.setPathfindingSpeedPercent(0.40) }),
 
 
                         Commands.defer({
@@ -694,7 +694,7 @@ class RobotContainer {
                                 drive, nextReef
                             ) { Translation2d() }
                         }, setOf(drive)).alongWith(Commands.waitUntil { clawIntake.grabbed }
-                            .andThen({ drive.setPathfindingSpeedPercent(0.15) })),
+                            .andThen({ drive.setPathfindingSpeedPercent(0.50) })),
                     ),
 
                         Commands.sequence(
@@ -709,15 +709,15 @@ class RobotContainer {
                             )
                         )
                     )
-                ).andThen(
-                    Commands.waitUntil(driveController.rightBumper()::getAsBoolean)
-                        .alongWith(Commands.waitSeconds(2.0)).deadlineFor(
-                            DriveCommands.joystickDrive(
-                                drive,
-                                { -driveController.leftY * 0.25 },
-                                { -driveController.leftX * 0.25 },
-                                { -driveController.rightX * 0.25 }).alongWith(arm.stop())
-                        )
+//                ).andThen(
+//                    Commands.waitUntil(driveController.rightBumper()::getAsBoolean)
+//                        .alongWith(Commands.waitSeconds(2.0)).deadlineFor(
+//                            DriveCommands.joystickDrive(
+//                                drive,
+//                                { -driveController.leftY * 0.25 },
+//                                { -driveController.leftX * 0.25 },
+//                                { -driveController.rightX * 0.25 }).alongWith(arm.stop())
+//                        )
                 ).andThen(
                     Commands.defer({
                         SuperstructureCommands.scoreAtPosition(
