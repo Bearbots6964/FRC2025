@@ -18,6 +18,7 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.util.Units.inchesToMeters
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.*
+import edu.wpi.first.wpilibj.Filesystem
 import edu.wpi.first.wpilibj.RobotBase
 import frc.robot.util.Polygon
 
@@ -374,7 +375,7 @@ object Constants {
         // AprilTag layout
         @JvmStatic
         var aprilTagLayout: AprilTagFieldLayout =
-            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField) // defaultField uses the welded field perimeter
+            AprilTagFieldLayout(Filesystem.getDeployDirectory().path + "/apriltags/practice/field_calibration.json")
 
         /**
          * Cameras for Pi `10.69.64.12`.
