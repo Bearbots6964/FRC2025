@@ -501,37 +501,33 @@ class RobotContainer {
 
         // Mark IV controller bindings
 
-        hmi.let {
-            it.b().onTrue(runOnce({
-                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L2
-            }))
-            it.y().onTrue(runOnce({
-                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L3
-            }))
-            it.x().onTrue(runOnce({
-                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
-            }))
 
-            it.leftBumper()
-                .onTrue(runOnce({ nextReefLateral = PathfindingFactories.ReefSides.LEFT }))
-            it.rightBumper()
-                .onTrue(runOnce({ nextReefLateral = PathfindingFactories.ReefSides.RIGHT }))
+        hmi.b().onTrue(runOnce({
+            nextPosition = Constants.SuperstructureConstants.SuperstructureState.L2
+        }))
+        hmi.y().onTrue(runOnce({
+            nextPosition = Constants.SuperstructureConstants.SuperstructureState.L3
+        }))
+        hmi.x().onTrue(runOnce({
+            nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
+        }))
 
-            it.leftStick()
-                .onTrue(runOnce({ nextStation = PathfindingFactories.CoralStationSide.LEFT }))
-            it.rightStick()
-                .onTrue(runOnce({ nextStation = PathfindingFactories.CoralStationSide.RIGHT }))
+        hmi.leftBumper()
+            .onTrue(runOnce({ nextReefLateral = PathfindingFactories.ReefSides.LEFT }))
+        hmi.rightBumper()
+            .onTrue(runOnce({ nextReefLateral = PathfindingFactories.ReefSides.RIGHT }))
 
-            it.povUp().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.G }))
-            it.povUpRight().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.E }))
-            it.povDownRight().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.C }))
-            it.povDown().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.A }))
-            it.povDownLeft().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.K }))
-            it.povUpLeft().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.I }))
+        hmi.leftStick()
+            .onTrue(runOnce({ nextStation = PathfindingFactories.CoralStationSide.LEFT }))
+        hmi.rightStick()
+            .onTrue(runOnce({ nextStation = PathfindingFactories.CoralStationSide.RIGHT }))
 
-
-        }
-
+        hmi.povUp().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.G }))
+        hmi.povUpRight().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.E }))
+        hmi.povDownRight().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.C }))
+        hmi.povDown().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.A }))
+        hmi.povDownLeft().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.K }))
+        hmi.povUpLeft().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.I }))
         //Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
         //    SuperstructureCommands.home(elevator, arm)
         //)
