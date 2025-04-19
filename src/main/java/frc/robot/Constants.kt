@@ -482,7 +482,7 @@ object Constants {
          * Position of the pivot motor when fully retracted and climbed.
          */
         @JvmStatic
-        val pivotClimbedPosition = 135.0
+        val pivotClimbedPosition = 140.0
 
 
         /**

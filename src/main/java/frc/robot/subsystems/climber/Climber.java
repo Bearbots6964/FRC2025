@@ -125,7 +125,7 @@ public class Climber extends SubsystemBase {
           pivotIO.stopPivot();
           pivotIO.setPivotBrakeMode(NeutralModeValue.Brake);
           if (pivotIO.getPivotPosition() < ClimberConstants.getPivotClimbedPosition()) {
-            winchIO.setWinchOpenLoop(0.2);
+            winchIO.setWinchOpenLoop(0.15);
           } else {
             winchIO.stopWinch();
           }

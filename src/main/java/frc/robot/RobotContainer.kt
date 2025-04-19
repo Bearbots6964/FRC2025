@@ -922,7 +922,7 @@ class RobotContainer {
     }
 
     fun fixArm() {
-        if (climber.position > 40.0) elevator.goToPosition(40.0)
+        if (climber.position > 90.0) elevator.goToPosition(40.0)
             .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 })).andThen(
                 SuperstructureCommands.algaeIntakeWithoutSafety(
                     elevator, arm, climber
