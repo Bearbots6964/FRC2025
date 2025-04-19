@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.Constants.VisionConstants.robotToBackLeftCamera
@@ -79,8 +80,11 @@ class RobotContainer {
     // Controller
     private val driveController = CommandXboxController(0)
     private val operatorController = CommandXboxController(1)
+    private val hmi = CommandXboxController(2)
 
     private var nextReef = PathfindingFactories.Reef.A
+    private var nextReefSide = PathfindingFactories.Reef.A
+    private var nextReefLateral = PathfindingFactories.ReefSides.LEFT
     private var nextStation = PathfindingFactories.CoralStationSide.LEFT
     private var nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
     private val grabAlgaeToggle = LoggedNetworkBoolean("Grab Algae Toggle", false)
@@ -282,7 +286,7 @@ class RobotContainer {
         )
 
         // Switch to X pattern when X button is pressed
-        driveController.x().onTrue(Commands.runOnce({ driveQueue.start() }))
+        driveController.x().onTrue(runOnce({ driveQueue.start() }))
 
         // Pathfinding commands
 
@@ -318,7 +322,7 @@ class RobotContainer {
             drive.pose = Pose2d(drive.pose.translation, Rotation2d())
         }
         driveController.start().onTrue(
-            Commands.runOnce(resetGyro, drive).ignoringDisable(true)
+            runOnce(resetGyro, drive).ignoringDisable(true)
         )
 
         driveController.pov(90).onTrue(driveQueue.addButDoNotStartAsCommand({
@@ -346,7 +350,7 @@ class RobotContainer {
         // Operator controller bindings
         operatorController.a().whileTrue(algaeIntake.runIntake())
         operatorController.b().onTrue(algaeIntake.retractIntake())
-        driveController.y().onTrue(Commands.runOnce({
+        driveController.y().onTrue(runOnce({
             superstructureQueue.start()
         }))
         operatorController.rightTrigger().whileTrue(
@@ -371,6 +375,36 @@ class RobotContainer {
 
         // Mark IV controller bindings
 
+        hmi.let {
+            it.b().onTrue(runOnce({
+                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L2
+            }))
+            it.y().onTrue(runOnce({
+                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L3
+            }))
+            it.x().onTrue(runOnce({
+                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
+            }))
+
+            it.leftBumper()
+                .onTrue(runOnce({ nextReefLateral = PathfindingFactories.ReefSides.LEFT }))
+            it.rightBumper()
+                .onTrue(runOnce({ nextReefLateral = PathfindingFactories.ReefSides.RIGHT }))
+
+            it.leftStick()
+                .onTrue(runOnce({ nextStation = PathfindingFactories.CoralStationSide.LEFT }))
+            it.rightStick()
+                .onTrue(runOnce({ nextStation = PathfindingFactories.CoralStationSide.RIGHT }))
+
+            it.povUp().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.G }))
+            it.povUpRight().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.E }))
+            it.povDownRight().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.C }))
+            it.povDown().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.A }))
+            it.povDownLeft().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.K }))
+            it.povUpLeft().onTrue(runOnce({ nextReefSide = PathfindingFactories.Reef.I }))
+
+
+        }
 
         //Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
         //    SuperstructureCommands.home(elevator, arm)
@@ -379,9 +413,10 @@ class RobotContainer {
         Trigger {
             DriverStation.getMatchTime() <= 21.0 && Robot.inTeleop && DriverStation.isFMSAttached()
         }.onTrue(
-            Commands.runOnce({
-                Elastic.selectTab("DROPCICK (Endgame)")
-            })
+            runOnce(
+                {
+                    Elastic.selectTab("DROPCICK (Endgame)")
+                })
         )
     }
 
@@ -619,7 +654,7 @@ class RobotContainer {
                 }).withName("Pathfind to Barge for Algae")
         )
         if (Constants.currentMode == Constants.Mode.SIM) SmartDashboard.putData(
-            Commands.runOnce(
+            runOnce(
                 { driveQueue.start() }).withName("Execute (sim-exclusive)")
         )
 
@@ -651,7 +686,7 @@ class RobotContainer {
                     Commands.parallel(
                         Commands.sequence(
                         // pathfinding speed; doesn't require anything
-                        Commands.runOnce({ drive.setPathfindingSpeedPercent(0.25) }),
+                        runOnce({ drive.setPathfindingSpeedPercent(0.10) }),
 
 
                         Commands.defer({
@@ -659,7 +694,7 @@ class RobotContainer {
                                 drive, nextReef
                             ) { Translation2d() }
                         }, setOf(drive)).alongWith(Commands.waitUntil { clawIntake.grabbed }
-                            .andThen({ drive.setPathfindingSpeedPercent(0.50) })),
+                            .andThen({ drive.setPathfindingSpeedPercent(0.15) })),
                     ),
 
                         Commands.sequence(
@@ -695,13 +730,12 @@ class RobotContainer {
         )
         for (reef in PathfindingFactories.Reef.entries) {
             SmartDashboard.putData(
-                Commands.runOnce({ nextReef = reef }).withName("Select Reef $reef")
+                runOnce({ nextReef = reef }).withName("Select Reef $reef")
             )
         }
         for (station in PathfindingFactories.CoralStationSide.entries) {
             SmartDashboard.putData(
-                Commands.runOnce({ nextStation = station })
-                    .withName("Select Coral Station $station")
+                runOnce({ nextStation = station }).withName("Select Coral Station $station")
             )
         }
         for (pos in setOf(
@@ -710,7 +744,7 @@ class RobotContainer {
             Constants.SuperstructureConstants.SuperstructureState.L4
         )) {
             SmartDashboard.putData(
-                Commands.runOnce({ nextPosition = pos }).withName("Select Position $pos")
+                runOnce({ nextPosition = pos }).withName("Select Position $pos")
             )
         }
 
@@ -783,7 +817,7 @@ class RobotContainer {
             }.andThen(
                 Commands.sequence(
                     drive.backUp(),
-                    Commands.runOnce({ drive.setPathfindingSpeedPercent(0.25) }),
+                    runOnce({ drive.setPathfindingSpeedPercent(0.15) }),
                     PathfindingFactories.pathfindToPosition(
                         drive,
                         if (!DriverStation.getAlliance().isEmpty && DriverStation.getAlliance()
@@ -799,7 +833,7 @@ class RobotContainer {
                     )
                 ).deadlineFor(
                     clawIntake.intakeWithoutStoppingForAlgae()
-                ).andThen(Commands.runOnce({ drive.stopWithX() }, drive))
+                ).andThen(runOnce({ drive.stopWithX() }, drive))
             ).andThen(
                 Commands.waitSeconds(2.0).deadlineFor(clawIntake.outtake())
             ).andThen(

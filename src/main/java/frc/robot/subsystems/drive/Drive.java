@@ -152,7 +152,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   private com.pathplanner.lib.util.swerve.SwerveSetpoint lastSetpoint;
 
   @Getter @Setter
-  private double pathfindingSpeed = maxLinearSpeedMetersPerSec * 0.25;
+  private double pathfindingSpeed = maxLinearSpeedMetersPerSec * 0.15;
 
   public void setPathfindingSpeedPercent(double percent) {
     pathfindingSpeed = percent * maxLinearSpeedMetersPerSec;
@@ -274,7 +274,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
       module.periodic();
     }
     odometryLock.unlock();
-    currentZone = FieldConstants.INSTANCE.getZone(getPose().getTranslation());
     // Drive standard deviations as a result of wheel slippage
     var driveStdDevs = getDriveStdDevs();
     Logger.recordOutput("Odometry/Drive Std Devs", driveStdDevs);
