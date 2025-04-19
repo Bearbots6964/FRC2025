@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj2.command.Command
@@ -27,6 +28,14 @@ object PathfindingFactories {
         val targetPose = getSpecificReefSidePose(reef)
         return Commands.runOnce({ Vision.backCamerasEnabled = false })
             .andThen(drive.followRepulsorField(targetPose, nudge))
+            .andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
+    }
+
+    fun pathfindToReefButBackALittle(drive: Drive, reef: Reef, nudge: Supplier<Translation2d>): Command {
+        val targetPose = getSpecificReefSidePose(reef)
+        val truePose = translateCoordinates(targetPose, targetPose.rotation.degrees, -Units.inchesToMeters(16.0))
+        return Commands.runOnce({ Vision.backCamerasEnabled = false })
+            .andThen(drive.followRepulsorField(truePose, nudge))
             .andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
