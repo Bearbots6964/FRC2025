@@ -172,8 +172,8 @@ object Constants {
                     ExternalFeedbackSensorSourceValue.PulseWidth
                 it.ExternalFeedback.RotorToSensorRatio = 60.0
                 it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
-                it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.65
-                it.ExternalFeedback.AbsoluteSensorOffset = 0.9366666667
+                it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.70
+                it.ExternalFeedback.AbsoluteSensorOffset = 0.9366666667 + 0.33333333333333 - 1.0
                 it.ExternalFeedback.SensorPhase = SensorPhaseValue.Aligned
 
                 it.MotorOutput.NeutralMode = NeutralModeValue.Brake
