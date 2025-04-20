@@ -440,6 +440,9 @@ object Constants {
     }
 
     object PathfindingConstants {
+        const val coralIntakeSpeed: Double = 0.40
+        const val toReefSpeed: Double = 0.50
+
         /**
          * Final distance from the coral station in meters.
          */

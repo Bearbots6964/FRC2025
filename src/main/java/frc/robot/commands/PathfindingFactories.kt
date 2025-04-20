@@ -24,6 +24,18 @@ object PathfindingFactories {
         drive: Drive, side: CoralStationSide, nudge: Supplier<Translation2d>
     ): Command = drive.followRepulsorField(getSpecificCoralStationPose(side), nudge)
 
+    fun pathfindToCoralStation(
+        drive: Drive, side: () -> CoralStationSide, nudge: Supplier<Translation2d>
+    ): Command {
+        var currentSide = side.invoke()
+        var targetPose = getSpecificCoralStationPose(side.invoke())
+        return drive.followRepulsorField(targetPose, nudge).deadlineFor(Commands.run({
+            if (currentSide != side.invoke()) {
+                targetPose = getSpecificCoralStationPose(side.invoke()); currentSide = side.invoke()
+            }
+        }))
+    }
+
     fun pathfindToReef(drive: Drive, reef: Reef, nudge: Supplier<Translation2d>): Command {
         val targetPose = getSpecificReefSidePose(reef)
         return Commands.runOnce({ Vision.backCamerasEnabled = false })
@@ -31,12 +43,49 @@ object PathfindingFactories {
             .andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
-    fun pathfindToReefButBackALittle(drive: Drive, reef: Reef, nudge: Supplier<Translation2d>): Command {
+    fun pathfindToReef(drive: Drive, reef: () -> Reef, nudge: Supplier<Translation2d>): Command {
+        var currentReef = reef.invoke()
+        var targetPose = getSpecificReefSidePose(reef.invoke())
+        return Commands.runOnce({ Vision.backCamerasEnabled = false }).andThen(
+            drive.followRepulsorField(targetPose, nudge).deadlineFor(Commands.run({
+                if (currentReef != reef.invoke()) {
+                    targetPose = getSpecificReefSidePose(reef.invoke()); currentReef = reef.invoke()
+                }
+            }))
+        ).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
+    }
+
+    fun pathfindToReefButBackALittle(
+        drive: Drive, reef: Reef, nudge: Supplier<Translation2d>
+    ): Command {
         val targetPose = getSpecificReefSidePose(reef)
-        val truePose = translateCoordinates(targetPose, targetPose.rotation.degrees, -Units.inchesToMeters(16.0))
+        val truePose = translateCoordinates(
+            targetPose, targetPose.rotation.degrees, -Units.inchesToMeters(16.0)
+        )
         return Commands.runOnce({ Vision.backCamerasEnabled = false })
             .andThen(drive.followRepulsorField(truePose, nudge))
             .andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
+    }
+
+    fun pathfindToReefButBackALittle(
+        drive: Drive, reef: () -> Reef, nudge: Supplier<Translation2d>
+    ): Command {
+        var currentReef = reef.invoke()
+        var targetPose = getSpecificReefSidePose(reef.invoke()).let {
+            translateCoordinates(
+                it, it.rotation.degrees, -Units.inchesToMeters(16.0)
+            )
+        }
+        return Commands.runOnce({ Vision.backCamerasEnabled = false })
+            .andThen(drive.followRepulsorField(targetPose, nudge).deadlineFor(Commands.run({
+                if (currentReef != reef.invoke()) {
+                    targetPose = getSpecificReefSidePose(reef.invoke()).let {
+                        translateCoordinates(
+                            it, it.rotation.degrees, -Units.inchesToMeters(16.0)
+                        )
+                    }; currentReef = reef.invoke()
+                }
+            }))).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
     fun pathfindToPosition(
