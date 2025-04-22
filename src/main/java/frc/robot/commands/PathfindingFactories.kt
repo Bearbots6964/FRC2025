@@ -58,22 +58,14 @@ object PathfindingFactories {
     fun pathfindToReefButBackALittle(
         drive: Drive, reef: () -> Reef, nudge: Supplier<Translation2d>
     ): Command {
-        var currentReef = reef.invoke()
-        var targetPose = getSpecificReefSidePose(reef.invoke()).let {
-            translateCoordinates(
-                it, it.rotation.degrees, -Units.inchesToMeters(16.0)
-            )
-        }
         return Commands.runOnce({ Vision.backCamerasEnabled = false })
-            .andThen(drive.followRepulsorField(targetPose, nudge).deadlineFor(Commands.run({
-                if (currentReef != reef.invoke()) {
-                    targetPose = getSpecificReefSidePose(reef.invoke()).let {
-                        translateCoordinates(
-                            it, it.rotation.degrees, -Units.inchesToMeters(16.0)
-                        )
-                    }; currentReef = reef.invoke()
+            .andThen(drive.followRepulsorField({
+                getSpecificReefSidePose(reef.invoke()).let {
+                    translateCoordinates(
+                        it, it.rotation.degrees, -Units.inchesToMeters(16.0)
+                    )
                 }
-            }))).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
+            }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
     fun pathfindToPosition(
