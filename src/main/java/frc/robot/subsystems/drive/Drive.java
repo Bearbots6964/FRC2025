@@ -715,10 +715,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                           sample.intermediateGoal().getY()),
                       yawController.calculate(
                           poseEstimator.getEstimatedPosition().getRotation().getRadians(),
-                          goal.getRotation().getRadians()));
+                          currentGoal[0].getRotation().getRadians()));
 
               // log the error, feedforward, and feedback
-              var error = goal.minus(poseEstimator.getEstimatedPosition());
+              var error = currentGoal[0].minus(poseEstimator.getEstimatedPosition());
               nearGoal = Math.hypot(error.getX(), error.getY()) < 1.75;
               Logger.recordOutput("Repulsor/Error", error);
               Logger.recordOutput("Repulsor/Feedforward", feedforward);
@@ -771,7 +771,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                 poseEstimator
                     .getEstimatedPosition()
                     .getTranslation()
-                    .getDistance(goal.getTranslation())
+                    .getDistance(currentGoal[0].getTranslation())
                     < 0.1)
         .withName("Repulsor Field");
   }
