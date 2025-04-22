@@ -343,7 +343,7 @@ class RobotContainer {
         driveController.rightBumper().onTrue(runOnce({nextStation = PathfindingFactories.CoralStationSide.RIGHT}))
         driveController.leftBumper().onTrue(runOnce({nextStation = PathfindingFactories.CoralStationSide.LEFT}))
         var inPosition = false
-        driveController.leftBumper().onTrue(
+        driveController.y().onTrue(
             // go to coral station; requires drive, arm, elevator, and climber
             goToCoralStation()
 
@@ -428,9 +428,6 @@ class RobotContainer {
         // Operator controller bindings
         operatorController.a().whileTrue(algaeIntake.runIntake())
         operatorController.b().onTrue(algaeIntake.retractIntake())
-        driveController.y().onTrue(runOnce({
-            superstructureQueue.start()
-        }))
         operatorController.rightTrigger().whileTrue(
             elevator.velocityCommand({ -operatorController.rightY }).alongWith(
                 arm.moveArm({ -operatorController.leftY }),
