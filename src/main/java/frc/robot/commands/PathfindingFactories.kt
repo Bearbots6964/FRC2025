@@ -27,13 +27,7 @@ object PathfindingFactories {
     fun pathfindToCoralStation(
         drive: Drive, side: () -> CoralStationSide, nudge: Supplier<Translation2d>
     ): Command {
-        var currentSide = side.invoke()
-        var targetPose = getSpecificCoralStationPose(side.invoke())
-        return drive.followRepulsorField(targetPose, nudge).deadlineFor(Commands.run({
-            if (currentSide != side.invoke()) {
-                targetPose = getSpecificCoralStationPose(side.invoke()); currentSide = side.invoke()
-            }
-        }))
+        return drive.followRepulsorField({ getSpecificCoralStationPose(side.invoke()) }, nudge)
     }
 
     fun pathfindToReef(drive: Drive, reef: Reef, nudge: Supplier<Translation2d>): Command {
@@ -44,14 +38,8 @@ object PathfindingFactories {
     }
 
     fun pathfindToReef(drive: Drive, reef: () -> Reef, nudge: Supplier<Translation2d>): Command {
-        var currentReef = reef.invoke()
-        var targetPose = getSpecificReefSidePose(reef.invoke())
         return Commands.runOnce({ Vision.backCamerasEnabled = false }).andThen(
-            drive.followRepulsorField(targetPose, nudge).deadlineFor(Commands.run({
-                if (currentReef != reef.invoke()) {
-                    targetPose = getSpecificReefSidePose(reef.invoke()); currentReef = reef.invoke()
-                }
-            }))
+            drive.followRepulsorField({ getSpecificReefSidePose(reef.invoke()) }, nudge)
         ).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
