@@ -62,7 +62,7 @@ object PathfindingFactories {
             .andThen(drive.followRepulsorField({
                 getSpecificReefSidePose(reef.invoke()).let {
                     translateCoordinates(
-                        it, it.rotation.degrees, -Units.inchesToMeters(16.0)
+                        it, it.rotation.degrees, -Units.inchesToMeters(17.0)
                     )
                 }
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
