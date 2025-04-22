@@ -287,7 +287,6 @@ class RobotContainer {
         )
 
         // Switch to X pattern when X button is pressed
-        driveController.x().onTrue(runOnce({ driveQueue.start() }))
 
         // Pathfinding commands
 
