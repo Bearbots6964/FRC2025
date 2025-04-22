@@ -375,7 +375,7 @@ object Constants {
         // AprilTag layout
         @JvmStatic
         var aprilTagLayout: AprilTagFieldLayout =
-            AprilTagFieldLayout(Filesystem.getDeployDirectory().path + "/apriltags/practice/field_calibration.json")
+            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
         /**
          * Cameras for Pi `10.69.64.12`.
