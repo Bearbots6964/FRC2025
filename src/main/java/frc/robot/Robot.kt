@@ -219,6 +219,7 @@ class Robot : LoggedRobot() {
         }
         robotContainer.fixArm()
         Companion.inTeleop = true
+        robotContainer.disableAuto()
     }
 
     /** This function is called periodically during operator control.  */

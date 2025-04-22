@@ -1017,6 +1017,10 @@ class RobotContainer {
                 )
             ).schedule()
     }
+
+    fun disableAuto() {
+        coralStatus = CoralStatus.NONE
+    }
 }
 
 enum class CoralStatus {
