@@ -84,8 +84,6 @@ class RobotContainer {
     private val hmi = CommandXboxController(2)
 
     private var nextReef = PathfindingFactories.Reef.A
-    private var nextReefSide = PathfindingFactories.Reef.A
-    private var nextReefLateral = PathfindingFactories.ReefSides.LEFT
     private var nextStation = PathfindingFactories.CoralStationSide.LEFT
     private var nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
     private val grabAlgaeToggle = LoggedNetworkBoolean("Grab Algae Toggle", false)
@@ -340,9 +338,11 @@ class RobotContainer {
                 drive, PathfindingFactories.CoralStationSide.LEFT, driveTranslationalControlSupplier
             )
         }))
-        driveController.rightBumper().onTrue(runOnce({
+        driveController.x().onTrue(runOnce({
             if (coralStatus == CoralStatus.NONE) coralStatus = CoralStatus.ON_INTAKE
         }))
+        driveController.rightBumper().onTrue(runOnce({nextStation = PathfindingFactories.CoralStationSide.RIGHT}))
+        driveController.leftBumper().onTrue(runOnce({nextStation = PathfindingFactories.CoralStationSide.LEFT}))
         var inPosition = false
         driveController.leftBumper().onTrue(
             // go to coral station; requires drive, arm, elevator, and climber
@@ -538,8 +538,8 @@ class RobotContainer {
         }
         if (hmi.povDownLeft().asBoolean) {
             nextReef = when (hmi.leftBumper().asBoolean) {
-                true -> PathfindingFactories.Reef.I
-                false -> PathfindingFactories.Reef.J
+                true -> PathfindingFactories.Reef.K
+                false -> PathfindingFactories.Reef.L
             }
         }
         if (hmi.povUpLeft().asBoolean) {
@@ -1023,3 +1023,5 @@ class RobotContainer {
 enum class CoralStatus {
     NONE, ON_INTAKE, IN_CLAW
 }
+
+// Algae format for HMI input goes AB reef first, counterclockwise
