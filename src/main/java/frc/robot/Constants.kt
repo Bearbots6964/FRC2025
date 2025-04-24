@@ -5,20 +5,17 @@ import com.ctre.phoenix6.configs.TalonFXSConfiguration
 import com.ctre.phoenix6.signals.*
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.RobotConfig
+import com.pathplanner.lib.util.FlippingUtil
 import com.revrobotics.spark.config.SparkBaseConfig
 import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.apriltag.AprilTagFields
-import edu.wpi.first.math.geometry.Pose2d
-import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.geometry.Rotation3d
-import edu.wpi.first.math.geometry.Transform3d
-import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.math.geometry.*
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.util.Units.inchesToMeters
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.*
-import edu.wpi.first.wpilibj.Filesystem
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import frc.robot.util.Polygon
 
@@ -442,6 +439,7 @@ object Constants {
     object PathfindingConstants {
         const val coralIntakeSpeed: Double = 0.40
         const val toReefSpeed: Double = 0.50
+        const val toBargeSpeed = 0.15
 
         /**
          * Final distance from the coral station in meters.
@@ -454,12 +452,30 @@ object Constants {
         const val lateralDistanceFromReefMeters = 0.1686306
 
         @JvmStatic
-        val bargePosition: Pose2d = Pose2d(
-            7.65,
-            6.58,
-            Rotation2d()
+        val leftBargePosition: Pose2d = Pose2d(
+            7.65, 7.3, Rotation2d()
         )
 
+        @JvmStatic
+        val middleBargePosition: Pose2d = Pose2d(
+            7.65, 5.95, Rotation2d()
+        )
+
+        @JvmStatic
+        val rightBargePosition: Pose2d = Pose2d(
+            7.65, 4.65, Rotation2d()
+        )
+
+        fun getPosition(pos: BargePositions): Pose2d = when (pos) {
+            BargePositions.LEFT -> leftBargePosition
+            BargePositions.MIDDLE -> middleBargePosition
+            BargePositions.RIGHT -> rightBargePosition
+            BargePositions.NONE -> Pose2d()
+        }.let {
+            if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+                    .get() == DriverStation.Alliance.Red
+            ) FlippingUtil.flipFieldPose(it) else it
+        }
     }
 
     object ClimberConstants {

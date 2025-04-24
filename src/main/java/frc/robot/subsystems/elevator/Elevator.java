@@ -193,8 +193,9 @@ public class Elevator extends SubsystemBase {
    */
   public Command homeElevator() {
     return Commands.sequence(
+        goToPosition(10.0),
         runOnce(() -> io.setSoftLimitsEnabled(false)),
-        velocityCommand(() -> -0.25).until(() -> inputs.limitSwitchPressed),
+        velocityCommand(() -> -0.125).until(() -> inputs.limitSwitchPressed),
         runOnce(io::zero),
         run(() -> setRotations(5))
             .until(
