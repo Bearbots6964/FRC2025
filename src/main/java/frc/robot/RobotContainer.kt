@@ -88,7 +88,7 @@ class RobotContainer {
 
     private var coralStatus = CoralStatus.NONE
     private var algaeStatus = AlgaeStatus.NONE
-    private var bargePosition = BargePositions.LEFT
+    private var bargePosition = BargePositions.NONE
 
     private val driveQueue: CommandQueue = CommandQueue().withCallback {
         Commands.race(
@@ -892,7 +892,7 @@ class RobotContainer {
             ).andThen(
                 drive.backUp()
             )
-            
+
         ).onlyIf { algaeStatus == AlgaeStatus.NONE }.andThen(
             runOnce({ drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toBargeSpeed) })
         ).andThen(
