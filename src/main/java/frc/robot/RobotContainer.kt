@@ -361,32 +361,32 @@ class RobotContainer {
                 ).andThen(
                     Commands.parallel(
                         Commands.sequence(
-                        // pathfinding speed; doesn't require anything
-                        runOnce({
-                            drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.coralIntakeSpeed); inPosition =
-                            false
-                        }),
+                            // pathfinding speed; doesn't require anything
+                            runOnce({
+                                drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.coralIntakeSpeed); inPosition =
+                                false
+                            }),
 
 
-                        pathfindToReef().alongWith(Commands.waitUntil { coralStatus == CoralStatus.IN_CLAW }
-                            .andThen({
-                                drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed); coralStatus =
-                                CoralStatus.IN_CLAW
-                            })),
+                            pathfindToReef().alongWith(Commands.waitUntil { coralStatus == CoralStatus.IN_CLAW }
+                                .andThen({
+                                    drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed); coralStatus =
+                                    CoralStatus.IN_CLAW
+                                })),
 
-                        Commands.waitUntil({ inPosition })
-                            .deadlineFor(Commands.run({ drive.stopWithX() }, drive)).andThen(
-                                finalReefLineup()
-                            ).withName("Pathfind to Reef (final)")
-                    ),
+                            Commands.waitUntil({ inPosition })
+                                .deadlineFor(Commands.run({ drive.stopWithX() }, drive)).andThen(
+                                    finalReefLineup()
+                                ).withName("Pathfind to Reef (final)")
+                        ),
 
                         Commands.waitUntil({ clawIntake.grabbed })
                             .andThen(runOnce({ coralStatus = CoralStatus.IN_CLAW })),
 
                         Commands.sequence(
                             SuperstructureCommands.pickUpCoral(
-                            elevator, arm, clawIntake, climber
-                        ).onlyIf { coralStatus == CoralStatus.ON_INTAKE },
+                                elevator, arm, clawIntake, climber
+                            ).onlyIf { coralStatus == CoralStatus.ON_INTAKE },
                             runOnce({ arm.setGoalToCurrent() }),
                             //Commands.waitUntil { intake.grabbed }
                             Commands.waitUntil(drive::nearGoal).andThen(
@@ -410,12 +410,12 @@ class RobotContainer {
 //                        )
                 ).andThen(
                     Commands.defer({
-                    SuperstructureCommands.scoreAtPosition(
-                        elevator, arm, clawIntake, drive, nextPosition
-                    )
-                }, setOf(elevator, arm, clawIntake, drive)).finallyDo(
-                    Runnable { coralStatus = CoralStatus.NONE })
-                    .onlyIf { coralStatus == CoralStatus.IN_CLAW }).andThen(
+                        SuperstructureCommands.scoreAtPosition(
+                            elevator, arm, clawIntake, drive, nextPosition
+                        )
+                    }, setOf(elevator, arm, clawIntake, drive)).finallyDo(
+                        Runnable { coralStatus = CoralStatus.NONE })
+                        .onlyIf { coralStatus == CoralStatus.IN_CLAW }).andThen(
                     algaeCycle()
                 ).withName("good luck")
 
@@ -705,7 +705,8 @@ class RobotContainer {
 
         for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
             val commands: Command = when (position) {
-                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand({
+                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand(
+                    {
                         SuperstructureCommands.goToPosition(
                             elevator, arm, climber, position
                         ).withName("Superstructure to " + position.name + " Position (Queued)")
@@ -716,7 +717,8 @@ class RobotContainer {
                         ).withName("Score in $position (queued, auto-added)")
                     })
 
-                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand({
+                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand(
+                    {
                         SuperstructureCommands.goToPosition(elevator, arm, climber, position)
                             .withName("Superstructure to $position Position (Queued)")
                     },
@@ -886,10 +888,11 @@ class RobotContainer {
             }, driveTranslationalControlSupplier).withDeadline(
                 clawIntake.intakeWithoutStoppingForAlgae()
                     .withDeadline(Commands.waitUntil(clawIntake::grabbed))
-                    .andThen(runOnce({ algaeStatus = AlgaeStatus.IN_CLAW })).andThen(
-                        drive.backUp()
-                    )
+                    .andThen(runOnce({ algaeStatus = AlgaeStatus.IN_CLAW }))
+            ).andThen(
+                drive.backUp()
             )
+            
         ).onlyIf { algaeStatus == AlgaeStatus.NONE }.andThen(
             runOnce({ drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toBargeSpeed) })
         ).andThen(
