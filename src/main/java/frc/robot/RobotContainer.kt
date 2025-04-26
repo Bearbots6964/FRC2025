@@ -425,6 +425,7 @@ class RobotContainer {
                         Runnable { coralStatus = CoralStatus.NONE })
                         .onlyIf { coralStatus == CoralStatus.IN_CLAW }).andThen(
                     algaeCycle()
+                        .onlyIf({ grabAlgaeToggle && bargeChooser.get() != BargePositions.NONE })
                 ).withName("good luck")
 
         )
@@ -946,7 +947,7 @@ class RobotContainer {
                             Constants.SuperstructureConstants.SuperstructureState.BARGE_LAUNCH
                         )
                     )
-                )
+                ).deadlineFor(clawIntake.intakeWithoutStoppingForAlgae())
             ).andThen(
                 Commands.run({ drive.stopWithX() }, drive).withDeadline(
                     clawIntake.outtake().withDeadline(Commands.waitSeconds(2.0)).andThen(
@@ -959,7 +960,6 @@ class RobotContainer {
                 )
             )
             .finallyDo(Runnable { drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed) })
-            .onlyIf({ grabAlgaeToggle && bargeChooser.get() != BargePositions.NONE })
 
 
     }
