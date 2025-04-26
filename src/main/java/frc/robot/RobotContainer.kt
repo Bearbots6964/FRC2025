@@ -526,6 +526,7 @@ class RobotContainer {
             if (joystickValue == 0) {
                 grabAlgaeToggle = false
             } else {
+                println("Algae to be grabbed, value $joystickValue")
                 grabAlgaeToggle = true
                 nextAlgaePosition = when (joystickValue) {
                     1 -> PathfindingFactories.Reef.AB_ALGAE
