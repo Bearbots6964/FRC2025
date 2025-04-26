@@ -909,6 +909,7 @@ class RobotContainer {
                 }
             )
         }, setOf(arm, elevator, climber))))
+            .andThen(runOnce({ drive.setPathfindingSpeedPercent(0.30) }))
             .andThen(
                 PathfindingFactories.pathfindToReefButBackALittleLess(drive, {
                     when (nextAlgaePosition) {
@@ -939,7 +940,7 @@ class RobotContainer {
                         driveTranslationalControlSupplier
                     )
                 }, setOf(drive)).alongWith(
-                    Commands.waitSeconds(2.0).alongWith(Commands.waitUntil(drive::nearGoal)).andThen(
+                    Commands.waitSeconds(2.0).alongWith(Commands.waitUntil(drive::nearerGoal)).andThen(
                         SuperstructureCommands.goToPosition(
                             elevator,
                             arm,
