@@ -722,7 +722,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
               // log the error, feedforward, and feedback
               var error = currentGoal[0].minus(poseEstimator.getEstimatedPosition());
               nearGoal = Math.hypot(error.getX(), error.getY()) < 1.75;
-              nearerGoal = Math.hypot(error.getX(), error.getY()) < 0.75;
+              nearerGoal = Math.hypot(error.getX(), error.getY()) < 0.25;
               Logger.recordOutput("Repulsor/Error", error);
               Logger.recordOutput("Repulsor/Feedforward", feedforward);
               Logger.recordOutput("Repulsor/Feedback", feedback);

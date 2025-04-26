@@ -940,7 +940,7 @@ class RobotContainer {
                         driveTranslationalControlSupplier
                     )
                 }, setOf(drive)).alongWith(
-                    Commands.waitSeconds(2.0).alongWith(Commands.waitUntil(drive::nearerGoal)).andThen(
+                    Commands.waitSeconds(2.0).andThen(Commands.waitUntil(drive::nearerGoal)).andThen(
                         SuperstructureCommands.goToPosition(
                             elevator,
                             arm,
@@ -958,7 +958,7 @@ class RobotContainer {
             ).andThen(drive.backUp().withDeadline(Commands.waitSeconds(2.0))).andThen(
                 SuperstructureCommands.preCoralPickup(elevator, arm, climber).alongWith(
                     runOnce({ drive.stopWithX() }, drive)
-                )
+                ).withDeadline(Commands.waitSeconds(3.0))
             )
             .finallyDo(Runnable { drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed) })
 
