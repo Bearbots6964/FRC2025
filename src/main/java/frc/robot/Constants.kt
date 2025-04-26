@@ -439,7 +439,7 @@ object Constants {
     object PathfindingConstants {
         const val coralIntakeSpeed: Double = 0.40
         const val toReefSpeed: Double = 0.50
-        const val toBargeSpeed = 0.25
+        const val toBargeSpeed = 0.30
 
         /**
          * Final distance from the coral station in meters.
@@ -453,17 +453,17 @@ object Constants {
 
         @JvmStatic
         val leftBargePosition: Pose2d = Pose2d(
-            7.70, 7.3, Rotation2d()
+            7.80, 7.3, Rotation2d()
         )
 
         @JvmStatic
         val middleBargePosition: Pose2d = Pose2d(
-            7.70, 5.95, Rotation2d()
+            7.80, 5.95, Rotation2d()
         )
 
         @JvmStatic
         val rightBargePosition: Pose2d = Pose2d(
-            7.70, 4.65, Rotation2d()
+            7.80, 4.65, Rotation2d()
         )
 
         fun getPosition(pos: BargePositions): Pose2d = when (pos) {
