@@ -950,7 +950,7 @@ class RobotContainer {
                     runOnce({ algaeStatus = AlgaeStatus.NONE })
                 )
             )
-        ).withDeadline(drive.backUp()).andThen(
+        ).andThen(drive.backUp()).withDeadline(
             SuperstructureCommands.preCoralPickup(elevator, arm, climber)
         )
             .finallyDo(Runnable { drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed) })
