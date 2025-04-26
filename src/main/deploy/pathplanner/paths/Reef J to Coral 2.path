@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.007864357601165,
-        "y": 2.8402931387277466
+        "x": 4.969505462171187,
+        "y": 5.228737329210319
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.8105657751030355,
-        "y": 1.4899888968042037
+        "x": 5.561628874334214,
+        "y": 6.507248501970747
       },
       "isLocked": false,
-      "linkedName": "Reef 8 LEFT"
+      "linkedName": "Reef J"
     },
     {
       "anchor": {
-        "x": 1.09740234375,
-        "y": 1.0419482421874988
+        "x": 1.2531918010978311,
+        "y": 7.112149358777262
       },
       "prevControl": {
-        "x": 1.2594994485251847,
-        "y": 1.2734468992708463
+        "x": 1.6793072942290737,
+        "y": 6.60432468897805
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Lower Coral Station"
+      "linkedName": "Upper Coral Station"
     }
   ],
   "rotationTargets": [],
@@ -70,8 +70,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 240.0,
     "nominalVoltage": 12.0,
@@ -79,13 +79,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 55.0
+    "rotation": -53.51
   },
   "reversed": false,
   "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": -119.99999999999999
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

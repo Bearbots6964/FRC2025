@@ -26,13 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef 6 LEFT to Coral 2"
+            "pathName": "Reef J to Coral 2"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.5
+            "waitTime": 1.0
           }
         },
         {
@@ -42,7 +42,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Coral 2 to Reef 6 RIGHT"
+                  "pathName": "Coral 2 to Reef K"
                 }
               },
               {
@@ -57,7 +57,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef 6 RIGHT to Coral 2"
+            "pathName": "Reef K to Coral 2"
           }
         },
         {
@@ -73,7 +73,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Coral 2 to Reef 7 LEFT"
+                  "pathName": "Coral 2 to Reef L"
                 }
               },
               {
@@ -88,7 +88,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef 7 LEFT to Coral 2"
+            "pathName": "Reef L to Coral 2"
           }
         },
         {
@@ -104,7 +104,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Coral 1 to Reef 7 RIGHT"
+                  "pathName": "Coral 2 to Reef A"
                 }
               },
               {

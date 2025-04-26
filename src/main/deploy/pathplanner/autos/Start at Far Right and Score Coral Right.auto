@@ -26,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef 8 LEFT to Coral 1"
+            "pathName": "Reef E to Coral 1"
           }
         },
         {
@@ -70,7 +70,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef 9 RIGHT to Coral 1"
+            "pathName": "Reef D to Coral 1"
           }
         },
         {
@@ -99,7 +99,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Coral 1 to Reef 9 LEFT"
+                  "pathName": "Coral 1 to Reef C"
                 }
               },
               {
@@ -114,7 +114,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef 9 LEFT to Coral 1"
+            "pathName": "Reef C to Coral 1"
           }
         },
         {
@@ -143,7 +143,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Copy of Coral 1 to Reef 7 RIGHT"
+                  "pathName": "Copy of Coral 1 to Reef B"
                 }
               },
               {
@@ -158,7 +158,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Copy of Final backup"
+            "pathName": "Final backup from B"
           }
         }
       ]

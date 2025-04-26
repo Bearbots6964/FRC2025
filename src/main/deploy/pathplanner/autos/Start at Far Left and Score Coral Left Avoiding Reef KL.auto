@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Center Field to Reef E"
+                  "pathName": "Barge to Reef 6 LEFT"
                 }
               },
               {
@@ -26,54 +26,36 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef E to Coral 1"
+            "pathName": "Reef J to Coral 2"
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "parallel",
+          "type": "race",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "wait",
                 "data": {
-                  "pathName": "Coral 1 to Reef 9 RIGHT"
+                  "waitTime": 1.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Fix Pivot and L4"
+                  "name": "Lock Wheels"
                 }
               }
             ]
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Reef D to Coral 1"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Coral 1 to Reef C"
+                  "pathName": "Coral 2 to Reef A"
                 }
               },
               {
@@ -88,13 +70,26 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef C to Coral 1"
+            "pathName": "Reef A to Coral 2"
           }
         },
         {
-          "type": "wait",
+          "type": "race",
           "data": {
-            "waitTime": 1.0
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Lock Wheels"
+                }
+              }
+            ]
           }
         },
         {
@@ -104,7 +99,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Copy of Coral 1 to Reef B"
+                  "pathName": "Coral 2 to Reef B"
                 }
               },
               {

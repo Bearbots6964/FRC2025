@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6968115234375,
-        "y": 5.0519140625
+        "x": 3.1917628944694223,
+        "y": 3.84502525205736
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.4701601702399794,
-        "y": 5.4444857218423435
+        "x": 2.4657096599046704,
+        "y": 3.8713440792321916
       },
       "isLocked": false,
-      "linkedName": "Reef 7 LEFT"
+      "linkedName": "Reef B"
     },
     {
       "anchor": {
@@ -80,7 +80,7 @@
   "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }
