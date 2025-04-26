@@ -519,26 +519,27 @@ class RobotContainer {
                 })
         )
 
-        Commands.run({
-            // [0, 0.05]
-            // between 0 and 6
-            val joystickValue = (hmi.getRawAxis(0) / 0.05 * 6).roundToInt()
-            if (joystickValue == 0) {
-                grabAlgaeToggle = false
-            } else {
-                println("Algae to be grabbed, value $joystickValue")
-                grabAlgaeToggle = true
-                nextAlgaePosition = when (joystickValue) {
-                    1 -> PathfindingFactories.Reef.AB_ALGAE
-                    2 -> PathfindingFactories.Reef.CD_ALGAE
-                    3 -> PathfindingFactories.Reef.EF_ALGAE
-                    4 -> PathfindingFactories.Reef.GH_ALGAE
-                    5 -> PathfindingFactories.Reef.IJ_ALGAE
-                    else -> PathfindingFactories.Reef.KL_ALGAE
-                }
-            }
+    }
 
-        }).repeatedly().schedule()
+    fun updateHmiAlgae() {
+        // [0, 0.05]
+        // between 0 and 6
+        val joystickValue = (hmi.getRawAxis(0) / 0.05 * 6).roundToInt()
+        if (joystickValue == 0) {
+            grabAlgaeToggle = false
+        } else {
+            println("Algae to be grabbed, value $joystickValue")
+            grabAlgaeToggle = true
+            nextAlgaePosition = when (joystickValue) {
+                1 -> PathfindingFactories.Reef.AB_ALGAE
+                2 -> PathfindingFactories.Reef.CD_ALGAE
+                3 -> PathfindingFactories.Reef.EF_ALGAE
+                4 -> PathfindingFactories.Reef.GH_ALGAE
+                5 -> PathfindingFactories.Reef.IJ_ALGAE
+                else -> PathfindingFactories.Reef.KL_ALGAE
+            }
+        }
+
     }
 
     private fun updateHmi() {

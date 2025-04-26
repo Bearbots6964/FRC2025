@@ -176,6 +176,7 @@ class Robot : LoggedRobot() {
         // the Command-based framework to work.
         //Threads.setCurrentThreadPriority(true, 99)
         CommandScheduler.getInstance().run()
+        robotContainer.updateHmiAlgae()
         //Threads.setCurrentThreadPriority(false, 10)
     }
 
