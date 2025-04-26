@@ -950,8 +950,10 @@ class RobotContainer {
                     runOnce({ algaeStatus = AlgaeStatus.NONE })
                 )
             )
-        ).andThen(drive.backUp()).withDeadline(
+        ).andThen(drive.backUp()).andThen(
             SuperstructureCommands.preCoralPickup(elevator, arm, climber)
+        ).andThen(
+            runOnce({ drive.stopWithX() }, drive)
         )
             .finallyDo(Runnable { drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed) })
             .onlyIf({ grabAlgaeToggle && bargeChooser.get() != BargePositions.NONE })
