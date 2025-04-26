@@ -919,7 +919,7 @@ class RobotContainer {
             }, driveTranslationalControlSupplier)
                 .andThen(Commands.run({ drive.stopWithX() }, drive)).withDeadline(
                     clawIntake.intakeWithoutStoppingForAlgae()
-                        .withDeadline(Commands.waitUntil(clawIntake::grabbed))
+                        .withDeadline(Commands.waitUntil(clawIntake::grabbed).andThen(Commands.waitSeconds(0.5)))
                         .andThen(runOnce({ algaeStatus = AlgaeStatus.IN_CLAW }))
                 ).andThen(
                     drive.backUp()
