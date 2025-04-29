@@ -391,27 +391,27 @@ object Constants {
         var robotToFrontRightCamera: Transform3d = Transform3d(
             // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
             // (frame side length / 2) - (distance from frame perimeter to camera)
-            Units.Inches.of((29.5 / 2) - 1.3125),
-            Units.Inches.of(-((29.5 / 2) - 3.75)),
-            Units.Inches.of(8.125),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-17.0), Units.Degrees.of(27.0)),
+            Units.Inches.of(11.668),
+            Units.Inches.of(-11.932),
+            Units.Inches.of(7.879),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(30.0)),
         )
         var robotToBackRightCamera: Transform3d = Transform3d(
-            Units.Inches.of(-12.5),
-            Units.Inches.of(-((29.5 / 2) - 1.5)),
-            Units.Inches.of(8.0),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(220.0)),
+            Units.Inches.of(-11.832),
+            Units.Inches.of(-12.441),
+            Units.Inches.of(7.879),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(225.0)),
         )
         var robotToFrontLeftCamera: Transform3d = Transform3d(
-            Units.Inches.of((29.5 / 2) - 1.125),
-            Units.Inches.of((29.5 / 2) - 3.375),
-            Units.Inches.of(8.25),
-            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-17.2), Units.Degrees.of(-31.0)),
+            Units.Inches.of(11.668),
+            Units.Inches.of(11.932),
+            Units.Inches.of(7.879),
+            Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(-30.0)),
         )
         var robotToBackLeftCamera: Transform3d = Transform3d(
-            Units.Inches.of(-((29.5 / 2) - 1.8125)),
-            Units.Inches.of((29.5 / 2) - 1.5),
-            Units.Inches.of(8.0),
+            Units.Inches.of(-11.832),
+            Units.Inches.of(12.441),
+            Units.Inches.of(7.879),
             Rotation3d(Units.Degrees.of(0.0), Units.Degrees.of(-20.0), Units.Degrees.of(135.0)),
         )
 
