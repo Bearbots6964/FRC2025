@@ -289,8 +289,8 @@ public class RepulsorFieldPlanner {
   static final List<Obstacle> FIELD_OBSTACLES =
       List.of(
           // Reef
-          new TeardropObstacle(ReefLocations.BLUE_REEF, 2, 4, .83, 3, 2),
-          new TeardropObstacle(ReefLocations.RED_REEF, 2, 4, .83, 3, 2),
+          new TeardropObstacle(ReefLocations.BLUE_REEF, 1, 2.5, .83, 3, 2),
+          new TeardropObstacle(ReefLocations.RED_REEF, 1, 2.5, .83, 3, 2),
           // Walls
           new HorizontalObstacle(0.0, 0.5, .5, true),
           new HorizontalObstacle(Constants.FIELD_WIDTH_METERS, 0.5, .5, false),
