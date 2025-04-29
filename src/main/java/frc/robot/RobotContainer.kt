@@ -533,6 +533,7 @@ class RobotContainer {
             }
         }
 
+        Logger.recordOutput("HMI/NextReef", nextReef.name)
     }
 
     private fun updateHmi() {
@@ -572,7 +573,6 @@ class RobotContainer {
                 false -> PathfindingFactories.Reef.H
             }
         }
-        Logger.recordOutput("HMI/NextReef", nextReef.name)
     }
 
     private fun lockWheelsAndWaitForInput(): Command =
