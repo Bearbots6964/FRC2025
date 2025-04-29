@@ -496,7 +496,10 @@ class RobotContainer {
         hmi.povUpLeft().onTrue(runOnce({
             updateHmi()
         }).ignoringDisable(true))
-        hmi.leftBumper().or(hmi.rightBumper()).onTrue(runOnce({
+        hmi.leftBumper().onTrue(runOnce({
+            updateHmi()
+        }).ignoringDisable(true))
+        hmi.rightBumper().onTrue(runOnce({
             updateHmi()
         }).ignoringDisable(true))
         //Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
