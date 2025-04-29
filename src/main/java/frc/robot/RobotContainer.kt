@@ -938,7 +938,7 @@ class RobotContainer {
                         driveTranslationalControlSupplier
                     )
                 }, setOf(drive)).alongWith(
-                    Commands.waitSeconds(2.0).andThen(Commands.waitUntil(drive::nearerGoal))
+                    Commands.waitSeconds(1.5).andThen(Commands.waitUntil(drive::nearGoal))
                         .andThen(
                             SuperstructureCommands.goToPosition(
                                 elevator,

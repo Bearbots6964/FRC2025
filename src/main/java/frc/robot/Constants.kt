@@ -453,7 +453,7 @@ object Constants {
 
         @JvmStatic
         val leftBargePosition: Pose2d = Pose2d(
-            7.85, 7.3, Rotation2d()
+            7.85, 7.1, Rotation2d()
         )
 
         @JvmStatic
