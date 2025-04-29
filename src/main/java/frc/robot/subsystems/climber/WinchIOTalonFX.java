@@ -35,16 +35,31 @@ public class WinchIOTalonFX implements WinchIO {
   private final Debouncer winchMotorConnectedDebouncer = new Debouncer(0.5);
 
   public WinchIOTalonFX(TalonFXConfiguration configuration) {
+    System.out.println("│╠╦ Constructing winch I/O!");
+    double initializeTime = System.currentTimeMillis();
+    System.out.print("│║╠ Assigning configs to self... ");
     this.winchConfig = configuration;
+    System.out.println("done.");
 
+    System.out.print("│║╠ Creating mechanism motor... ");
     winchMotor = new TalonFX(Constants.ClimberConstants.getWinchMotorID());
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring mechanism motor... ");
     tryUntilOk(5, () -> winchMotor.getConfigurator().apply(winchConfig));
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring status signals... ");
     winchMotorPosition = winchMotor.getPosition();
     winchMotorVelocity = winchMotor.getVelocity();
     winchMotorCurrent = winchMotor.getTorqueCurrent();
     winchMotorVoltage = winchMotor.getMotorVoltage();
+    System.out.println("done.");
+
+    System.out.println(
+        "│╠╝ Winch I/O initialized in "
+            + String.format("%.3f", (System.currentTimeMillis() - initializeTime) * 1000.0)
+            + "ms (note: no logging of winch subsystem initialization)");
   }
 
   @Override

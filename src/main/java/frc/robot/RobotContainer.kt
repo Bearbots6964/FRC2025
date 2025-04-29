@@ -426,7 +426,7 @@ class RobotContainer {
                         .onlyIf { coralStatus == CoralStatus.IN_CLAW }).andThen(
                     algaeCycle()
                         .onlyIf({ grabAlgaeToggle && bargeChooser.get() != BargePositions.NONE })
-                ).withName("good luck")
+                )
 
         )
         // </editor-fold>

@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.generated.TunerConstants;
 import java.util.Queue;
 
@@ -37,13 +38,25 @@ public class GyroIOPigeon2 implements GyroIO {
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
 
   public GyroIOPigeon2() {
+    double initializeTime = Timer.getFPGATimestamp();
+    System.out.println("│╠╦ Constructing Pigeon");
+    System.out.print("│║╠ Applying empty config object... ");
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
+    System.out.println("done.");
+    System.out.print("│║╠ Setting yaw... ");
     pigeon.getConfigurator().setYaw(0.0);
+    System.out.println("...yaw update frequency... ");
     yaw.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY);
     yawVelocity.setUpdateFrequency(50.0);
+    System.out.println("done.");
+    System.out.print("│║╠ Configuring bus utilization... ");
     pigeon.optimizeBusUtilization();
+    System.out.println("done.");
+    System.out.print("│║╠ Configuring yaw queues... ");
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon.getYaw());
+    System.out.println("done.");
+    System.out.println("│╠╝ Pigeon initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   @Override

@@ -56,20 +56,28 @@ public class ModuleIOSim implements ModuleIO {
   public ModuleIOSim(
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
           constants) {
+    double initializeTime = Timer.getFPGATimestamp();
+    System.out.println("│╠╦ Constructing module sim!");
     // Create drive and turn sim models
+    System.out.print("│║╠ Creating drive model... ");
     driveSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
                 DRIVE_GEARBOX, constants.DriveInertia, constants.DriveMotorGearRatio),
             DRIVE_GEARBOX);
+    System.out.print("...turn model... ");
     turnSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
                 TURN_GEARBOX, constants.SteerInertia, constants.SteerMotorGearRatio),
             TURN_GEARBOX);
+    System.out.println("done.");
 
     // Enable wrapping for turn PID
+    System.out.print("│║╠ Enabling turn controller wrapping... ");
     turnController.enableContinuousInput(-Math.PI, Math.PI);
+    System.out.println("done.");
+    System.out.println("│╠╝ Module sim initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
   }
 
   @Override

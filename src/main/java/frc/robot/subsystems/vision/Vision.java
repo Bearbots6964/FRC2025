@@ -42,22 +42,31 @@ public class Vision extends SubsystemBase {
   public static boolean backCamerasEnabled = true;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
+    System.out.println("│╠╦ Constructing vision!");
     double initializeTime = Timer.getFPGATimestamp();
+    System.out.print("│║╠ Assigning I/O interfaces to self... ");
     this.consumer = consumer;
     this.io = io;
+    System.out.println("done.");
 
     // Initialize inputs
+    System.out.print("│║╠ Initializing inputs... ");
     this.inputs = new VisionIOInputsAutoLogged[io.length];
     for (int i = 0; i < inputs.length; i++) {
+      System.out.print(i + 1 + "... ");
       inputs[i] = new VisionIOInputsAutoLogged();
     }
+    System.out.println("done.");
 
     // Initialize disconnected alerts
+    System.out.print("│║╠ Initializing disconnected alerts... ");
     this.disconnectedAlerts = new Alert[io.length];
     for (int i = 0; i < inputs.length; i++) {
+      System.out.print(i + 1 + "... ");
       disconnectedAlerts[i] =
           new Alert("Vision camera " + i + " is disconnected.", AlertType.kWarning);
     }
+    System.out.println("done.");
     System.out.println("│╠ Vision initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
   }
 

@@ -13,7 +13,12 @@ public class AlgaeIntake extends SubsystemBase {
   double timer = 0.0;
 
   public AlgaeIntake(AlgaeIntakeIO io) {
+    double initializeTime = Timer.getFPGATimestamp();
     this.io = io;
+    System.out.println(
+        "│╠═ Algae Intake initialized in "
+            + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)
+            + "ms");
   }
 
   public void periodic() {

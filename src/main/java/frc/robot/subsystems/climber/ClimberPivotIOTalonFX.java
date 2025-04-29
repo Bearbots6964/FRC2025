@@ -36,16 +36,29 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
   private double targetPosition = 0.0;
 
   public ClimberPivotIOTalonFX(TalonFXSConfiguration configuration) {
+    System.out.println("│╠╦ Constructing climber pivot I/O!");
+    double initializeTime = System.currentTimeMillis();
+    System.out.print("│║╠ Assigning configs to self... ");
     this.pivotConfig = configuration;
+    System.out.println("done.");
 
+    System.out.print("│║╠ Creating mechanism motor... ");
     pivotMotor = new TalonFXS(Constants.ClimberConstants.getPivotMotorID());
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring mechanism motor... ");
     tryUntilOk(5, () -> pivotMotor.getConfigurator().apply(pivotConfig));
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring status signals... ");
     pivotMotorPosition = pivotMotor.getPosition();
     pivotMotorVelocity = pivotMotor.getVelocity();
     pivotMotorCurrent = pivotMotor.getStatorCurrent();
     pivotMotorVoltage = pivotMotor.getMotorVoltage();
+    System.out.println("done.");
+
+
+    System.out.println("│╠╝ Climber pivot I/O initialized in " + String.format("%.3f", (System.currentTimeMillis() - initializeTime) * 1000.0) + "ms (note: no logging of algae intake subsystem initialization)");
   }
 
   @Override

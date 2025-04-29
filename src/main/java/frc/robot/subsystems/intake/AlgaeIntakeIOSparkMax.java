@@ -23,27 +23,43 @@ public class AlgaeIntakeIOSparkMax implements AlgaeIntakeIO {
   protected double targetIntakeVelocity;
 
   public AlgaeIntakeIOSparkMax(SparkBaseConfig armMotorConfig, SparkBaseConfig intakeMotorConfig) {
+    System.out.println("│╠╦ Constructing algae intake I/O!");
+    double initializeTime = System.currentTimeMillis();
+    System.out.print("│║╠ Creating mechanism motor... ");
     armMotor = new SparkMax(Constants.AlgaeIntakeConstants.getArmMotorID(), MotorType.kBrushless);
+    System.out.println("done.");
+    System.out.print("│║╠ Configuring mechanism motor... ");
     tryUntilOk(
         armMotor,
         5,
         () ->
             armMotor.configure(
                 armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    System.out.println("done.");
+    System.out.print("│║╠ Creating intake motor... ");
     intakeMotor =
         new SparkFlex(Constants.AlgaeIntakeConstants.getIntakeMotorID(), MotorType.kBrushless);
+    System.out.println("done.");
+    System.out.print("│║╠ Configuring intake motor... ");
     tryUntilOk(
         intakeMotor,
         5,
         () ->
             intakeMotor.configure(
                 intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring arm and intake controllers... ");
     armController = armMotor.getClosedLoopController();
     intakeController = intakeMotor.getClosedLoopController();
+    System.out.println("done.");
 
+    System.out.print("│║╠ Getting positions... ");
     targetArmPosition = armMotor.getEncoder().getPosition();
     targetIntakeVelocity = intakeMotor.getEncoder().getVelocity();
+    System.out.println("done.");
+
+    System.out.println("│╠╝ Algae intake I/O initialized in " + String.format("%.3f", (System.currentTimeMillis() - initializeTime) * 1000.0) + "ms");
   }
 
   @Override

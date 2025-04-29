@@ -17,12 +17,19 @@ public class ClawIntakeIOSparkMax implements ClawIntakeIO {
   protected final Debouncer gripDebouncer = new Debouncer(0.5);
 
   public ClawIntakeIOSparkMax(SparkBaseConfig intakeConfiguration) {
+    System.out.println("│╠╦ Constructing claw intake I/O!");
+    double initializeTime = System.currentTimeMillis();
+    System.out.print("│║╠ Assigning configs to self... ");
     this.intakeConfiguration = intakeConfiguration;
+    System.out.println("done.");
 
+    System.out.print("│║╠ Creating mechanism motor... ");
     intakeMotor =
         new SparkMax(
             SuperstructureConstants.ClawIntakeConstants.getClawMotorID(),
             SparkLowLevel.MotorType.kBrushless);
+    System.out.println("done.");
+    System.out.print("│║╠ Configuring mechanism motor... ");
     tryUntilOk(
         intakeMotor,
         5,
@@ -31,6 +38,10 @@ public class ClawIntakeIOSparkMax implements ClawIntakeIO {
                 intakeConfiguration,
                 ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters));
+    System.out.println("done.");
+
+
+    System.out.println("│╠╝ Claw intake I/O initialized in " + String.format("%.3f", (System.currentTimeMillis() - initializeTime) * 1000.0) + "ms (note: no logging of algae intake subsystem initialization)");
   }
 
   @Override

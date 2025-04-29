@@ -36,10 +36,12 @@ public class Elevator extends SubsystemBase {
   double timer = 0.0;
 
   public Elevator(ElevatorIO io) {
+    System.out.println("│╠╦ Constructing elevator!");
     double initializeTime = Timer.getFPGATimestamp();
+    System.out.print("│║╠ Assigning I/O interfaces to self... ");
     this.io = io;
-    if (ElevatorConstants.SYSID_PROFILING_ENABLED) {
-    }
+    System.out.println("done.");
+    System.out.print("│║╠ Initializing Mechanism2d... ");
     mechanism = new LoggedMechanism2d(Units.inchesToMeters(29.5), Units.inchesToMeters(75.0));
     elevatorRoot =
         mechanism.getRoot(
@@ -48,7 +50,8 @@ public class Elevator extends SubsystemBase {
         elevatorRoot.append(
             new LoggedMechanismLigament2d(
                 "Elevator", Units.inchesToMeters(37.0), 90.0, 6.0, new Color8Bit(Color.kGray)));
-    System.out.println("│╠ Elevator initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
+    System.out.println("done.");
+    System.out.println("│╠╝ Elevator initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   public void setRotations(double rotations) {

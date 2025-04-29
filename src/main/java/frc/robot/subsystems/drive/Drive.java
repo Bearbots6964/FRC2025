@@ -165,21 +165,36 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
       ModuleIO blModuleIO,
       ModuleIO brModuleIO,
       Consumer<Pose2d> resetSimulationPoseCallBack) {
+
+    System.out.println("│╠╦ Drivebase Initialization Started");
     double initializeTime = Timer.getFPGATimestamp();
+    System.out.print("│║╠ Assigning gyro to self... ");
     this.gyroIO = gyroIO;
+    System.out.println("done.");
     this.resetSimulationPoseCallBack = resetSimulationPoseCallBack;
+
+
+    System.out.println("│║╠ Constructing module 1... ");
     modules[0] = new Module(flModuleIO, 0, TunerConstants.getFrontLeft());
+    System.out.println("│║╠ Constructing module 2... ");
     modules[1] = new Module(frModuleIO, 1, TunerConstants.getFrontRight());
+    System.out.println("│║╠ Constructing module 3... ");
     modules[2] = new Module(blModuleIO, 2, TunerConstants.getBackLeft());
+    System.out.println("│║╠ Constructing module 4... ");
     modules[3] = new Module(brModuleIO, 3, TunerConstants.getBackRight());
 
     // Usage reporting for swerve template
+    System.out.print("│║╠ Reporting swerve template usage... ");
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
+    System.out.println("done.");
 
     // Start odometry thread
+    System.out.print("│║╠ Starting odometry thread... ");
     PhoenixOdometryThread.getInstance().start();
+    System.out.println("done.");
 
     // Configure AutoBuilder for PathPlanner
+    System.out.print("│║╠ Configuring PathPlanner... ");
     AutoBuilder.configure(
         this::getPose,
         this::setPose,
@@ -192,14 +207,18 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get() == Alliance.Red,
         this);
+    System.out.print("...pathfinder... ");
     Pathfinding.setPathfinder(new LocalADStarAK());
+    System.out.print("...callbacks... ");
     PathPlannerLogging.setLogActivePathCallback(
         (activePath) ->
             Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0])));
     PathPlannerLogging.setLogTargetPoseCallback(
         (targetPose) -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
+    System.out.println("...done.");
 
     // Configure SysId
+    System.out.print("│║╠ Configuring SysId... ");
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -209,17 +228,21 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring pathfinding controllers... ");
     xController = new PIDController(7.5, 0, 0);
     yController = new PIDController(7.5, 0, 0);
     yawController = new PIDController(4.5, 0, .2);
     yawController.enableContinuousInput(-PI, PI);
-
+    System.out.print("...setpoint generators... ");
     setpointGenerator = new SwerveSetpointGenerator(PP_CONFIG, Units.rotationsToRadians(10.0));
     lastSetpoint =
         new com.pathplanner.lib.util.swerve.SwerveSetpoint(
             new ChassisSpeeds(), getModuleStates(), DriveFeedforwards.zeros(4));
+    System.out.println("...done.");
 
+    System.out.print("│║╠ Configuring SmartDashboard swerve object... ");
     SmartDashboard.putData(
         "Swerve Drive",
         builder -> {
@@ -247,7 +270,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
           builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
         });
-    System.out.println("│╠ Drive initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
+    System.out.println("...done.");
+    System.out.println("│╠╝ Drive initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   /** Returns an array of module translations. */

@@ -24,9 +24,13 @@ public class Arm extends SubsystemBase {
   private final LoggedMechanismLigament2d secondSegment;
   double timer = 0.0;
   public Arm(ArmIO io, LoggedMechanismLigament2d mechanism) {
+    System.out.println("│╠╦ Constructing arm!");
     double initializeTime = Timer.getFPGATimestamp();
+    System.out.print("│║╠ Assigning I/O interfaces to self... ");
     this.io = io;
+    System.out.println("done.");
 
+    System.out.print("│║╠ Initializing Mechanism2d... ");
     firstSegment =
         mechanism.append(
             new LoggedMechanismLigament2d(
@@ -43,8 +47,9 @@ public class Arm extends SubsystemBase {
                 -60.0,
                 6.0,
                 new Color8Bit(Color.kDenim)));
+    System.out.println("done.");
     System.out.println(
-        "│╠ Arm initialized in "
+        "│╠╝ Arm initialized in "
             + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)
             + "ms");
   }

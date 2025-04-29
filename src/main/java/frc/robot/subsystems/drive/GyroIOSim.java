@@ -11,6 +11,7 @@ public class GyroIOSim implements GyroIO {
 
   public GyroIOSim(GyroSimulation gyroSimulation) {
     this.gyroSimulation = gyroSimulation;
+    System.out.println("│╠═ Constructing GyroIOSim");
   }
 
   @Override

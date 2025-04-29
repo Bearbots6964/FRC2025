@@ -20,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import lombok.Getter;
@@ -39,15 +40,23 @@ public class Module {
   @Getter private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(ModuleIO io, int index, SwerveModuleConstants constants) {
+    double initializeTime = Timer.getFPGATimestamp();
+    System.out.println("│║╠╦ Constructing module " + (index + 1) + "!");
+    System.out.print("│║║╠ Assigning I/O interfaces, index, and constants to self... ");
     this.io = io;
     this.index = index;
     this.constants = constants;
+    System.out.println("done.");
+    System.out.print("│║║╠ Initializing alerts... ");
     driveDisconnectedAlert =
         new Alert("Disconnected drive motor on module " + index + ".", AlertType.kError);
     turnDisconnectedAlert =
         new Alert("Disconnected turn motor on module " + index + ".", AlertType.kError);
     turnEncoderDisconnectedAlert =
         new Alert("Disconnected turn encoder on module " + index + ".", AlertType.kError);
+    System.out.println("done.");
+
+    System.out.println("│║╠╝ Module " + (index + 1) + " initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   public void periodic() {

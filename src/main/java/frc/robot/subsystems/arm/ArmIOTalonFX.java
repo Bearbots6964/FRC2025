@@ -17,6 +17,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.SuperstructureConstants;
 
 public class ArmIOTalonFX implements ArmIO {
@@ -40,28 +41,44 @@ public class ArmIOTalonFX implements ArmIO {
   protected double targetPosition;
 
   public ArmIOTalonFX(TalonFXSConfiguration configuration) {
+    System.out.println("│╠╦ Constructing arm I/O!");
+    double initializeTime = System.currentTimeMillis();
+    System.out.print("│║╠ Assigning configs to self... ");
     this.pivotConfig = configuration;
+    System.out.println("done.");
 
+    System.out.print("│║╠ Creating mechanism motor... ");
     pivotMotor = new TalonFXS(SuperstructureConstants.ArmConstants.getArmAxisMotorID());
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring mechanism motor... ");
     tryUntilOk(5, () -> pivotMotor.getConfigurator().apply(pivotConfig, 0.25));
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring status signals... ");
     pivotMotorPosition = pivotMotor.getPosition();
     pivotMotorVelocity = pivotMotor.getVelocity();
     pivotMotorVoltage = pivotMotor.getMotorVoltage();
     pivotMotorCurrent = pivotMotor.getStatorCurrent();
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring position... ");
     var pos = pivotMotorPosition.getValue().in(Units.Rotations);
     if (pos < -1) {
       pivotMotor.setPosition(pos - Math.floor(pos));
     }
     targetPosition = pivotMotorPosition.getValue().in(Units.Degrees);
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring Motion Magic... ");
     motionMagicPositionRequest =
         new MotionMagicVoltage(Units.Degrees.of(MathUtil.clamp(targetPosition, -70.0, 225.0)));
     motionMagicSlower = new MotionMagicVoltage(Units.Degrees.of(targetPosition));
     motionMagicSlower.withSlot(2);
     positionVoltage = new PositionVoltage(Units.Degrees.of(targetPosition)).withSlot(1);
+    System.out.println("done.");
+
+    System.out.println("│╠╝ Arm I/O initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
   }
 
   @Override

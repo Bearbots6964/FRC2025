@@ -53,8 +53,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   protected DigitalInput limitSwitch = new DigitalInput(9);
 
   public ElevatorIOTalonFX(TalonFXConfiguration leftConfig, TalonFXConfiguration rightConfig) {
+    System.out.println("│╠╦ Constructing elevator I/O!");
+    double initializeTime = System.currentTimeMillis();
+    System.out.print("│║╠ Assigning configs to self... ");
     this.leftConfig = leftConfig;
     this.rightConfig = rightConfig;
+
+    System.out.println("done.");
+    System.out.print("│║╠ Adding to configurations... ");
     rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 108.75;
@@ -63,15 +69,25 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 108.75;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.5;
+    System.out.println("done.");
 
+    System.out.print("│║╠ Creating left motor... ");
     leftMotor = new TalonFX(SuperstructureConstants.ElevatorConstants.LEFT_MOTOR_CAN_ID);
+    System.out.print("...right motor... ");
     rightMotor = new TalonFX(SuperstructureConstants.ElevatorConstants.RIGHT_MOTOR_CAN_ID);
+    System.out.println("done.");
 
+    System.out.print("│║╠ Configuring left motor... ");
     tryUntilOk(5, () -> leftMotor.getConfigurator().apply(leftConfig, 0.25));
+    System.out.print("...right motor... ");
     tryUntilOk(5, () -> rightMotor.getConfigurator().apply(rightConfig, 0.25));
+    System.out.println("done.");
 
+    System.out.print("│║╠ Setting left motor to follower... ");
     leftMotor.setControl(new Follower(rightMotor.getDeviceID(), true));
+    System.out.println("done.");
 
+    System.out.print("│║╠ Creating status signals... ");
     leftMotorPosition = leftMotor.getPosition();
     rightMotorPosition = rightMotor.getPosition();
     leftMotorVelocity = leftMotor.getVelocity();
@@ -82,8 +98,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     rightMotorTemperature = rightMotor.getDeviceTemp();
     leftMotorCurrent = leftMotor.getStatorCurrent();
     rightMotorCurrent = rightMotor.getStatorCurrent();
+    System.out.println("done.");
 
+    System.out.print("│║╠ Setting target position... ");
     targetPosition = rightMotorPosition.getValue().in(Units.Rotations);
+    System.out.println("done.");
+    System.out.println("│╠╝ Elevator I/O initialized in " + String.format("%.3f", (System.currentTimeMillis() - initializeTime) * 1000.0) + "ms");
   }
 
   @Override
