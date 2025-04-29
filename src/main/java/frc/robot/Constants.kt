@@ -453,17 +453,17 @@ object Constants {
 
         @JvmStatic
         val leftBargePosition: Pose2d = Pose2d(
-            7.85, 7.1, Rotation2d()
+            7.75, 7.1, Rotation2d()
         )
 
         @JvmStatic
         val middleBargePosition: Pose2d = Pose2d(
-            7.85, 5.95, Rotation2d()
+            7.75, 5.95, Rotation2d()
         )
 
         @JvmStatic
         val rightBargePosition: Pose2d = Pose2d(
-            7.85, 4.65, Rotation2d()
+            7.75, 4.65, Rotation2d()
         )
 
         fun getPosition(pos: BargePositions): Pose2d = when (pos) {

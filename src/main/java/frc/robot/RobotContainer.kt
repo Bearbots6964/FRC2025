@@ -949,7 +949,7 @@ class RobotContainer {
                         )
                 ).deadlineFor(clawIntake.intakeWithoutStoppingForAlgae())
             ).andThen(
-                Commands.run({ drive.stopWithX() }, drive).withDeadline(
+                drive.goForward().withDeadline(
                     clawIntake.outtake().withDeadline(Commands.waitSeconds(2.0)).andThen(
                         runOnce({
                             algaeStatus = AlgaeStatus.NONE
