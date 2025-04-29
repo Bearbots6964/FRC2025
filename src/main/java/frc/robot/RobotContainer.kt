@@ -478,12 +478,28 @@ class RobotContainer {
         hmi.rightStick()
             .onTrue(runOnce({ nextStation = PathfindingFactories.CoralStationSide.RIGHT }))
 
-        hmi.povCenter().negate()
-            .onTrue(runOnce({ updateHmi() }))
-        hmi.leftBumper()
-            .onTrue(runOnce({ updateHmi() }))
-        hmi.rightBumper()
-            .onTrue(runOnce({ updateHmi() }))
+        hmi.povUp().onTrue(runOnce({
+            updateHmi()
+        }))
+        hmi.povUpRight().onTrue(runOnce({
+            updateHmi()
+        }))
+        hmi.povDownRight().onTrue(runOnce({
+            updateHmi()
+        }))
+        hmi.povDown().onTrue(runOnce({
+            updateHmi()
+        }))
+        hmi.povDownLeft().onTrue(runOnce({
+            updateHmi()
+        }))
+        hmi.povUpLeft().onTrue(runOnce({
+            updateHmi()
+        }))
+        hmi.leftBumper().or(hmi.rightBumper()).onTrue(runOnce({
+            updateHmi()
+        }))
+        //Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
         //Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
         //    SuperstructureCommands.home(elevator, arm)
         //)
