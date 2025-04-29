@@ -479,7 +479,8 @@ class RobotContainer {
         hmi.rightStick()
             .onTrue(runOnce({ nextStation = PathfindingFactories.CoralStationSide.RIGHT }))
 
-        hmi.povCenter().negate().onTrue(runOnce(::updateHmi))
+        hmi.povCenter().negate().or(hmi.leftBumper()).or(hmi.rightBumper())
+            .onTrue(runOnce(::updateHmi))
         //Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
         //    SuperstructureCommands.home(elevator, arm)
         //)
@@ -857,8 +858,12 @@ class RobotContainer {
 
     private fun algaeCycle(): Command {
 
-        return Commands.defer({
-            runOnce({ bargePosition = bargeChooser.get().let {if (it == null) BargePositions.NONE else it} }).andThen(
+        return drive.backUpMore().andThen(
+            Commands.defer({
+            runOnce({
+                bargePosition =
+                    bargeChooser.get().let { if (it == null) BargePositions.NONE else it }
+            }).andThen(
                 PathfindingFactories.pathfindToReefButBackALittleMore(
                     drive, {
                         when (nextReef) {
@@ -923,7 +928,9 @@ class RobotContainer {
             ).andThen(
                 Commands.run({ drive.stopWithX() }, drive).withDeadline(
                     clawIntake.outtake().withDeadline(Commands.waitSeconds(2.0)).andThen(
-                        runOnce({ algaeStatus = AlgaeStatus.NONE }).alongWith(clawIntake.stopOnce())
+                        runOnce({
+                            algaeStatus = AlgaeStatus.NONE
+                        }).alongWith(clawIntake.stopOnce())
                     )
                 )
             ).andThen(drive.backUp().withDeadline(Commands.waitSeconds(2.0))).andThen(
@@ -932,6 +939,7 @@ class RobotContainer {
                 ).withDeadline(Commands.waitSeconds(3.0))
             )
             .finallyDo(Runnable { drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed) })
+        )
 
 
     }
