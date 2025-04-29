@@ -261,7 +261,7 @@ class RobotContainer {
         bargeChooser.addOption("Left", BargePositions.LEFT)
         bargeChooser.addOption("Middle", BargePositions.MIDDLE)
         bargeChooser.addOption("Right", BargePositions.RIGHT)
-        bargeChooser.addOption("None", BargePositions.NONE)
+        bargeChooser.addDefaultOption("None", BargePositions.NONE)
 
         println("└  [RobotContainer] Initialized in ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
     }
@@ -858,7 +858,7 @@ class RobotContainer {
     private fun algaeCycle(): Command {
 
         return Commands.defer({
-            runOnce({ bargePosition = bargeChooser.get() }).andThen(
+            runOnce({ bargePosition = bargeChooser.get().let {if (it == null) BargePositions.NONE else it} }).andThen(
                 PathfindingFactories.pathfindToReefButBackALittleMore(
                     drive, {
                         when (nextReef) {
