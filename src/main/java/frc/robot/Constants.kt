@@ -60,42 +60,33 @@ object Constants {
              * Talon FX configuration for the left elevator motor.
              */
             @JvmStatic
-            val leftMotorConfig: TalonFXConfiguration = TalonFXConfiguration().let {
-                // The Kotlin `let` scope function is really useful here,
-                // as it allows us
-                // to configure the object over multiple lines
-                // without having to use an initializer block.
-                it.ClosedLoopGeneral.ContinuousWrap = false
-                it.MotorOutput.NeutralMode = NeutralModeValue.Brake
-                it.CurrentLimits.StatorCurrentLimit = 120.0
-                it.CurrentLimits.SupplyCurrentLimit = 70.0
-
-                it // Implicit return.
-                // This is really the only downside to using this, as it can look random.
+            val leftMotorConfig: TalonFXConfiguration = TalonFXConfiguration().apply {
+                ClosedLoopGeneral.ContinuousWrap = false
+                MotorOutput.NeutralMode = NeutralModeValue.Brake
+                CurrentLimits.StatorCurrentLimit = 120.0
+                CurrentLimits.SupplyCurrentLimit = 70.0
             }
 
             /**
              * Talon FX configuration for the right elevator motor.
              */
             @JvmStatic
-            val rightMotorConfig: TalonFXConfiguration = TalonFXConfiguration().let {
-                it.ClosedLoopGeneral.ContinuousWrap = false
-                it.MotorOutput.NeutralMode = NeutralModeValue.Brake
-                it.CurrentLimits.StatorCurrentLimit = 120.0
-                it.CurrentLimits.SupplyCurrentLimit = 70.0
-                it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
+            val rightMotorConfig: TalonFXConfiguration = TalonFXConfiguration().apply {
+                ClosedLoopGeneral.ContinuousWrap = false
+                MotorOutput.NeutralMode = NeutralModeValue.Brake
+                CurrentLimits.StatorCurrentLimit = 120.0
+                CurrentLimits.SupplyCurrentLimit = 70.0
+                MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
-                it.Slot0.kS = 0.087054
-                it.Slot0.kV = 0.11971
-                it.Slot0.kA = 0.0031455
-                it.Slot0.kG = 0.10784
-                it.Slot0.kP = 0.8 // sysid suggests 0.067039
+                Slot0.kS = 0.087054
+                Slot0.kV = 0.11971
+                Slot0.kA = 0.0031455
+                Slot0.kG = 0.10784
+                Slot0.kP = 0.8 // sysid suggests 0.067039
 
-                it.MotionMagic.MotionMagicCruiseVelocity = 250.0
-                it.MotionMagic.MotionMagicAcceleration = 500.0
-                it.MotionMagic.MotionMagicJerk = 0.0
-
-                it
+                MotionMagic.MotionMagicCruiseVelocity = 250.0
+                MotionMagic.MotionMagicAcceleration = 500.0
+                MotionMagic.MotionMagicJerk = 0.0
             }
 
             /**
@@ -161,49 +152,61 @@ object Constants {
              * Talon FXS configuration for the arm motor.
              */
             @JvmStatic
-            val talonConfig: TalonFXSConfiguration = TalonFXSConfiguration().let {
-                it.CurrentLimits.StatorCurrentLimit = 120.0
-                it.CurrentLimits.StatorCurrentLimitEnable = true
+            val talonConfig: TalonFXSConfiguration = TalonFXSConfiguration().apply {
+                CurrentLimits.apply {
+                    StatorCurrentLimit = 120.0
+                    StatorCurrentLimitEnable = true
+                }
 
-                it.ExternalFeedback.ExternalFeedbackSensorSource =
-                    ExternalFeedbackSensorSourceValue.PulseWidth
-                it.ExternalFeedback.RotorToSensorRatio = 60.0
-                it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
-                it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.70
-                it.ExternalFeedback.AbsoluteSensorOffset = 0.9366666667 + 0.33333333333333 - 1.0
-                it.ExternalFeedback.SensorPhase = SensorPhaseValue.Aligned
+                ExternalFeedback.apply {
+                    ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.PulseWidth
+                    RotorToSensorRatio = 60.0
+                    QuadratureEdgesPerRotation = 8192
+                    AbsoluteSensorDiscontinuityPoint = 0.70
+                    AbsoluteSensorOffset = 0.9366666667 + 0.33333333333333 - 1.0
+                    SensorPhase = SensorPhaseValue.Aligned
+                }
 
-                it.MotorOutput.NeutralMode = NeutralModeValue.Brake
-                it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
+                MotorOutput.apply {
+                    NeutralMode = NeutralModeValue.Brake
+                    Inverted = InvertedValue.Clockwise_Positive
+                }
 
-                it.Slot0.kP = 40.0
-                it.Slot0.kS = 0.51518
-                it.Slot0.kV = 7.35
-                it.Slot0.kA = 0.61
-                it.Slot0.kG = 0.75
-                it.Slot0.GravityType = GravityTypeValue.Arm_Cosine
+                Slot0.apply {
+                    kP = 40.0
+                    kS = 0.51518
+                    kV = 7.35
+                    kA = 0.61
+                    kG = 0.75
+                    GravityType = GravityTypeValue.Arm_Cosine
+                }
 
-                it.Slot1.kP = 5.0
-                it.Slot1.kS = 0.51518
-                it.Slot1.kV = 1.1
-                it.Slot1.kA = 0.61
-                it.Slot1.kG = 0.75
-                it.Slot1.GravityType = GravityTypeValue.Arm_Cosine
-                it.MotionMagic.MotionMagicCruiseVelocity = 1.0
-                it.MotionMagic.MotionMagicAcceleration = 1.5
-                it.MotionMagic.MotionMagicJerk = 4.0
+                Slot1.apply {
+                    kP = 5.0
+                    kS = 0.51518
+                    kV = 1.1
+                    kA = 0.61
+                    kG = 0.75
+                    GravityType = GravityTypeValue.Arm_Cosine
+                }
 
-                it.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled
-                it.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST
+                MotionMagic.apply {
+                    MotionMagicCruiseVelocity = 1.0
+                    MotionMagicAcceleration = 1.5
+                    MotionMagicJerk = 4.0
+                }
 
-                it.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
-                it.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-                    Units.Degrees.of(225.0).`in`(Units.Revolutions)
-                it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
-                it.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-                    Units.Degrees.of(-71.36).`in`(Units.Revolutions)
+                Commutation.apply {
+                    AdvancedHallSupport = AdvancedHallSupportValue.Enabled
+                    MotorArrangement = MotorArrangementValue.NEO_JST
+                }
 
-                it // funny kotlin return
+                SoftwareLimitSwitch.apply {
+                    ForwardSoftLimitEnable = true
+                    ForwardSoftLimitThreshold = Units.Degrees.of(225.0).`in`(Units.Revolutions)
+                    ReverseSoftLimitEnable = true
+                    ReverseSoftLimitThreshold = Units.Degrees.of(-71.36).`in`(Units.Revolutions)
+                }
             }
         }
 
@@ -232,17 +235,15 @@ object Constants {
              * Motor controller configuration for the claw motor.
              */
             @JvmStatic
-            val sparkConfig: SparkBaseConfig = SparkMaxConfig().let {
-                it.idleMode(SparkBaseConfig.IdleMode.kBrake)
-                it.smartCurrentLimit(20) // Set relatively low to protect motor against stalling,
+            val sparkConfig: SparkBaseConfig = SparkMaxConfig().apply {
+                idleMode(SparkBaseConfig.IdleMode.kBrake)
+                smartCurrentLimit(20) // Set relatively low to protect motor against stalling,
                 // which seems to happen relatively frequently.
                 // It stalls anyway,
                 // but the whistle can be safely ignored;
                 // Neos have been shown
                 // to survive a 220-second stall at 40 amps with no performance degradation nor motor damage.
                 // A match is only 150 seconds long, so we are more than okay.
-
-                // no implicit return is needed here because smartCurrentLimit returns itself
             }
         }
 
@@ -351,20 +352,18 @@ object Constants {
 
         /** Configuration for the arm motor. */
         @JvmStatic
-        val armConfig = SparkMaxConfig().let {
-            it.idleMode(SparkBaseConfig.IdleMode.kBrake)
-            it.smartCurrentLimit(20)
-            it.closedLoop.p(0.04).d(1.0)
-            it
+        val armConfig = SparkMaxConfig().apply {
+            idleMode(SparkBaseConfig.IdleMode.kBrake)
+            smartCurrentLimit(20)
+            closedLoop.p(0.04).d(1.0)
         }
 
         /** Configuration for the intake motor. */
         @JvmStatic
-        val intakeConfig = SparkMaxConfig().let {
-            it.idleMode(SparkBaseConfig.IdleMode.kCoast)
-            it.smartCurrentLimit(40)
-            it.closedLoop.velocityFF(0.0002)
-            it
+        val intakeConfig = SparkMaxConfig().apply {
+            idleMode(SparkBaseConfig.IdleMode.kCoast)
+            smartCurrentLimit(40)
+            closedLoop.velocityFF(0.0002)
         }
     }
 
@@ -508,60 +507,62 @@ object Constants {
         /**
          * Talon FXS configuration for the pivot motor.
          */
-        val pivotMotorConfig: TalonFXSConfiguration = TalonFXSConfiguration().let {
-            it.MotorOutput.NeutralMode = NeutralModeValue.Brake
+        val pivotMotorConfig: TalonFXSConfiguration = TalonFXSConfiguration().apply {
+            MotorOutput.NeutralMode = NeutralModeValue.Brake
 
-            it.CurrentLimits.StatorCurrentLimit = 40.0
-            it.CurrentLimits.StatorCurrentLimitEnable = true
+            CurrentLimits.StatorCurrentLimit = 40.0
+            CurrentLimits.StatorCurrentLimitEnable = true
 
-            it.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST
-            it.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled
+            Commutation.MotorArrangement = MotorArrangementValue.NEO_JST
+            Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled
 
-            it.ExternalFeedback.ExternalFeedbackSensorSource =
-                ExternalFeedbackSensorSourceValue.PulseWidth
-            it.ExternalFeedback.RotorToSensorRatio = 100.0
-            it.ExternalFeedback.QuadratureEdgesPerRotation = 8192
-            it.ExternalFeedback.AbsoluteSensorDiscontinuityPoint = 0.5
-            it.ExternalFeedback.AbsoluteSensorOffset = -0.39
+            ExternalFeedback.apply {
+                ExternalFeedbackSensorSource =
+                    ExternalFeedbackSensorSourceValue.PulseWidth
+                RotorToSensorRatio = 100.0
+                QuadratureEdgesPerRotation = 8192
+                AbsoluteSensorDiscontinuityPoint = 0.5
+                AbsoluteSensorOffset = -0.39
+            }
 
-            it.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
-            it.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+            SoftwareLimitSwitch.ForwardSoftLimitEnable = true
+            SoftwareLimitSwitch.ForwardSoftLimitThreshold =
                 Units.Degrees.of(150.0).`in`(Units.Rotations)
-            it.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
-            it.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+            SoftwareLimitSwitch.ReverseSoftLimitEnable = true
+            SoftwareLimitSwitch.ReverseSoftLimitThreshold =
                 Units.Degrees.of(45.0).`in`(Units.Rotations)
 
-            it.MotionMagic.MotionMagicCruiseVelocity = 3.0
-            it.MotionMagic.MotionMagicAcceleration = 10.0
+            MotionMagic.apply {
+                MotionMagicCruiseVelocity = 3.0
+                MotionMagicAcceleration = 10.0
+            }
 
-            it.Slot0.kP = 30.0
-            it.Slot0.kD = 0.1
-            it.Slot0.kS = 0.21
-            it.Slot0.kV = 4.0
-            it.Slot0.kA = 0.2
-            it.Slot0.kG = 0.28
-            it.Slot0.GravityType = GravityTypeValue.Arm_Cosine
-
-            it
+            Slot0.apply {
+                kP = 30.0
+                kD = 0.1
+                kS = 0.21
+                kV = 4.0
+                kA = 0.2
+                kG = 0.28
+                GravityType = GravityTypeValue.Arm_Cosine
+            }
         }
 
         /**
          * Talon FX configuration for the winch motor.
          */
-        val winchMotorConfig: TalonFXConfiguration = TalonFXConfiguration().let {
-            it.MotorOutput.NeutralMode = NeutralModeValue.Brake
-            it.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
+        val winchMotorConfig: TalonFXConfiguration = TalonFXConfiguration().apply {
+            MotorOutput.NeutralMode = NeutralModeValue.Brake
+            MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
-            it.CurrentLimits.SupplyCurrentLimit = 70.0
-            it.CurrentLimits.StatorCurrentLimit = 120.0
+            CurrentLimits.SupplyCurrentLimit = 70.0
+            CurrentLimits.StatorCurrentLimit = 120.0
 
-            it.MotionMagic.MotionMagicCruiseVelocity = 10.0
-            it.MotionMagic.MotionMagicAcceleration = 20.0
+            MotionMagic.MotionMagicCruiseVelocity = 10.0
+            MotionMagic.MotionMagicAcceleration = 20.0
 
-            it.Slot0.kP = 0.5
-            it.Slot0.kS = 0.2
-
-            it
+            Slot0.kP = 0.5
+            Slot0.kS = 0.2
         }
     }
     // <editor-fold desc="Extra utility constants">
