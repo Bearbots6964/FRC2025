@@ -440,6 +440,7 @@ object Constants {
         const val coralIntakeSpeed: Double = 0.40
         const val toReefSpeed: Double = 0.50
         const val toBargeSpeed = 0.50
+        const val algaeGrabSpeed = 0.30
 
         /**
          * Final distance from the coral station in meters.
