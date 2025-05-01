@@ -1,0 +1,1065 @@
+{
+  "version": 1.0,
+  "grid_size": 32,
+  "tabs": [
+    {
+      "name": "Biblically Accurate Reefscape Dashboard",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Reef B",
+            "x": 1120.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef B",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef C",
+            "x": 1376.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef C",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef D",
+            "x": 1504.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef D",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef E",
+            "x": 1504.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef E",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef F",
+            "x": 1376.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef F",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef G",
+            "x": 1120.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef G",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef H",
+            "x": 864.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef H",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef I",
+            "x": 608.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef I",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef K",
+            "x": 480.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef K",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef J",
+            "x": 480.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef J",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Reef L",
+            "x": 608.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Reef L",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure L1",
+            "x": 864.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure L1",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure L2",
+            "x": 1120.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure L2",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure L3",
+            "x": 864.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure L3",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure L4",
+            "x": 1120.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure L4",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure Home",
+            "x": 864.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure Home",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Superstructure Coral Pickup",
+            "x": 864.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Superstructure Coral Pickup",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Elevator At Target",
+            "x": 736.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/Elevator/AtTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "Checkmark",
+              "false_icon": "X"
+            }
+          },
+          {
+            "title": "Arm At Target",
+            "x": 1376.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/Arm/AtTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "Checkmark",
+              "false_icon": "X"
+            }
+          },
+          {
+            "title": "ArmAxisAngle",
+            "x": 1984.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Radial Gauge",
+            "properties": {
+              "topic": "/AdvantageKit/Arm/ArmAxisAngle",
+              "period": 0.06,
+              "data_type": "double",
+              "start_angle": -161.0,
+              "end_angle": 150.0,
+              "min_value": -71.0,
+              "max_value": 225.0,
+              "number_of_labels": 8,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
+            }
+          },
+          {
+            "title": "RightMotorPositionRotations",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Number Bar",
+            "properties": {
+              "topic": "/AdvantageKit/Elevator/RightMotorPositionRotations",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 0.0,
+              "max_value": 100.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "vertical"
+            }
+          },
+          {
+            "title": "FMS",
+            "x": 0.0,
+            "y": 768.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "FMSInfo",
+            "properties": {
+              "topic": "/FMSInfo",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Alerts",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/SmartDashboard/Alerts",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Voltage",
+            "x": 1984.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/AdvantageKit/PowerDistribution/Voltage",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 4.0,
+              "max_value": 13.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "TotalCurrent",
+            "x": 1984.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/AdvantageKit/PowerDistribution/TotalCurrent",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 0.0,
+              "max_value": 150.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "Drive to Left Coral Station",
+            "x": 448.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Drive to Left Coral Station",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Drive to Right Coral Station",
+            "x": 1504.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Drive to Right Coral Station",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Place Coral",
+            "x": 1120.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Place Coral",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Coral Pickup",
+            "x": 1120.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Coral Pickup",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "FullCycleMS",
+            "x": 1984.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/LoggedRobot/FullCycleMS",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 5.0,
+              "min_value": 0.0,
+              "max_value": 50.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "MatchTime",
+            "x": 992.0,
+            "y": 768.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/AdvantageKit/DriverStation/MatchTime",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 15,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "Retract Intake",
+            "x": 1344.0,
+            "y": 768.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Retract Intake",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Run Intake",
+            "x": 1664.0,
+            "y": 768.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Run Intake",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "BL",
+            "x": 1728.0,
+            "y": 128.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/photonvision/back_left/hasTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4278190080,
+              "true_icon": "Checkmark",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "BR",
+            "x": 1856.0,
+            "y": 128.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/photonvision/back_right/hasTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4278190080,
+              "true_icon": "Checkmark",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "FL",
+            "x": 1728.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/photonvision/front_left/hasTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4278190080,
+              "true_icon": "Checkmark",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "FR",
+            "x": 1856.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/photonvision/front_right/hasTarget",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4278190080,
+              "true_icon": "Checkmark",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Algae Intake Extended",
+            "x": 1376.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/Algae Intake/Extended",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4294967040,
+              "false_color": 4278439683,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Queue Reef alternate A",
+            "x": 864.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Queue Reef alternate A",
+              "period": 0.06,
+              "show_type": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DROPCICK",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Queue Superstructure Barge Algae Launch Position",
+            "x": 256.0,
+            "y": 768.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Queue Superstructure Barge Algae Launch Position",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Queue Superstructure Level 2 Position",
+            "x": 1664.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Queue Superstructure Level 2 Position",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Queue Superstructure Level 3 Position",
+            "x": 1664.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Queue Superstructure Level 3 Position",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Queue Superstructure Level 4 Position",
+            "x": 1664.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Queue Superstructure Level 4 Position",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Queue Superstructure Front Algae Intake Position",
+            "x": 1984.0,
+            "y": 448.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Queue Superstructure Front Algae Intake Position",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Queue Superstructure Coral Pickup Position",
+            "x": 1984.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Queue Superstructure Coral Pickup Position",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Scheduler",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "Scheduler",
+            "properties": {
+              "topic": "/SmartDashboard/Scheduler",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Auto Queue",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Scheduler",
+            "properties": {
+              "topic": "/SmartDashboard/Auto Queue",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Other Command Queue",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "Scheduler",
+            "properties": {
+              "topic": "/SmartDashboard/Other Command Queue",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Queue pick up coral",
+            "x": 1664.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Queue pick up coral",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Home Elevator",
+            "x": 1984.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Home Elevator",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "FullCycleMS",
+            "x": 1920.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 160.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/LoggedRobot/FullCycleMS",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 5.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Auto Choices",
+            "x": 1472.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto Choices",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "MatchTime",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/AdvantageKit/DriverStation/MatchTime",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 15,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "Left Coral Station",
+            "x": 576.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\n\nLeft Coral Station\n\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Right Coral Station",
+            "x": 1344.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\n\nRight Coral Station\n\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "CLEAR ALL QUEUES",
+            "x": 832.0,
+            "y": 768.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nCLEAR ALL QUEUES\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef A",
+            "x": 832.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef A\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef B",
+            "x": 1088.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef B\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef C",
+            "x": 1216.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef C\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef CD_ALGAE",
+            "x": 1088.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef CD_ALGAE\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef AB_ALGAE",
+            "x": 960.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef AB_ALGAE\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef D",
+            "x": 1344.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef D\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef E",
+            "x": 1344.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef E\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef EF_ALGAE",
+            "x": 1088.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef EF_ALGAE\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef F",
+            "x": 1216.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef F\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef GH_ALGAE",
+            "x": 960.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef GH_ALGAE\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef G",
+            "x": 1088.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef G\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef H",
+            "x": 832.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef H\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef I",
+            "x": 704.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef I\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef IJ_ALGAE",
+            "x": 832.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef IJ_ALGAE\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef J",
+            "x": 576.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef J\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef K",
+            "x": 576.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef K\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef KL_ALGAE",
+            "x": 832.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef KL_ALGAE\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          },
+          {
+            "title": "Queue Reef L",
+            "x": 704.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/\nQueue Reef L\n",
+              "period": 0.06,
+              "show_type": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tab 3",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "left-pi_Port_1182_Output_MJPEG_Server",
+            "x": 192.0,
+            "y": 0.0,
+            "width": 1088.0,
+            "height": 928.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/left-pi_Port_1182_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

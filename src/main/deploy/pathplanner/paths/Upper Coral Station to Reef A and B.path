@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.305966796875,
-        "y": 7.0685205078125
+        "x": 1.2539081096915814,
+        "y": 7.114346624402262
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7698040621156315,
-        "y": 6.744503283862603
+        "x": 1.717745374932213,
+        "y": 6.790329400452364
       },
       "isLocked": false,
       "linkedName": "Upper Coral Station"
@@ -33,10 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 240.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

@@ -35,11 +35,13 @@ public class ModuleIOTalonFXSim extends ModuleIOTalonFX {
         (SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>)
             PhoenixUtil.regulateModuleConstantForSimulation(constants));
 
+    System.out.print("│╠╝ Running sim-specific configuration... ");
     this.simulation = simulation;
     simulation.useDriveMotorController(new PhoenixUtil.TalonFXMotorControllerSim(driveTalon));
 
     simulation.useSteerMotorController(
         new PhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(turnTalon, cancoder));
+    System.out.println("done.");
   }
 
   @Override

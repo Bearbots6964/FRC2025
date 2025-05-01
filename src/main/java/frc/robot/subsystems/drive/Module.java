@@ -20,6 +20,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
@@ -31,18 +35,28 @@ public class Module {
   private final Alert driveDisconnectedAlert;
   private final Alert turnDisconnectedAlert;
   private final Alert turnEncoderDisconnectedAlert;
-  private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
+
+  /** -- GETTER -- Returns the module positions received this cycle. */
+  @Getter private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(ModuleIO io, int index, SwerveModuleConstants constants) {
+    double initializeTime = Timer.getFPGATimestamp();
+    System.out.println("│║╠╦ Constructing module " + (index + 1) + "!");
+    System.out.print("│║║╠ Assigning I/O interfaces, index, and constants to self... ");
     this.io = io;
     this.index = index;
     this.constants = constants;
+    System.out.println("done.");
+    System.out.print("│║║╠ Initializing alerts... ");
     driveDisconnectedAlert =
         new Alert("Disconnected drive motor on module " + index + ".", AlertType.kError);
     turnDisconnectedAlert =
         new Alert("Disconnected turn motor on module " + index + ".", AlertType.kError);
     turnEncoderDisconnectedAlert =
         new Alert("Disconnected turn encoder on module " + index + ".", AlertType.kError);
+    System.out.println("done.");
+
+    System.out.println("│║╠╝ Module " + (index + 1) + " initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
   }
 
   public void periodic() {
@@ -53,12 +67,14 @@ public class Module {
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
-      // TODO: Shit is absolutely fucked. The 7.0 was determined to work.
-      // If we want to,
-      // we can do some further browsing
-      // and figure out *why* dividing by 7 fixes everything,
-      // but in the interim, this works perfectly and fixes all our odometry problems.
-      double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius / 7.0;
+      // Update on the situation,
+      // I did more experimenting and I think what ended up happening is the gear ratios got left
+      // out of calculations,
+      // so dividing by that ratio seems to solve our problems.
+      double positionMeters =
+          inputs.odometryDrivePositionsRad[i]
+              * constants.WheelRadius
+              / ((Constants.getCurrentMode() == Mode.REAL) ? 6.746031746031747 : 1.0);
       Rotation2d angle = inputs.odometryTurnPositions[i];
       odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
     }
@@ -115,11 +131,6 @@ public class Module {
   /** Returns the module state (turn angle and drive velocity). */
   public SwerveModuleState getState() {
     return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
-  }
-
-  /** Returns the module positions received this cycle. */
-  public SwerveModulePosition[] getOdometryPositions() {
-    return odometryPositions;
   }
 
   /** Returns the timestamps of the samples received this cycle. */

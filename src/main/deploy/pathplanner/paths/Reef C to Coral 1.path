@@ -1,0 +1,91 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.720171223677598,
+        "y": 2.9725327838550912
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.207365781494496,
+        "y": 2.2401707137547855
+      },
+      "isLocked": false,
+      "linkedName": "Reef C"
+    },
+    {
+      "anchor": {
+        "x": 1.09740234375,
+        "y": 1.0419482421874988
+      },
+      "prevControl": {
+        "x": 1.496647967825268,
+        "y": 1.6121300844111042
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Lower Coral Station"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.15,
+      "constraints": {
+        "maxVelocity": 0.75,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 240.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "deposit",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deposit"
+        }
+      }
+    },
+    {
+      "name": "Pre-Coral Pickup",
+      "waypointRelativePos": 0.10848161948416356,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Pre-Coral Pickup"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 240.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.0,
+    "rotation": 55.0
+  },
+  "reversed": false,
+  "folder": "New Folder",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 59.99999999999999
+  },
+  "useDefaultConstraints": true
+}

@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.7764208984375,
+        "y": 6.2856787109375
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.9505126953124998,
+        "y": 6.2010400390625
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.2539081096915814,
+        "y": 7.114346624402262
+      },
+      "prevControl": {
+        "x": 1.8598260784415814,
+        "y": 6.912769475964762
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Upper Coral Station"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 240.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -53.51046199822047
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -32.37185409181824
+  },
+  "useDefaultConstraints": true
+}

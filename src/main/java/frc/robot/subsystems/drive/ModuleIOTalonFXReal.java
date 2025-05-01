@@ -16,6 +16,7 @@ package frc.robot.subsystems.drive;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import java.util.Queue;
 
 /**
@@ -32,12 +33,13 @@ public class ModuleIOTalonFXReal extends ModuleIOTalonFX {
 
   public ModuleIOTalonFXReal(SwerveModuleConstants constants) {
     super(constants);
-
+    System.out.print("│╠╝ Running real-specific configuration... ");
     this.timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     this.drivePositionQueue =
         PhoenixOdometryThread.getInstance().registerSignal(super.drivePosition);
     this.turnPositionQueue =
         PhoenixOdometryThread.getInstance().registerSignal(super.turnAbsolutePosition);
+    System.out.println("done.");
   }
 
   @Override

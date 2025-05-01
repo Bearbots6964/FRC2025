@@ -1,0 +1,86 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.6968115234375,
+        "y": 5.0519140625
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.4701601702399794,
+        "y": 5.4444857218423435
+      },
+      "isLocked": false,
+      "linkedName": "Reef L"
+    },
+    {
+      "anchor": {
+        "x": 1.2531918010978311,
+        "y": 7.112149358777262
+      },
+      "prevControl": {
+        "x": 1.9222891043069612,
+        "y": 6.156579378882618
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Upper Coral Station"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.190470828713969,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "deposit",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.19099916851441245,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deposit"
+        }
+      }
+    },
+    {
+      "name": "Pre-Coral Pickup",
+      "waypointRelativePos": 0.18901572893569832,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 240.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -53.51
+  },
+  "reversed": false,
+  "folder": "New Folder",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -59.99999999999999
+  },
+  "useDefaultConstraints": false
+}

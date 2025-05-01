@@ -3,6 +3,8 @@ import org.gradle.internal.os.OperatingSystem
 pluginManagement {
     repositories {
         mavenLocal()
+        mavenCentral()
+        google()
         gradlePluginPortal()
         String frcYear = '2025'
         File frcHome

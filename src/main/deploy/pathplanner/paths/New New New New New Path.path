@@ -1,0 +1,77 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.8018359375,
+        "y": 3.8817382812499996
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.8315625,
+        "y": 3.6368749999999994
+      },
+      "isLocked": false,
+      "linkedName": "Reef H"
+    },
+    {
+      "anchor": {
+        "x": 5.8018359375,
+        "y": 4.0323388671875
+      },
+      "prevControl": {
+        "x": 6.8219384765625,
+        "y": 4.1970458984375
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "GH Algae"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "deposit",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.07128256651884696,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deposit"
+        }
+      }
+    },
+    {
+      "name": "Low Algae",
+      "waypointRelativePos": 0.07883522727272717,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Low Algae"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 0.5,
+    "maxAcceleration": 1.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 240.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": false
+}

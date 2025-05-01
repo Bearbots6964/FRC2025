@@ -1,0 +1,91 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.001264744300347,
+        "y": 2.7823210877257507
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.6653566976706977,
+        "y": 2.200511284291983
+      },
+      "isLocked": false,
+      "linkedName": "Reef D"
+    },
+    {
+      "anchor": {
+        "x": 1.09740234375,
+        "y": 1.0419482421874988
+      },
+      "prevControl": {
+        "x": 1.4331057734336918,
+        "y": 1.5213824261467546
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Lower Coral Station"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.15,
+      "constraints": {
+        "maxVelocity": 0.75,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 240.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "deposit",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.17300963137472303,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deposit"
+        }
+      }
+    },
+    {
+      "name": "Pre-Coral Pickup",
+      "waypointRelativePos": 0.22081139135254987,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Pre-Coral Pickup"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 240.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.0,
+    "rotation": 55.0
+  },
+  "reversed": false,
+  "folder": "New Folder",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 59.99999999999999
+  },
+  "useDefaultConstraints": true
+}

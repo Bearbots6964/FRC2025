@@ -12,7 +12,6 @@
 // GNU General Public License for more details.
 package frc.robot.commands
 
-import com.pathplanner.lib.path.PathConstraints
 import com.pathplanner.lib.path.PathPlannerPath
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.ProfiledPIDController
@@ -29,6 +28,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
+import frc.robot.Robot
 import frc.robot.subsystems.drive.Drive
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -93,9 +93,9 @@ object DriveCommands {
                         linearVelocity.y * drive.maxLinearSpeedMetersPerSec,
                         omega * drive.maxAngularSpeedRadPerSec
                     )
+                val alliance = DriverStation.getAlliance().get()
                 val isFlipped =
-                    DriverStation.getAlliance().isPresent
-                            && DriverStation.getAlliance().get() == Alliance.Red
+                    alliance == Alliance.Red
                 drive.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         speeds,
@@ -107,7 +107,7 @@ object DriveCommands {
                 )
             },
             drive
-        )
+        ).withName("Joystick Drive")
     }
 
     /**
@@ -152,9 +152,9 @@ object DriveCommands {
                         linearVelocity.y * drive.maxLinearSpeedMetersPerSec,
                         omega
                     )
+                val alliance = DriverStation.getAlliance().get()
                 val isFlipped =
-                    DriverStation.getAlliance().isPresent
-                            && DriverStation.getAlliance().get() == Alliance.Red
+                    alliance == Alliance.Red
                 drive.runVelocity(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         speeds,

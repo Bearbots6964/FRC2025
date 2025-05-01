@@ -15,11 +15,18 @@ package frc.robot
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement
+import com.pathplanner.lib.commands.PathfindingCommand
+import edu.wpi.first.hal.FRCNetComm.tInstances.*
+import edu.wpi.first.hal.FRCNetComm.tResourceType.*
+import edu.wpi.first.hal.HAL
+import edu.wpi.first.net.WebServer
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.Threads
+import edu.wpi.first.wpilibj.Filesystem
+import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.generated.TunerConstants
+import frc.robot.util.Elastic
 import org.ironmaple.simulation.SimulatedArena
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
@@ -27,7 +34,6 @@ import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.NT4Publisher
 import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
-import org.littletonrobotics.urcl.URCL
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -38,8 +44,10 @@ import org.littletonrobotics.urcl.URCL
 class Robot : LoggedRobot() {
     private var autonomousCommand: Command? = null
     private val robotContainer: RobotContainer
+    private var firstDisable = false
 
     init {
+        val initializeTime = Timer.getFPGATimestamp()
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME)
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE)
@@ -51,6 +59,7 @@ class Robot : LoggedRobot() {
             1 -> Logger.recordMetadata("GitDirty", "Uncomitted changes")
             else -> Logger.recordMetadata("GitDirty", "Unknown")
         }
+        println("[Robot] Logger metadata recorded at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         // Set up data receivers & replay source
         when (Constants.currentMode) {
@@ -68,36 +77,94 @@ class Robot : LoggedRobot() {
                 setUseTiming(false) // Run as fast as possible
                 val logPath = LogFileUtil.findReplayLog()
                 Logger.setReplaySource(WPILOGReader(logPath))
-                Logger.addDataReceiver(WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")))
+                Logger.addDataReceiver(WPILOGWriter(addPathSuffix(logPath, "_sim")))
             }
         }
-        Logger.registerURCL(URCL.startExternal())
+        println("[Robot] Logger data receivers set up at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
+        //Logger.registerURCL(URCL.startExternal())
 
         // Start AdvantageKit logger
         Logger.start()
+        println("[Robot] Logger started at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         // Check for valid swerve config
-        val modules =
-            arrayOf<SwerveModuleConstants<*, *, *>>(
-                TunerConstants.FrontLeft,
-                TunerConstants.FrontRight,
-                TunerConstants.BackLeft,
-                TunerConstants.BackRight
-            )
+        val modules = arrayOf<SwerveModuleConstants<*, *, *>>(
+            TunerConstants.FrontLeft,
+            TunerConstants.FrontRight,
+            TunerConstants.BackLeft,
+            TunerConstants.BackRight
+        )
+
+        HAL.report(
+            kResourceType_Language, kLanguage_Kotlin
+        )
+        HAL.report(
+            kResourceType_Framework, kFramework_AdvantageKit
+        )
+        HAL.report(
+            kResourceType_RobotDrive, kRobotDriveSwerve_AdvantageKit
+        )
+        HAL.report(kResourceType_Dashboard, kDashboard_Elastic)
+        HAL.report(kResourceType_Dashboard, kDashboard_AdvantageScope)
+        HAL.report(kResourceType_PDP, kPDP_REV)
+        println("[Robot] HAL reports sent at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
+
         for (constants in modules) {
-            if (constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated
-                || constants.SteerMotorType != SteerMotorArrangement.TalonFX_Integrated
-            ) {
+            if ((constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated) || (constants.SteerMotorType != SteerMotorArrangement.TalonFX_Integrated)) {
                 throw RuntimeException(
                     "You are using an unsupported swerve configuration, which this template does not support without manual customization. The 2025 release of Phoenix supports some swerve configurations which were not available during 2025 beta testing, preventing any development and support from the AdvantageKit developers."
                 )
             }
         }
+        println("[Robot] Swerve config checked at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
+        WebServer.start(5800, Filesystem.getDeployDirectory().path) // For dashboard files
+        println("[Robot] Web server started at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
+        println("[Robot] RobotContainer initialized at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
+
+        // Schedule the warmup command. Significantly speeds up pathfinding after the first run.
+        PathfindingCommand.warmupCommand().withName("Pathfinding Warmup").schedule()
+        println("[Robot] Pathfinding warmup command scheduled at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
+
+        // Silence joystick connection warning
         DriverStation.silenceJoystickConnectionWarning(true)
+
+        println("Robot initialization took ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
+    }
+
+    companion object {
+
+        fun reportError(error: String) {
+            DriverStation.reportError(error, false)
+            Elastic.sendNotification(
+                Elastic.Notification(
+                    Elastic.Notification.NotificationLevel.ERROR, "Error", error
+                )
+            )
+        }
+
+        fun reportWarning(warning: String) {
+            DriverStation.reportWarning(warning, false)
+            Elastic.sendNotification(
+                Elastic.Notification(
+                    Elastic.Notification.NotificationLevel.WARNING, "Warning", warning
+                )
+            )
+        }
+
+        fun reportInfo(info: String) {
+            DriverStation.reportWarning(info, false)
+            Elastic.sendNotification(
+                Elastic.Notification(
+                    Elastic.Notification.NotificationLevel.INFO, "Info", info
+                )
+            )
+        }
+
+        var inTeleop = false
     }
 
     /** This function is called periodically during all modes.  */
@@ -107,18 +174,31 @@ class Robot : LoggedRobot() {
         // finished or interrupted commands, and running subsystem periodic() methods.
         // This must be called from the robot's periodic block in order for anything in
         // the Command-based framework to work.
+        //Threads.setCurrentThreadPriority(true, 99)
         CommandScheduler.getInstance().run()
+        robotContainer.updateHmiAlgae()
+        //Threads.setCurrentThreadPriority(false, 10)
     }
 
     /** This function is called once when the robot is disabled.  */
-    override fun disabledInit() {}
+    override fun disabledInit() {
+        robotContainer.stopQueue()
+        inTeleop = false
+        if (firstDisable) {
+            val time = Timer.getFPGATimestamp()
+            robotContainer.setUpDashboardCommands()
+            println("[Robot] Dashboard commands set up in ${"%.3f".format((Timer.getFPGATimestamp() - time) * 1000.0)}ms")
+        }
+    }
 
     /** This function is called periodically when disabled.  */
     override fun disabledPeriodic() {}
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class.  */
     override fun autonomousInit() {
+        Companion.inTeleop = false
         autonomousCommand = robotContainer.autonomousCommand
+        firstDisable = true
 
         // schedule the autonomous command (example)
         if (autonomousCommand != null) {
@@ -138,6 +218,9 @@ class Robot : LoggedRobot() {
         if (autonomousCommand != null) {
             autonomousCommand!!.cancel()
         }
+        robotContainer.fixArm()
+        Companion.inTeleop = true
+        robotContainer.disableAuto()
     }
 
     /** This function is called periodically during operator control.  */
@@ -153,11 +236,39 @@ class Robot : LoggedRobot() {
     override fun testPeriodic() {}
 
     /** This function is called once when the robot is first started up.  */
-    override fun simulationInit() {}
+    override fun simulationInit() {
+        SimulatedArena.getInstance().resetFieldForAuto()
+    }
 
     /** This function is called periodically whilst in simulation.  */
     override fun simulationPeriodic() {
         SimulatedArena.getInstance().simulationPeriodic()
         robotContainer.displaySimFieldToAdvantageScope()
+    }
+
+    /**
+     * Adds a suffix to the given path (e.g. "test.wpilog" -> "test_sim.wpilog").
+     *
+     *
+     *
+     * If the input path already contains the suffix, an index will be added
+     * instead.
+     */
+    fun addPathSuffix(path: String, suffix: String): String {
+        val dotIndex = path.lastIndexOf(".")
+        if (dotIndex == -1) {
+            return path
+        }
+        val basename = path.substring(0, dotIndex)
+        val extension = path.substring(dotIndex)
+        if (basename.endsWith(suffix)) {
+            return basename + "_2" + extension
+        } else if (basename.matches((".+" + suffix + "_[0-9]+$").toRegex())) {
+            val splitIndex = basename.lastIndexOf("_")
+            val index = basename.substring(splitIndex + 1).toInt()
+            return (basename.substring(0, splitIndex) + "_" + (index + 1).toString() + extension)
+        } else {
+            return basename + suffix + extension
+        }
     }
 }

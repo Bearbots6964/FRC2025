@@ -27,6 +27,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 
@@ -71,16 +72,25 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
   protected ModuleIOTalonFX(
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
           constants) {
+    double initializeTime = System.currentTimeMillis();
+    System.out.println("│╠╦ Constructing module I/O!");
+    System.out.print("│║╠ Assigning constants to self... ");
     this.constants = constants;
+    System.out.println("done.");
 
+    System.out.print("│║╠ Creating drive motor... ");
     driveTalon =
         new TalonFX(constants.DriveMotorId, TunerConstants.getDrivetrainConstants().CANBusName);
+    System.out.print("...turn motor... ");
     turnTalon =
         new TalonFX(constants.SteerMotorId, TunerConstants.getDrivetrainConstants().CANBusName);
+    System.out.print("...turn encoder... ");
     cancoder =
         new CANcoder(constants.EncoderId, TunerConstants.getDrivetrainConstants().CANBusName);
+    System.out.println("done.");
 
     // Configure drive motor
+    System.out.print("│║╠ Configuring drive motor... ");
     var driveConfig = constants.DriveMotorInitialConfigs;
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Slot0 = constants.DriveMotorGains;
@@ -92,10 +102,14 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
         constants.DriveMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
+    System.out.println("done.");
+    System.out.print("│║╠ Applying drive motor config... ");
     tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
     tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
+    System.out.println("done.");
 
     // Configure turn motor
+    System.out.print("│║╠ Configuring turn motor... ");
     var turnConfig = new TalonFXConfiguration();
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     turnConfig.Slot0 = constants.SteerMotorGains;
@@ -121,30 +135,42 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
         constants.SteerMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
+    System.out.println("done.");
+    System.out.print("│║╠ Applying turn motor config... ");
     tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
+    System.out.println("done.");
 
     // Configure CANCoder
+    System.out.print("│║╠ Configuring CANCoder... ");
     CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
     cancoderConfig.MagnetSensor.MagnetOffset = constants.EncoderOffset;
     cancoderConfig.MagnetSensor.SensorDirection =
         constants.EncoderInverted
             ? SensorDirectionValue.Clockwise_Positive
             : SensorDirectionValue.CounterClockwise_Positive;
+    System.out.println("done.");
+    System.out.print("│║╠ Applying CANCoder config... ");
     cancoder.getConfigurator().apply(cancoderConfig);
+    System.out.println("done.");
 
     // Create drive status signals
+    System.out.print("│║╠ Creating drive status signals... ");
     drivePosition = driveTalon.getPosition();
     driveVelocity = driveTalon.getVelocity();
     driveAppliedVolts = driveTalon.getMotorVoltage();
     driveCurrent = driveTalon.getStatorCurrent();
+    System.out.println("done.");
 
     // Create turn status signals
+    System.out.print("│║╠ Creating turn status signals... ");
     turnAbsolutePosition = cancoder.getAbsolutePosition();
     turnVelocity = turnTalon.getVelocity();
     turnAppliedVolts = turnTalon.getMotorVoltage();
     turnCurrent = turnTalon.getStatorCurrent();
+    System.out.println("done.");
 
     // Configure periodic frames
+    System.out.print("│║╠ Configuring periodic frames... ");
     BaseStatusSignal.setUpdateFrequencyForAll(
         Drive.ODOMETRY_FREQUENCY, turnAbsolutePosition, drivePosition);
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -155,7 +181,12 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
         turnVelocity,
         turnAppliedVolts,
         turnCurrent);
+    System.out.println("done.");
+    System.out.print("│║╠ Configuring bus utilization... ");
     ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
+    System.out.println("done.");
+
+    System.out.println("│║╠ Module I/O initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
   }
 
   @Override
