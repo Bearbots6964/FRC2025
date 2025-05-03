@@ -616,7 +616,7 @@ class RobotContainer {
                 // deferred command, for the same reasons as the other one
                 Commands.defer({
                     // score the coral
-                    SuperstructureCommands.scoreAtPosition(
+                    SuperstructureCommands.scoreAtPositionFaster(
                         elevator, arm, clawIntake, drive, nextPosition
                     )
                 }, setOf(elevator, arm, clawIntake, drive)).finallyDo(
