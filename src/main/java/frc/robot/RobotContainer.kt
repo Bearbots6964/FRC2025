@@ -1245,7 +1245,7 @@ class RobotContainer {
                     elevator, arm
                 )
             ).andThen(
-                climber.moveClimberToIntakePosition().withDeadline(Commands.waitSeconds(1.0))
+                climber.moveClimberToIntakePosition().withDeadline(Commands.waitSeconds(0.25))
             )
         )
         NamedCommands.registerCommand(
