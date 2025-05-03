@@ -821,10 +821,10 @@ class RobotContainer {
 //                superstructureQueue.clearAllAsCommand().withName("Clear Superstructure Queue")
 //            ).withName("\nCLEAR ALL QUEUES\n")
 //        )
-//        SmartDashboard.putData(
-//            elevator.homeElevator().deadlineFor(arm.moveArmToAngleWithoutEnding(90.0))
-//                .withName("Home Elevator")
-//        )
+        SmartDashboard.putData(
+            elevator.homeElevator().deadlineFor(arm.moveArmToAngleWithoutEnding(90.0))
+                .withName("Home Elevator")
+        )
 //
 //
 //
