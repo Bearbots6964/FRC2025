@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.561628874334214,
-        "y": 6.507248501970747
+        "x": 5.082423938671652,
+        "y": 5.451783104029781
       },
       "isLocked": false,
       "linkedName": "Reef J"
     },
     {
       "anchor": {
-        "x": 3.1705224609375,
-        "y": 6.2398876953125
+        "x": 5.175733159261604,
+        "y": 5.5858735824022485
       },
       "prevControl": {
-        "x": 3.5966379540687443,
-        "y": 5.7320630255132885
+        "x": 5.063272717109632,
+        "y": 5.362596514724032
       },
       "nextControl": null,
       "isLocked": false,
@@ -56,17 +56,6 @@
           "name": "deposit"
         }
       }
-    },
-    {
-      "name": "Pre-Coral Pickup",
-      "waypointRelativePos": 0.15070676274944567,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Pre-Coral Pickup"
-        }
-      }
     }
   ],
   "globalConstraints": {
@@ -78,8 +67,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 3.0,
-    "rotation": -53.51
+    "velocity": 1.5,
+    "rotation": -118.2404135341019
   },
   "reversed": false,
   "folder": "New Folder",
