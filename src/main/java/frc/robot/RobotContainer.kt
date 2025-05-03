@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
+import edu.wpi.first.wpilibj2.command.Commands.waitUntil
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.Constants.VisionConstants.robotToBackLeftCamera
@@ -563,39 +564,16 @@ class RobotContainer {
 
 
                         // actually go to the reef
-                        pathfindToReef().alongWith(
-                            // wait until the claw has the coral secured;
-                            // if we move too fast,
-                            // we risk throwing it off the intake,
-                            // but we still want to be able to move quickly
-                            Commands.waitUntil { coralStatus == CoralStatus.IN_CLAW }.andThen({
-                                // set pathfinding speed to the normal speed
-                                drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed)
-                            })
-                        ),
-
-                        // at this point we're in the reef protected zone
-                        // which should provide reprieve
-                        // if the opposing alliance is playing defense
-                        // and knocks us out of alignment.
-                        // more importantly, we're stopped and waiting
-
-                        // wait until the superstructure is in the position
-                        // we want it to be in for scoring
-                        Commands.waitUntil { inPosition }
-                            // while we wait, lock the wheels
-                            // this might actually help
-                            // mitigate some of the "getting knocked out of alignment"
-                            // issues we could face in a real match
-                            .deadlineFor(Commands.run({ drive.stopWithX() }, drive)).andThen(
-                                // close that last bit of distance
-                                finalReefLineup()
-                            ).withName("Pathfind to Reef (final)")
+                        finalReefLineup()
                     ), // end drivebase sequence
 
                     // wait until the claw has the coral secured and set that state
                     Commands.waitUntil { clawIntake.grabbed }
-                        .andThen({ coralStatus = CoralStatus.IN_CLAW }),
+                        .andThen({
+                            coralStatus = CoralStatus.IN_CLAW; drive.setPathfindingSpeedPercent(
+                            Constants.PathfindingConstants.toReefSpeed
+                        )
+                        }),
 
                     // superstructure stuff
                     Commands.sequence(
@@ -615,21 +593,19 @@ class RobotContainer {
                         runOnce({ arm.setGoalToCurrent() }),
 
                         // wait until we're near where we need to be
-                        Commands.waitUntil(drive::nearGoal).andThen(
-                            // defer this command construction until it's called.
-                            // that way,
-                            // we're checking what position
-                            // the drivers want the superstructure
-                            // to be in at the last possible moment
-                            // in case they change something.
-                            // the field is dynamic, after all
-                            Commands.defer({
-                                // go to the position
-                                SuperstructureCommands.goToPositionWithoutSafety(
-                                    elevator, arm, climber, nextPosition
-                                )
-                            }, setOf(elevator, arm, climber))
-                        ),
+                        // defer this command construction until it's called.
+                        // that way,
+                        // we're checking what position
+                        // the drivers want the superstructure
+                        // to be in at the last possible moment
+                        // in case they change something.
+                        // the field is dynamic, after all
+                        Commands.defer({
+                            // go to the position
+                            SuperstructureCommands.goToPositionWithoutSafety(
+                                elevator, arm, climber, nextPosition
+                            )
+                        }, setOf(elevator, arm, climber)),
                         // once we're in position,
                         // set the state so the drivebase can continue its final lineup
                         runOnce({ inPosition = true })
@@ -765,10 +741,16 @@ class RobotContainer {
             "Pathfinding Auto (Far Left, Left, All)",
             AutoBuilder.buildAuto("Start at Far Left and Score Coral Left But End Halfway Through")
                 .andThen({
-                    updateReef(PathfindingFactories.Reef.K); nextPosition =
+                    updateReef(PathfindingFactories.Reef.J); nextPosition =
                     Constants.SuperstructureConstants.SuperstructureState.L4; nextStation =
                     PathfindingFactories.CoralStationSide.LEFT
-                }).andThen(runOneFullCoralCycleButWaitTime())
+                })
+                .andThen(
+                    runOneFullCoralCycleButWaitTime().alongWith(
+                        waitUntil(clawIntake::grabbed).andThen(
+                            { updateReef(PathfindingFactories.Reef.K) })
+                    )
+                )
                 .andThen({ nextReef = PathfindingFactories.Reef.L })
                 .andThen(runOneFullCoralCycleButWaitTime())
         )
@@ -777,10 +759,16 @@ class RobotContainer {
             "Pathfinding Auto (Far Left, Left, Home Field)",
             AutoBuilder.buildAuto("Start at Far Left and Score Coral Left But End Halfway Through")
                 .andThen({
-                    updateReef(PathfindingFactories.Reef.A); nextPosition =
+                    updateReef(PathfindingFactories.Reef.J); nextPosition =
                     Constants.SuperstructureConstants.SuperstructureState.L4; nextStation =
                     PathfindingFactories.CoralStationSide.LEFT
-                }).andThen(runOneFullCoralCycleButWaitTime())
+                })
+                .andThen(
+                    runOneFullCoralCycleButWaitTime().alongWith(
+                        waitUntil(clawIntake::grabbed).andThen(
+                            { updateReef(PathfindingFactories.Reef.A) })
+                    )
+                )
                 .andThen({ nextReef = PathfindingFactories.Reef.B })
                 .andThen(runOneFullCoralCycleButWaitTime())
         )
@@ -789,10 +777,16 @@ class RobotContainer {
             "Pathfinding Auto (Mid Left, Left, All)",
             AutoBuilder.buildAuto("Start at Mid Left and Score Coral Left But End Halfway Through")
                 .andThen({
-                    updateReef(PathfindingFactories.Reef.K); nextPosition =
+                    updateReef(PathfindingFactories.Reef.J); nextPosition =
                     Constants.SuperstructureConstants.SuperstructureState.L4; nextStation =
                     PathfindingFactories.CoralStationSide.LEFT
-                }).andThen(runOneFullCoralCycleButWaitTime())
+                })
+                .andThen(
+                    runOneFullCoralCycleButWaitTime().alongWith(
+                        waitUntil(clawIntake::grabbed).andThen(
+                            { updateReef(PathfindingFactories.Reef.K) })
+                    )
+                )
                 .andThen({ nextReef = PathfindingFactories.Reef.L })
                 .andThen(runOneFullCoralCycleButWaitTime())
         )
@@ -801,10 +795,10 @@ class RobotContainer {
             "Pathfinding Auto (Mid Left, Left, Home Field)",
             AutoBuilder.buildAuto("Start at Mid Left and Score Coral Left But End Halfway Through")
                 .andThen({
-                    updateReef(PathfindingFactories.Reef.A); nextPosition =
+                    updateReef(PathfindingFactories.Reef.J); nextPosition =
                     Constants.SuperstructureConstants.SuperstructureState.L4; nextStation =
                     PathfindingFactories.CoralStationSide.LEFT
-                }).andThen(runOneFullCoralCycleButWaitTime())
+                }).andThen(runOneFullCoralCycleButWaitTime().alongWith(waitUntil(clawIntake::grabbed).andThen({updateReef(PathfindingFactories.Reef.A)})))
                 .andThen({ nextReef = PathfindingFactories.Reef.B })
                 .andThen(runOneFullCoralCycleButWaitTime())
         )
@@ -1070,7 +1064,9 @@ class RobotContainer {
             ).deadlineFor(
                 SuperstructureCommands.preCoralPickup(elevator, arm, climber)
             )
-        ).finallyDo(Runnable { arm.setGoalToCurrent(); drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed) }).onlyIf { coralStatus == CoralStatus.NONE }
+        )
+            .finallyDo(Runnable { arm.setGoalToCurrent(); drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed) })
+            .onlyIf { coralStatus == CoralStatus.NONE }
             .withName("Pathfind to Coral Station")
 
     private fun algaeCycle(): Command {
