@@ -193,6 +193,39 @@ object SuperstructureCommands {
         }
     }
 
+    fun scoreAtPositionFaster(
+        e: Elevator, a: Arm, f: ClawIntake, d: Drive, s: SuperstructureState
+    ): Command {
+        return when (s) {
+            SuperstructureState.L1 -> Commands.runOnce({ Robot.reportError("Cannot score at L1") })
+            SuperstructureState.L2 -> e.goToPositionDelta(-5.0).alongWith(
+                a.moveArmAngleDelta(26.0)
+            ).alongWith(
+                f.outtakeFaster()
+            ).withDeadline(
+                Commands.waitSeconds(0.5).andThen(d.backUpFaster())
+            ).withName("Score L2")
+
+            SuperstructureState.L3 -> e.goToPositionDelta(-5.0).alongWith(
+                a.moveArmAngleDelta(28.0)
+            ).alongWith(
+                f.outtakeFaster()
+            ).withDeadline(
+                Commands.waitSeconds(0.5).andThen(d.backUpFaster())
+            ).withName("Score L3")
+
+            SuperstructureState.L4 -> e.goToPositionDelta(-35.0).alongWith(
+                f.outtake()
+            ).alongWith(
+                a.moveArmAngleDelta(-13.0)
+            ).withDeadline(
+                Commands.waitSeconds(0.5).andThen(d.backUpFaster())
+            ).withName("Score L4")
+
+            else -> Commands.none()
+        }
+    }
+
     fun scoreAtPositionWithoutDrive(
         e: Elevator, a: Arm, f: ClawIntake, s: SuperstructureState
     ): Command {

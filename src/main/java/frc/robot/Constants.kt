@@ -225,7 +225,7 @@ object Constants {
              * Percent output of the claw motor when intaking.
              */
             @JvmStatic
-            val clawIntakePercent = 0.25
+            val clawIntakePercent = 0.75
 
             const val algaeIntakePercent = 0.45
 

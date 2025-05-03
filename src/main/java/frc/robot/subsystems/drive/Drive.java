@@ -529,9 +529,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         .raceWith(Commands.waitSeconds(0.5))
         .withName("Go Forward");
   }
-  public Command backUpMore() {
-    return run(() -> runVelocity(new ChassisSpeeds(-0.5, 0, 0)))
-        .raceWith(Commands.waitSeconds(1.0))
+  public Command backUpFaster() {
+    return run(() -> runVelocity(new ChassisSpeeds(-1.0, 0, 0)))
+        .raceWith(Commands.waitSeconds(0.25))
         .withName("Back Up");
   }
   // thank you to team 167 for the following code
