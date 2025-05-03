@@ -531,7 +531,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   }
   public Command backUpFaster() {
     return run(() -> runVelocity(new ChassisSpeeds(-1.0, 0, 0)))
-        .raceWith(Commands.waitSeconds(0.25))
+        .raceWith(Commands.waitSeconds(0.125))
         .withName("Back Up");
   }
   // thank you to team 167 for the following code
