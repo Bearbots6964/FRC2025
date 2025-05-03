@@ -226,6 +226,7 @@ object Constants {
              */
             @JvmStatic
             val clawIntakePercent = 0.40
+            const val clawOuttakePercent = 0.25
 
             const val algaeIntakePercent = 0.45
 
