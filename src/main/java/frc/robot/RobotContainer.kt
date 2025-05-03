@@ -23,8 +23,7 @@ import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.*
-import edu.wpi.first.wpilibj2.command.Commands.runOnce
-import edu.wpi.first.wpilibj2.command.Commands.waitUntil
+import edu.wpi.first.wpilibj2.command.Commands.*
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.Constants.VisionConstants.robotToBackLeftCamera
@@ -564,7 +563,8 @@ class RobotContainer {
 
 
                         // actually go to the reef
-                        finalReefLineup()
+                        finalReefLineup(),
+                        Commands.run({drive.stopWithX()}, drive).withTimeout(0.1)
                     ), // end drivebase sequence
 
                     // wait until the claw has the coral secured and set that state
@@ -747,7 +747,7 @@ class RobotContainer {
                 })
                 .andThen(
                     runOneFullCoralCycleButWaitTime().alongWith(
-                        waitUntil(clawIntake::grabbed).andThen(
+                        Commands.waitSeconds(0.75).andThen(
                             { updateReef(PathfindingFactories.Reef.K) })
                     )
                 )
@@ -765,7 +765,7 @@ class RobotContainer {
                 })
                 .andThen(
                     runOneFullCoralCycleButWaitTime().alongWith(
-                        waitUntil(clawIntake::grabbed).andThen(
+                        Commands.waitSeconds(0.75).andThen(
                             { updateReef(PathfindingFactories.Reef.A) })
                     )
                 )
@@ -783,7 +783,7 @@ class RobotContainer {
                 })
                 .andThen(
                     runOneFullCoralCycleButWaitTime().alongWith(
-                        waitUntil(clawIntake::grabbed).andThen(
+                        Commands.waitSeconds(0.75).andThen(
                             { updateReef(PathfindingFactories.Reef.K) })
                     )
                 )
@@ -798,7 +798,7 @@ class RobotContainer {
                     updateReef(PathfindingFactories.Reef.J); nextPosition =
                     Constants.SuperstructureConstants.SuperstructureState.L4; nextStation =
                     PathfindingFactories.CoralStationSide.LEFT
-                }).andThen(runOneFullCoralCycleButWaitTime().alongWith(waitUntil(clawIntake::grabbed).andThen({updateReef(PathfindingFactories.Reef.A)})))
+                }).andThen(runOneFullCoralCycleButWaitTime().alongWith(Commands.waitSeconds(0.75).andThen({updateReef(PathfindingFactories.Reef.A)})))
                 .andThen({ nextReef = PathfindingFactories.Reef.B })
                 .andThen(runOneFullCoralCycleButWaitTime())
         )
