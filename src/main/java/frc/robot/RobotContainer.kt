@@ -698,7 +698,7 @@ class RobotContainer {
 
     private fun lockWheelsAndWaitTime(): Command =
         Commands.run({ drive.stopWithX() }, drive).withDeadline(
-            Commands.waitSeconds(5.0/8.0).andThen({ coralStatus = CoralStatus.ON_INTAKE })
+            Commands.waitSeconds(0.5).andThen({ coralStatus = CoralStatus.ON_INTAKE })
                 .withName("Lock Wheels")
         )
 

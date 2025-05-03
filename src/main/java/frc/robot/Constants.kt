@@ -99,7 +99,7 @@ object Constants {
                 const val L3 = 104.2 + rotationsPerInch
                 const val L4 = 68.475 + (3 * rotationsPerInch) // TODO: Find actual value
                 const val PRE_CORAL_PICKUP = 0.0
-                const val CORAL_PICKUP = 44.6 - (2.5 * rotationsPerInch)
+                const val CORAL_PICKUP = 44.6 - (0.5 * rotationsPerInch)
                 const val BARGE_LAUNCH = 105.93
                 const val ALGAE_INTAKE = 0.0
                 const val UPPER_REEF_ALGAE = 48.8
@@ -441,7 +441,7 @@ object Constants {
         const val toReefSpeed: Double = 0.60
         const val toBargeSpeed = 0.50
         const val algaeGrabSpeed = 0.30
-        const val toCoralStationSpeed = 0.70
+        const val toCoralStationSpeed = 0.75
 
         /**
          * Final distance from the coral station in meters.
