@@ -1045,12 +1045,12 @@ class RobotContainer {
 
     private fun finalReefLineup(): WrapperCommand = Commands.defer({
         PathfindingFactories.pathfindToReef(
-            drive, { nextReef }) { Translation2d() }
+            drive, { nextReef }, driveTranslationalControlSupplier)
     }, setOf(drive)).withName("Pathfind to Reef")
 
     private fun pathfindToReef(): Command = Commands.defer({
         PathfindingFactories.pathfindToReefButBackALittle(
-            drive, { nextReef }) { Translation2d() }
+            drive, { nextReef }, driveTranslationalControlSupplier)
     }, setOf(drive))
 
     private fun goToCoralStation(): Command =
