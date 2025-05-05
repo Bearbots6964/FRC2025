@@ -128,7 +128,7 @@ dependencies {
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '2.1.10'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '2.1.20'
 
 }
 compileKotlin {
