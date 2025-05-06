@@ -1179,7 +1179,7 @@ class RobotContainer {
                 )
             }, setOf(drive)).alongWith(
                 // wait until we're near the barge
-                Commands.waitUntil(drive::nearGoal).andThen(
+                Commands.waitSeconds(0.5).andThen(Commands.waitUntil(drive::nearGoal)).andThen(
                     // and then put the superstructure in the right position
                     SuperstructureCommands.goToPosition(
                         elevator,
