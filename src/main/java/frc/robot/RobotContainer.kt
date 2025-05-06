@@ -685,8 +685,8 @@ class RobotContainer {
         }
         if (hmi.povUpLeft().asBoolean) {
             nextReef = when (hmi.leftBumper().asBoolean) {
-                true -> PathfindingFactories.Reef.G
-                false -> PathfindingFactories.Reef.H
+                true -> PathfindingFactories.Reef.I
+                false -> PathfindingFactories.Reef.J
             }
         }
     }
