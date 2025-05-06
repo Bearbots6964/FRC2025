@@ -284,11 +284,7 @@ class RobotContainer {
         clawIntake.defaultCommand = clawIntake.stop()
         // Lock to 0° when A button is held
         driveController.a().whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                { -driveController.leftY },
-                { -driveController.leftX },
-                { Rotation2d() })
+            Commands.run({ drive.stopWithX() }, drive)
         )
 
         // Switch to X pattern when X button is pressed
@@ -564,7 +560,7 @@ class RobotContainer {
 
                         // actually go to the reef
                         finalReefLineup(),
-                        Commands.run({drive.stopWithX()}, drive).withTimeout(0.1)
+                        Commands.run({ drive.stopWithX() }, drive).withTimeout(0.1)
                     ), // end drivebase sequence
 
                     // wait until the claw has the coral secured and set that state
@@ -798,7 +794,12 @@ class RobotContainer {
                     updateReef(PathfindingFactories.Reef.J); nextPosition =
                     Constants.SuperstructureConstants.SuperstructureState.L4; nextStation =
                     PathfindingFactories.CoralStationSide.LEFT
-                }).andThen(runOneFullCoralCycleButWaitTime().alongWith(Commands.waitSeconds(0.75).andThen({updateReef(PathfindingFactories.Reef.A)})))
+                }).andThen(
+                    runOneFullCoralCycleButWaitTime().alongWith(
+                        Commands.waitSeconds(0.75)
+                            .andThen({ updateReef(PathfindingFactories.Reef.A) })
+                    )
+                )
                 .andThen({ nextReef = PathfindingFactories.Reef.B })
                 .andThen(runOneFullCoralCycleButWaitTime())
         )
@@ -1045,12 +1046,14 @@ class RobotContainer {
 
     private fun finalReefLineup(): WrapperCommand = Commands.defer({
         PathfindingFactories.pathfindToReef(
-            drive, { nextReef }, driveTranslationalControlSupplier)
+            drive, { nextReef }, driveTranslationalControlSupplier
+        )
     }, setOf(drive)).withName("Pathfind to Reef")
 
     private fun pathfindToReef(): Command = Commands.defer({
         PathfindingFactories.pathfindToReefButBackALittle(
-            drive, { nextReef }, driveTranslationalControlSupplier)
+            drive, { nextReef }, driveTranslationalControlSupplier
+        )
     }, setOf(drive))
 
     private fun goToCoralStation(): Command =
@@ -1292,7 +1295,8 @@ class RobotContainer {
     }
 
     fun fixArm() {
-        if (climber.position > 90.0) elevator.goToPosition(40.0).alongWith(arm.moveArmToAngle(Constants.SuperstructureConstants.ArmConstants.ArmState.PRE_CORAL_PICKUP))
+        if (climber.position > 90.0) elevator.goToPosition(40.0)
+            .alongWith(arm.moveArmToAngle(Constants.SuperstructureConstants.ArmConstants.ArmState.PRE_CORAL_PICKUP))
             .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
             .andThen(climber.moveClimberToIntakePosition().withDeadline(Commands.waitSeconds(1.0)))
             .andThen(
