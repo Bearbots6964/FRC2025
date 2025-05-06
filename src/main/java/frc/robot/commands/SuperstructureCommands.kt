@@ -215,7 +215,7 @@ object SuperstructureCommands {
             ).withName("Score L3")
 
             SuperstructureState.L4 -> e.goToPositionDelta(-35.0).alongWith(
-                f.outtake()
+                f.outtakeFaster()
             ).alongWith(
                 a.moveArmAngleDelta(-13.0)
             ).withDeadline(
