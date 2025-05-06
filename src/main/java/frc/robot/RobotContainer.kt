@@ -1292,7 +1292,7 @@ class RobotContainer {
     }
 
     fun fixArm() {
-        if (climber.position > 90.0) elevator.goToPosition(40.0)
+        if (climber.position > 90.0) elevator.goToPosition(40.0).alongWith(arm.moveArmToAngle(Constants.SuperstructureConstants.ArmConstants.ArmState.PRE_CORAL_PICKUP))
             .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
             .andThen(climber.moveClimberToIntakePosition().withDeadline(Commands.waitSeconds(1.0)))
             .andThen(
