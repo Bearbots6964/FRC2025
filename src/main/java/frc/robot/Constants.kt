@@ -443,6 +443,12 @@ object Constants {
         const val algaeGrabSpeed = 0.30
         const val toCoralStationSpeed = 0.70
 
+        const val benCompensation = 0.5 // amount of time
+        // we wait at the coral station for Ben to get off his phone
+        // and get coral onto the bot during auto.
+        // jeez, Ben.
+        // (seconds)
+
         /**
          * Final distance from the coral station in meters.
          */
