@@ -1479,7 +1479,11 @@ class RobotContainer {
     // </editor-fold>
     // <editor-fold desc="Low-level functions">
 
-    private fun lockWheelsAndWaitForInput(): Command = run({ drive.stopWithX() }, drive).withDeadline(
+    private fun lockWheelsAndWaitForInput(): Command = DriveCommands.joystickDrive(
+            drive,
+            { -driveController.leftY },
+            { -driveController.leftX },
+            { -driveController.rightX }).withDeadline(
         waitUntil { coralStatus == CoralStatus.ON_INTAKE }.withName("Lock Wheels")
     )
 
