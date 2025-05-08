@@ -132,7 +132,7 @@ object Constants {
                 const val CORAL_PICKUP = 218.125
                 const val BARGE_LAUNCH = 77.0
                 const val ALGAE_INTAKE = -64.77
-                const val UPPER_REEF_ALGAE = 37.5
+                const val UPPER_REEF_ALGAE = 34.5
                 const val LOWER_REEF_ALGAE = -10.0
             }
 
