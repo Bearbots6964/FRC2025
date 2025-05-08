@@ -921,6 +921,42 @@ class RobotContainer {
                 driveTranslationalControlSupplier
             )
         )
+
+        SmartDashboard.putData(
+            "Pathfind to Middle Cage", PathfindingFactories.pathfindToPosition(
+                drive,
+                if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+                        .get() == DriverStation.Alliance.Red
+                ) {
+                    FlippingUtil.flipFieldPose(
+                        Pose2d(
+                            8.164, 6.1, Rotation2d(Units.Degrees.of(173.457))
+                        )
+                    )
+                } else {
+                    Pose2d(8.164, 6.1, Rotation2d(Units.Degrees.of(173.457)))
+                },
+                driveTranslationalControlSupplier
+            )
+        )
+
+        SmartDashboard.putData(
+            "Pathfind to Left Cage", PathfindingFactories.pathfindToPosition(
+                drive,
+                if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+                        .get() == DriverStation.Alliance.Red
+                ) {
+                    FlippingUtil.flipFieldPose(
+                        Pose2d(
+                            8.164, 7.21, Rotation2d(Units.Degrees.of(173.457))
+                        )
+                    )
+                } else {
+                    Pose2d(8.164, 7.21, Rotation2d(Units.Degrees.of(173.457)))
+                },
+                driveTranslationalControlSupplier
+            )
+        )
     }
 
 
