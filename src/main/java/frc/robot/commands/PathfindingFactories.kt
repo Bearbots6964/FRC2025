@@ -48,7 +48,7 @@ object PathfindingFactories {
     ): Command {
         val targetPose = getSpecificReefSidePose(reef)
         val truePose = translateCoordinates(
-            targetPose, targetPose.rotation.degrees, -Units.inchesToMeters(16.0)
+            targetPose, targetPose.rotation.degrees, -Units.inchesToMeters(18.0)
         )
         return Commands.runOnce({ Vision.backCamerasEnabled = false })
             .andThen(drive.followRepulsorField(truePose, nudge))
@@ -62,7 +62,7 @@ object PathfindingFactories {
             .andThen(drive.followRepulsorField({
                 getSpecificReefSidePose(reef.invoke()).let {
                     translateCoordinates(
-                        it, it.rotation.degrees, -Units.inchesToMeters(17.0)
+                        it, it.rotation.degrees, -Units.inchesToMeters(18.0)
                     )
                 }
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
@@ -75,7 +75,7 @@ object PathfindingFactories {
             .andThen(drive.followRepulsorField({
                 getSpecificReefSidePose(reef.invoke()).let {
                     translateCoordinates(
-                        it, it.rotation.degrees, -Units.inchesToMeters(20.0)
+                        it, it.rotation.degrees, -Units.inchesToMeters(22.0)
                     )
                 }
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))

@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Barge Far-Left to Reef J"
+                  "pathName": "Mid-Right Barge to Reef E"
                 }
               },
               {
@@ -26,13 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef J to Coral 2 but end halfway through"
+            "pathName": "Reef E to Coral 1 but end halfway through"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }
