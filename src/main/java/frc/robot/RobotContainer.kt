@@ -14,10 +14,12 @@ package frc.robot
 
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.auto.NamedCommands
+import com.pathplanner.lib.util.FlippingUtil
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Timer
@@ -1172,6 +1174,17 @@ class RobotContainer {
 //                    ).withDeadline(Commands.waitSeconds(5.0))
 //                ).withName("Reset (RED ONLY)")
 //        )
+
+        SmartDashboard.putData("Pathfind to Right Cage",
+            PathfindingFactories.pathfindToPosition(
+                drive,
+                if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+                    FlippingUtil.flipFieldPose(Pose2d(8.188, 5.047, Rotation2d(Units.Degrees.of(180.0))))
+                } else {
+                    Pose2d(8.188, 5.047, Rotation2d(Units.Degrees.of(180.0)))
+                },
+                driveTranslationalControlSupplier
+            ))
     }
 
     private fun finalReefLineup(): Command = defer({
