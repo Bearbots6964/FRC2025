@@ -912,11 +912,11 @@ class RobotContainer {
                 ) {
                     FlippingUtil.flipFieldPose(
                         Pose2d(
-                            8.188, 5.047, Rotation2d(Units.Degrees.of(180.0))
+                            8.164, 4.953, Rotation2d(Units.Degrees.of(173.457))
                         )
                     )
                 } else {
-                    Pose2d(8.188, 5.047, Rotation2d(Units.Degrees.of(180.0)))
+                    Pose2d(8.164, 4.953, Rotation2d(Units.Degrees.of(173.457)))
                 },
                 driveTranslationalControlSupplier
             )
