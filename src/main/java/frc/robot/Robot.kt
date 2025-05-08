@@ -204,7 +204,7 @@ class Robot : LoggedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class.  */
     override fun autonomousInit() {
-        Companion.inTeleop = false
+        inTeleop = false
         autonomousCommand = robotContainer.autonomousCommand
         firstDisable = true
 

@@ -941,10 +941,10 @@ class RobotContainer {
         )
         NamedCommands.registerCommand(
             "Fix Pivot", elevator.goToPosition(40.0).deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 })).andThen(
-                    SuperstructureCommands.algaeIntakeWithoutSafety(
-                        elevator, arm, climber
-                    )
+                SuperstructureCommands.algaeIntakeWithoutSafety(
+                    elevator, arm, climber
                 )
+            )
         )
         NamedCommands.registerCommand(
             "Fix Pivot and L4", climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }).withDeadline(
@@ -1016,7 +1016,7 @@ class RobotContainer {
                 SuperstructureCommands.preCoralPickup(
                     elevator, arm, climber
                 )
-            ).schedule()
+            ).withName("Fix Arm-Pivot System").schedule()
     }
 
     fun disableAuto() {
@@ -1130,7 +1130,7 @@ class RobotContainer {
                 Runnable { coralStatus = CoralStatus.NONE })
                 // only do this deferred command + compositions
                 // if we actually have the coral
-                .onlyIf { coralStatus == CoralStatus.IN_CLAW })
+                .onlyIf { coralStatus == CoralStatus.IN_CLAW }).withName("Full Coral Cycle")
 
     }
 
@@ -1207,7 +1207,7 @@ class RobotContainer {
                 }, setOf(elevator, arm, clawIntake, drive)).finallyDo(
                     // set state of the coral
                     Runnable { coralStatus = CoralStatus.NONE })
-            )
+            ).withName("Score Coral")
 
     }
 
@@ -1291,7 +1291,7 @@ class RobotContainer {
                 Runnable { coralStatus = CoralStatus.NONE })
                 // only do this deferred command + compositions
                 // if we actually have the coral
-                .onlyIf { coralStatus == CoralStatus.IN_CLAW })
+                .onlyIf { coralStatus == CoralStatus.IN_CLAW }).withName("[AUTO] Full Coral Cycle")
     }
 
     private fun algaeCycle(): Command {
@@ -1302,7 +1302,7 @@ class RobotContainer {
             bargePosition = bargeChooser.get() ?: BargePositions.NONE
         }).andThen(
             sequence(
-            sequence(
+                sequence(
             // back up, in case we're at the reef
             drive.backUp(),
 
