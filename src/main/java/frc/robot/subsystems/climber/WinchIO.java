@@ -10,6 +10,7 @@ public interface WinchIO {
     public double winchAppliedCurrentAmps = 0.0;
     public double winchVelocityDegreesPerSecond = 0.0;
     public double winchPositionDegrees = 0.0;
+    public double winchPositionNominalRotations = 0.0;
     public double targetPosition = 0.0;
 
     public boolean atTarget = false;
