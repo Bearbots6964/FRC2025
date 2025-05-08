@@ -118,6 +118,7 @@ class RobotContainer {
     // Dashboard inputs
     private lateinit var autoChooser: LoggedDashboardChooser<Command>
     private var bargeChooser: LoggedDashboardChooser<BargePositions>
+    private var cageChooser: LoggedDashboardChooser<BargePositions>
 
     private val driveTranslationalControlSupplier: Supplier<Translation2d> = Supplier<Translation2d> {
         var xControl: Double = -driveController.leftY
@@ -286,6 +287,12 @@ class RobotContainer {
         bargeChooser.addOption("Middle", BargePositions.MIDDLE)
         bargeChooser.addOption("Right", BargePositions.RIGHT)
         bargeChooser.addDefaultOption("None", BargePositions.NONE)
+
+        cageChooser = LoggedDashboardChooser("Cage Position")
+        cageChooser.addOption("Left", BargePositions.LEFT)
+        cageChooser.addOption("Middle", BargePositions.MIDDLE)
+        cageChooser.addOption("Right", BargePositions.RIGHT)
+        cageChooser.addDefaultOption("None", BargePositions.NONE)
         println(
             "├  [RobotContainer:${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms] Barge chooser initialized at ${
                 "%.3f".format(
@@ -297,7 +304,13 @@ class RobotContainer {
         println("└  [RobotContainer] Initialized in ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
     }
 
-
+    private fun posToCageCommand(pos: BargePositions): Command {
+        return PathfindingFactories.pathfindToPosition(
+            drive,
+            Constants.PathfindingConstants.getOtherPosition(pos),
+            driveTranslationalControlSupplier
+        )
+    }
     // <editor-fold desc="Controller things">
     /**
      * Use this method to define your button->command mappings. Buttons can be created by
@@ -382,6 +395,15 @@ class RobotContainer {
         print("RB ")
         driveController.leftBumper().onTrue(runOnce({ nextStation = PathfindingFactories.CoralStationSide.LEFT }))
         print("LB ")
+        driveController.povDown().onTrue(
+            select(
+                mapOf(
+                    Pair(BargePositions.LEFT, posToCageCommand(BargePositions.LEFT)),
+                    Pair(BargePositions.MIDDLE, posToCageCommand(BargePositions.MIDDLE)),
+                    Pair(BargePositions.RIGHT, posToCageCommand(BargePositions.RIGHT)),
+                    Pair(BargePositions.NONE, none())
+                ), { cageChooser.get() })
+        )
         driveController.povUp().onTrue(justScore())
         println("POV UP - done")
         // </editor-fold>
@@ -1339,74 +1361,76 @@ class RobotContainer {
         }).andThen(
             sequence(
                 sequence(
-            // back up, in case we're at the reef
-            drive.backUp(),
+                    // back up, in case we're at the reef
+                    drive.backUp(),
 
-            sequence(
-                defer(
-                    {
-                        // pathfind to where we need to be,
-                        // just 20 inches back so we have room to swing the arm around
-                        PathfindingFactories.pathfindToReefButBackALittleMore(
-                            drive, { nextAlgaePosition }, driveTranslationalControlSupplier
+                    sequence(
+                        defer(
+                            {
+                                // pathfind to where we need to be,
+                                // just 20 inches back so we have room to swing the arm around
+                                PathfindingFactories.pathfindToReefButBackALittleMore(
+                                    drive, { nextAlgaePosition }, driveTranslationalControlSupplier
+                                )
+                            }, setOf(drive)
+                        ),
+                        // wait until we're near the target reef,
+                        // then put the superstructure in whatever position we need to be in to grab algae
+
+                        defer(
+                            {
+                                SuperstructureCommands.goToPosition(
+                                    elevator, arm, climber, when (nextAlgaePosition) {
+                                        PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
+                                        else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
+                                    }
+                                )
+                            }, setOf(arm, elevator, climber)
+                        ).alongWith(
+                            run({drive.stopWithX()}, drive)
                         )
-                    }, setOf(drive)
-                ),
-                // wait until we're near the target reef,
-                // then put the superstructure in whatever position we need to be in to grab algae
+                    ),
 
-                defer(
-                    {
-                        SuperstructureCommands.goToPosition(
-                            elevator, arm, climber, when (nextAlgaePosition) {
-                                PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
-                                else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
-                            }
-                        )
-                    }, setOf(arm, elevator, climber)
-                )
-            ),
+                    // set the pathfinding speed
+                    // to be slower so we're not slamming into the reef at top speed
+                    runOnce({ drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.algaeGrabSpeed) }),
 
-            // set the pathfinding speed
-            // to be slower so we're not slamming into the reef at top speed
-            runOnce({ drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.algaeGrabSpeed) }),
+                    // pathfind forward so we can actually pick the algae up
+                    PathfindingFactories.pathfindToReefButBackALittleLess(
+                        drive, { nextAlgaePosition }, driveTranslationalControlSupplier
+                    ).deadlineFor(
+                        // pin this onto the end
+                        // maybe it'll save us a little time?
+                        clawIntake.intakeWithoutStoppingForAlgae()
+                    ),
 
-            // pathfind forward so we can actually pick the algae up
-            PathfindingFactories.pathfindToReefButBackALittleLess(
-                drive, { nextAlgaePosition }, driveTranslationalControlSupplier
-            ).deadlineFor(
-                // pin this onto the end
-                // maybe it'll save us a little time?
-                clawIntake.intakeWithoutStoppingForAlgae()
-            ),
-
-            // lock the wheels
-            run(
-                { drive.stopWithX() }, drive
-            ).withDeadline(
-                // spin the intake
-                clawIntake.intakeWithoutStoppingForAlgae().withDeadline(
-                    // wait until the motor stalls
-                    // (surefire way to tell if we have an algae) and then wait an extra half-second
-                    // FIXME: check if this value can go lower
-                    // update 8/5/25: turned down by half
-                    waitUntil(clawIntake::grabbed).andThen(waitSeconds(0.25))
-                    // set algae state
-                ).andThen({ algaeStatus = AlgaeStatus.IN_CLAW })
-            ),
-            // back up
-            drive.backUp()
-        ).onlyIf { algaeStatus == AlgaeStatus.NONE }, // only do this if we don't have algae
-            // decide what to do based on the barge position selection
-            select(
-                mapOf(
-                    BargePositions.NONE to spitOutAlgae(),
-                    BargePositions.LEFT to putAlgaeInBarge(),
-                    BargePositions.MIDDLE to putAlgaeInBarge(),
-                    BargePositions.RIGHT to putAlgaeInBarge()
-                )
-            ) { bargePosition }.onlyIf { algaeStatus == AlgaeStatus.IN_CLAW } // use the barge position as the key
-        ))
+                    // lock the wheels
+                    run(
+                        { drive.stopWithX() }, drive
+                    ).withDeadline(
+                        // spin the intake
+                        clawIntake.intakeWithoutStoppingForAlgae().withDeadline(
+                            // wait until the motor stalls
+                            // (surefire way to tell if we have an algae) and then wait an extra half-second
+                            // FIXME: check if this value can go lower
+                            // update 8/5/25: turned down by half
+                            waitUntil(clawIntake::grabbed).andThen(waitSeconds(0.25))
+                            // set algae state
+                        ).andThen({ algaeStatus = AlgaeStatus.IN_CLAW })
+                    ),
+                    // back up
+                    drive.backUp()
+                ).onlyIf { algaeStatus == AlgaeStatus.NONE }, // only do this if we don't have algae
+                // decide what to do based on the barge position selection
+                select(
+                    mapOf(
+                        BargePositions.NONE to spitOutAlgae(),
+                        BargePositions.LEFT to putAlgaeInBarge(),
+                        BargePositions.MIDDLE to putAlgaeInBarge(),
+                        BargePositions.RIGHT to putAlgaeInBarge()
+                    )
+                ) { bargePosition }.onlyIf { algaeStatus == AlgaeStatus.IN_CLAW } // use the barge position as the key
+            ))
     }
 
     // </editor-fold>
@@ -1480,10 +1504,10 @@ class RobotContainer {
     // <editor-fold desc="Low-level functions">
 
     private fun lockWheelsAndWaitForInput(): Command = DriveCommands.joystickDrive(
-            drive,
-            { -driveController.leftY },
-            { -driveController.leftX },
-            { -driveController.rightX }).withDeadline(
+        drive,
+        { -driveController.leftY },
+        { -driveController.leftX },
+        { -driveController.rightX }).withDeadline(
         waitUntil { coralStatus == CoralStatus.ON_INTAKE }.withName("Lock Wheels")
     )
 

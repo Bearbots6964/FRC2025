@@ -484,6 +484,44 @@ object Constants {
                     .get() == DriverStation.Alliance.Red
             ) FlippingUtil.flipFieldPose(it) else it
         }
+
+        fun getOtherPosition(pos: BargePositions): Pose2d = when (pos) {
+            BargePositions.RIGHT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+                        .get() == DriverStation.Alliance.Red
+                ) {
+                    FlippingUtil.flipFieldPose(
+                        Pose2d(
+                            8.164, 4.953, Rotation2d(Units.Degrees.of(173.457))
+                        )
+                    )
+                } else {
+                    Pose2d(8.164, 4.953, Rotation2d(Units.Degrees.of(173.457)))
+                }
+
+            BargePositions.LEFT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+                        .get() == DriverStation.Alliance.Red
+                ) {
+                    FlippingUtil.flipFieldPose(
+                        Pose2d(
+                            8.164, 7.21, Rotation2d(Units.Degrees.of(173.457))
+                        )
+                    )
+                } else {
+                    Pose2d(8.164, 7.21, Rotation2d(Units.Degrees.of(173.457)))
+                }
+            BargePositions.MIDDLE -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+                        .get() == DriverStation.Alliance.Red
+                ) {
+                    FlippingUtil.flipFieldPose(
+                        Pose2d(
+                            8.164, 6.1, Rotation2d(Units.Degrees.of(173.457))
+                        )
+                    )
+                } else {
+                    Pose2d(8.164, 6.1, Rotation2d(Units.Degrees.of(173.457)))
+                }
+            BargePositions.NONE -> Pose2d()
+        }
     }
 
     object ClimberConstants {

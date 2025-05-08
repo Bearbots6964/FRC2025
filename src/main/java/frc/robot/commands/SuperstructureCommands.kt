@@ -105,14 +105,14 @@ object SuperstructureCommands {
     fun upperReefAlgae(e: Elevator, a: Arm, c: Climber): Command {
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.UPPER_REEF_ALGAE)
-                .andThen(a.moveArmToAngle(ArmConstants.ArmState.UPPER_REEF_ALGAE))
+                .alongWith(a.moveArmToAngle(ArmConstants.ArmState.UPPER_REEF_ALGAE))
         ).withName("Superstructure to Upper Reef Algae Position")
     }
 
     fun lowerReefAlgae(e: Elevator, a: Arm, c: Climber): Command {
         return ensureSuperstructureSafety(e, a, c).andThen(
             e.goToPosition(ElevatorState.LOWER_REEF_ALGAE)
-                .andThen(a.moveArmToAngle(ArmConstants.ArmState.LOWER_REEF_ALGAE))
+                .alongWith(a.moveArmToAngle(ArmConstants.ArmState.LOWER_REEF_ALGAE))
         ).withName("Superstructure to Lower Reef Algae Position")
     }
 
