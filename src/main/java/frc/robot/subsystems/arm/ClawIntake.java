@@ -70,6 +70,13 @@ public class ClawIntake extends SubsystemBase {
         .withName("Outtake");
   }
 
+  public Command outtakeMaxSpeed() {
+    return run(() ->
+            io.setIntakeOpenLoop(
+                  1.0))
+            .finallyDo(() -> spinFlywheel(0.0))
+            .withName("Outtake");
+  }
   public Command outtakeFaster() {
     return run(() ->
             io.setIntakeOpenLoop(

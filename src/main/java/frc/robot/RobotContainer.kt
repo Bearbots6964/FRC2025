@@ -1460,7 +1460,7 @@ class RobotContainer {
             // drive forward while spitting the algae out.
             // the drive command ends after half a second
             drive.goForward().deadlineFor(
-                clawIntake.outtake()
+                clawIntake.outtakeMaxSpeed()
             ).andThen(
                 // stop the intake and set algae status to none
                 runOnce({
