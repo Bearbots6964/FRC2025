@@ -1386,7 +1386,7 @@ class RobotContainer {
                                     }
                                 )
                             }, setOf(arm, elevator, climber)
-                        ).alongWith(
+                        ).deadlineFor(
                             run({drive.stopWithX()}, drive)
                         )
                     ),

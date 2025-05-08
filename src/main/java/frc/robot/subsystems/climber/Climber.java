@@ -74,7 +74,7 @@ public class Climber extends SubsystemBase {
     Logger.processInputs("Climber Pivot", pivotInputs);
 
     overcurrentAlert.set(pivotInputs.pivotAppliedCurrentAmps > 15.0);
-    overcurrentAlert.setText("Bicep pivot is using a lot of current! You might be stuck on something, is the winch engaged? (Winch " + (winchInputs.winchPositionDegrees / 360.0 / 100.0) + " rotations from startup value)");
+    overcurrentAlert.setText("Bicep pivot is using a lot of current! You might be stuck on something, is the winch engaged? (Winch " + (winchInputs.winchPositionNominalRotations) + " rotations from startup value)");
     pivot.setAngle(-pivotInputs.pivotPositionDegrees);
 
     if (DriverStation.isDisabled()) {
