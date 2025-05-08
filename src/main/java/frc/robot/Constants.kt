@@ -437,8 +437,9 @@ object Constants {
     }
 
     object PathfindingConstants {
-        const val coralIntakeSpeed: Double = 0.6
-        const val toReefSpeed: Double = 0.60
+        const val coralIntakeSpeed: Double = 0.50
+        const val toReefSpeed: Double = 0.50
+        // TODO above 2 need to be 0.60 at comp
         const val toBargeSpeed = 0.50
         const val algaeGrabSpeed = 0.30
         const val toCoralStationSpeed = 0.70
