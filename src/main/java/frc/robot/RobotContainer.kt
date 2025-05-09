@@ -100,9 +100,9 @@ class RobotContainer {
         set(value) {
             state.push(nextStation = value)
         }
-    private var nextPosition: Constants.SuperstructureConstants.SuperstructureState
-        get() = state.nextState
+    private var nextPosition: Constants.SuperstructureConstants.SuperstructureState = Constants.SuperstructureConstants.SuperstructureState.PRE_CORAL_PICKUP
         set(value) {
+            field = value
             state.push(nextState = value)
         }
     private var nextAlgaePosition: PathfindingFactories.Reef
