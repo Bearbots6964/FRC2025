@@ -729,6 +729,31 @@ class RobotContainer {
         )
 
         autoChooser.addOption(
+            "Pathfinding Auto (Mid Left, Algae, All)", createPathfindingAuto(
+                "Mid",
+                PathfindingFactories.CoralStationSide.LEFT,
+                PathfindingFactories.Reef.J,
+                PathfindingFactories.Reef.K
+            ).andThen(
+                { state.push(nextAlgaePosition = PathfindingFactories.Reef.KL_ALGAE) }
+            ).andThen(
+                algaeCycle()
+            )
+        )
+
+        autoChooser.addOption(
+            "Pathfinding Auto (Mid Left, Algae, Home Field)", createPathfindingAuto(
+                "Mid",
+                PathfindingFactories.CoralStationSide.LEFT,
+                PathfindingFactories.Reef.J,
+                PathfindingFactories.Reef.A,
+            ).andThen(
+                { state.push(nextAlgaePosition = PathfindingFactories.Reef.AB_ALGAE) }
+            ).andThen(
+                algaeCycle()
+            )
+        )
+        autoChooser.addOption(
             "Pathfinding Auto (Far Right, Right, All)", createPathfindingAuto(
                 "Far",
                 PathfindingFactories.CoralStationSide.RIGHT,
