@@ -967,10 +967,10 @@ class RobotContainer {
         if (climber.position > 90.0) elevator.goToPosition(40.0)
             .alongWith(arm.moveArmToAngle(Constants.SuperstructureConstants.ArmConstants.ArmState.PRE_CORAL_PICKUP))
             .deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }))
-            .andThen(climber.moveClimberToIntakePosition().withDeadline(waitSeconds(1.0))).andThen(
+            .andThen(climber.moveClimberToIntakePosition().withTimeout(1.0)).andThen(
                 superstructureCommands.preCoralPickup(
                     elevator, arm, climber
-                )
+                ).withTimeout(2.0)
             ).withName("Fix Arm-Pivot System").schedule()
     }
 
