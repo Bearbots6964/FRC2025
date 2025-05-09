@@ -761,7 +761,7 @@ class RobotContainer {
     }
 
     fun setUpDashboardCommands() {
-        SmartDashboard.putData("Log Drive Time", Commands.runOnce({ drive.logCycleTime = true }).ignoringDisable(true))
+        SmartDashboard.putData("Log Drive Time", runOnce({ drive.logCycleTime = true }).ignoringDisable(true))
         SmartDashboard.putData(
             elevator.homeElevator().deadlineFor(arm.moveArmToAngleWithoutEnding(90.0)).withName("Home Elevator")
         )
@@ -873,7 +873,7 @@ class RobotContainer {
 
         SmartDashboard.putData(
             Commands.run({ keepGoing = true }).finallyDo(Runnable { keepGoing = false })
-                .withName("\nKeep Going\n")
+            .withName("\nKeep Going\n")
         )
 
     }
@@ -1268,77 +1268,77 @@ class RobotContainer {
             state.push(task = AutoTask.TO_ALGAE)
         }).andThen(
             sequence(
-                sequence(
-                    // back up, in case we're at the reef
-                    drive.backUp(),
+            sequence(
+            // back up, in case we're at the reef
+            drive.backUp(),
 
-                    sequence(
-                        defer(
-                            {
-                                // pathfind to where we need to be,
-                                // just 20 inches back so we have room to swing the arm around
-                                PathfindingFactories.pathfindToReefButBackALittleMore(
-                                    drive, { nextAlgaePosition }, driveTranslationalControlSupplier
-                                )
-                            }, setOf(drive)
-                        ),
-                        // wait until we're near the target reef,
-                        // then put the superstructure in whatever position we need to be in to grab algae
-
-                        defer(
-                            {
-                                superstructureCommands.goToPosition(
-                                    elevator, arm, climber, when (nextAlgaePosition) {
-                                        PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
-                                        else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
-                                    }
-                                )
-                            }, setOf(arm, elevator, climber)
-                        ).deadlineFor(
-                            run({ drive.stopWithX() }, drive)
+            sequence(
+                defer(
+                    {
+                        // pathfind to where we need to be,
+                        // just 20 inches back so we have room to swing the arm around
+                        PathfindingFactories.pathfindToReefButBackALittleMore(
+                            drive, { nextAlgaePosition }, driveTranslationalControlSupplier
                         )
-                    ),
+                    }, setOf(drive)
+                ),
+                // wait until we're near the target reef,
+                // then put the superstructure in whatever position we need to be in to grab algae
 
-                    // set the pathfinding speed
-                    // to be slower so we're not slamming into the reef at top speed
-                    runOnce({ drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.algaeGrabSpeed) }),
+                defer(
+                    {
+                        superstructureCommands.goToPosition(
+                            elevator, arm, climber, when (nextAlgaePosition) {
+                                PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
+                                else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
+                            }
+                        )
+                    }, setOf(arm, elevator, climber)
+                ).deadlineFor(
+                    run({ drive.stopWithX() }, drive)
+                )
+            ),
 
-                    // pathfind forward so we can actually pick the algae up
-                    PathfindingFactories.pathfindToReefButBackALittleLess(
-                        drive, { nextAlgaePosition }, driveTranslationalControlSupplier
-                    ).deadlineFor(
-                        // pin this onto the end
-                        // maybe it'll save us a little time?
-                        clawIntake.intakeWithoutStoppingForAlgae()
-                    ),
+            // set the pathfinding speed
+            // to be slower so we're not slamming into the reef at top speed
+            runOnce({ drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.algaeGrabSpeed) }),
 
-                    // lock the wheels
-                    run(
-                        { drive.stopWithX() }, drive
-                    ).withDeadline(
-                        // spin the intake
-                        clawIntake.intakeWithoutStoppingForAlgae().withDeadline(
-                            // wait until the motor stalls
-                            // (surefire way to tell if we have an algae) and then wait an extra half-second
-                            // FIXME: check if this value can go lower
-                            // update 8/5/25: turned down by half
-                            waitUntil(clawIntake::grabbed).andThen(waitSeconds(0.25))
-                            // set algae state
-                        ).andThen({ algaeStatus = AlgaeStatus.IN_CLAW })
-                    ),
-                    // back up
-                    drive.backUp()
-                ).onlyIf { algaeStatus == AlgaeStatus.NONE }, // only do this if we don't have algae
-                // decide what to do based on the barge position selection
-                select(
-                    mapOf(
-                        BargePosition.NONE to spitOutAlgae(),
-                        BargePosition.LEFT to putAlgaeInBarge(),
-                        BargePosition.MIDDLE to putAlgaeInBarge(),
-                        BargePosition.RIGHT to putAlgaeInBarge()
-                    )
-                ) { bargePosition }.onlyIf { algaeStatus == AlgaeStatus.IN_CLAW } // use the barge position as the key
-            )).finallyDo(Runnable { state.push(task = AutoTask.IDLE) })
+            // pathfind forward so we can actually pick the algae up
+            PathfindingFactories.pathfindToReefButBackALittleLess(
+                drive, { nextAlgaePosition }, driveTranslationalControlSupplier
+            ).deadlineFor(
+                // pin this onto the end
+                // maybe it'll save us a little time?
+                clawIntake.intakeWithoutStoppingForAlgae()
+            ),
+
+            // lock the wheels
+            run(
+                { drive.stopWithX() }, drive
+            ).withDeadline(
+                // spin the intake
+                clawIntake.intakeWithoutStoppingForAlgae().withDeadline(
+                    // wait until the motor stalls
+                    // (surefire way to tell if we have an algae) and then wait an extra half-second
+                    // FIXME: check if this value can go lower
+                    // update 8/5/25: turned down by half
+                    waitUntil(clawIntake::grabbed).andThen(waitSeconds(0.25))
+                    // set algae state
+                ).andThen({ algaeStatus = AlgaeStatus.IN_CLAW })
+            ),
+            // back up
+            drive.backUp()
+        ).onlyIf { algaeStatus == AlgaeStatus.NONE }, // only do this if we don't have algae
+            // decide what to do based on the barge position selection
+            select(
+                mapOf(
+                    BargePosition.NONE to spitOutAlgae(),
+                    BargePosition.LEFT to putAlgaeInBarge(),
+                    BargePosition.MIDDLE to putAlgaeInBarge(),
+                    BargePosition.RIGHT to putAlgaeInBarge()
+                )
+            ) { bargePosition }.onlyIf { algaeStatus == AlgaeStatus.IN_CLAW } // use the barge position as the key
+        )).finallyDo(Runnable { state.push(task = AutoTask.IDLE) })
     }
 
     // </editor-fold>
@@ -1432,13 +1432,12 @@ class RobotContainer {
 
 
     private fun lockWheelsAndWaitTime(): Command = run(
-        { drive.stopWithX() },
-        drive
+        { drive.stopWithX() }, drive
     ).withDeadline(
         waitSeconds(Constants.PathfindingConstants.benCompensation).andThen({
-            coralStatus = CoralStatus.ON_INTAKE
-        }).alongWith(runOnce({ state.push(task = AutoTask.WAITING) }))
-            .finallyDo(Runnable { state.push(task = AutoTask.IDLE) }).withName("Lock Wheels")
+        coralStatus = CoralStatus.ON_INTAKE
+    }).alongWith(runOnce({ state.push(task = AutoTask.WAITING) }))
+        .finallyDo(Runnable { state.push(task = AutoTask.IDLE) }).withName("Lock Wheels")
     )
 
     private fun finalReefLineup(): Command = defer({

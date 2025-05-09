@@ -159,7 +159,7 @@ class State(
                 return when (nextStation) {
                     PathfindingFactories.CoralStationSide.LEFT -> "Pathfind to Left Coral Station (Arm @ $nextState, $coralStatus)"
                     PathfindingFactories.CoralStationSide.RIGHT -> "Pathfind to Right Coral Station (Arm @ $nextState, $coralStatus)"
-                    PathfindingFactories.CoralStationSide.NONE -> "You shouldn't ever see this, something has gone very wrong!"
+                    PathfindingFactories.CoralStationSide.NONE -> "Pathfind to neither coral station? (Arm @ $nextState, $coralStatus)"
                 }
             }
 

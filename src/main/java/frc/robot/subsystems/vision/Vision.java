@@ -4,6 +4,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -102,13 +103,18 @@ public class Vision extends SubsystemBase {
         Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
         Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
         RobotContainer.getField().getObject("VisionPoses").setPoses(allRobotPoses.stream().map(Pose3d::toPose2d).toList());
-//        List<Pose2d> targets = new ArrayList<>();
-//        var curPose = RobotContainer.getField().getRobotPose();
-//        for (Pose2d tag : allTagPoses.stream().map(Pose3d::toPose2d).toList()) {
-//            targets.add(curPose);
-//            targets.add(tag);
-//        }
-//        RobotContainer.getField().getObject("VisionTags").setPoses(targets);
+        List<Pose2d> targets = new ArrayList<>();
+        var curPose = RobotContainer.getField().getRobotPose();
+        for (Pose2d tag : allTagPoses.stream().map(Pose3d::toPose2d).toList()) {
+            targets.add(curPose);
+            targets.add(tag);
+        }
+        if (targets.size() < 24) {
+            for (int i = targets.size(); i < 24; i++) {
+                targets.add(curPose);
+            }
+        }
+        RobotContainer.getField().getObject("VisionTags").setPoses(targets);
         Logger.recordOutput("Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
         Logger.recordOutput("Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
         Logger.recordOutput("Vision/Loop Time (ms)", (Timer.getFPGATimestamp() - timer) * 1000.0);
