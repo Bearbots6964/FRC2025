@@ -776,6 +776,18 @@ class RobotContainer {
                 PathfindingFactories.Reef.A
             )
         )
+        autoChooser.addOption(
+            "Pathfinding Auto (Mid, Algae)",
+            sequence(
+                runOnce({
+                    nextReef = PathfindingFactories.Reef.H
+                    coralStatus = CoralStatus.IN_CLAW
+                    nextAlgaePosition = PathfindingFactories.Reef.GH_ALGAE
+                }),
+                runOneFullCoralCycle(),
+                algaeCycle()
+            )
+        )
 
         autoChooser.addOption(
             "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive)
