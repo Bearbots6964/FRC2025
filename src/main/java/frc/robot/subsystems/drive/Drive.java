@@ -364,9 +364,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         Rotation2d[] headings = new Rotation2d[4];
         for (int i = 0; i < 4; i++) {
             headings[i] = getModuleTranslations()[i].getAngle();
+            modules[i].runSetpoint(new SwerveModuleState(0.0, headings[i]));
         }
-        kinematics.resetHeadings(headings);
-        stop();
     }
 
     /**
