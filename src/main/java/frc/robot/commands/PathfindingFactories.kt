@@ -154,11 +154,17 @@ object PathfindingFactories {
                 Alliance.Red -> 6
                 Alliance.Blue -> 19
             }
+
+            else -> when (alliance) { // just use the a and b tags
+                Alliance.Red -> 7
+                Alliance.Blue -> 18
+            }
         }
         val side = when (reef) {
             A, C, E, G, I, K -> ReefSides.LEFT
             B, D, F, H, J, L -> ReefSides.RIGHT
             AB_ALGAE, CD_ALGAE, EF_ALGAE, GH_ALGAE, IJ_ALGAE, KL_ALGAE -> ReefSides.MIDDLE
+            else -> ReefSides.RIGHT // idk
         }
 
         val closestPose = aprilTagsToAlignTo[aprilTagNum]
@@ -198,6 +204,9 @@ object PathfindingFactories {
         },
         RIGHT {
             override fun toString() = "Right"
+        },
+        NONE {
+            override fun toString() = "None"
         }
     }
 
@@ -255,6 +264,9 @@ object PathfindingFactories {
         },
         KL_ALGAE {
             override fun toString() = "KL Algae"
+        },
+        NONE {
+            override fun toString() = "None"
         }
     }
 

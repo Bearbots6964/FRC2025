@@ -18,6 +18,7 @@ import edu.wpi.first.units.measure.*
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import frc.robot.util.Polygon
+import frc.robot.util.BargePosition
 
 /*
  * The Constants file provides a convenient place for teams to hold robot-wide
@@ -475,19 +476,19 @@ object Constants {
             7.75, 4.65, Rotation2d()
         )
 
-        fun getPosition(pos: BargePositions): Pose2d = when (pos) {
-            BargePositions.LEFT -> leftBargePosition
-            BargePositions.MIDDLE -> middleBargePosition
-            BargePositions.RIGHT -> rightBargePosition
-            BargePositions.NONE -> Pose2d()
+        fun getPosition(pos: BargePosition): Pose2d = when (pos) {
+            BargePosition.LEFT -> leftBargePosition
+            BargePosition.MIDDLE -> middleBargePosition
+            BargePosition.RIGHT -> rightBargePosition
+            BargePosition.NONE -> Pose2d()
         }.let {
             if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                     .get() == DriverStation.Alliance.Red
             ) FlippingUtil.flipFieldPose(it) else it
         }
 
-        fun getOtherPosition(pos: BargePositions): Pose2d = when (pos) {
-            BargePositions.RIGHT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+        fun getOtherPosition(pos: BargePosition): Pose2d = when (pos) {
+            BargePosition.RIGHT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                         .get() == DriverStation.Alliance.Red
                 ) {
                     FlippingUtil.flipFieldPose(
@@ -499,7 +500,7 @@ object Constants {
                     Pose2d(8.164, 4.953, Rotation2d(Units.Degrees.of(173.457)))
                 }
 
-            BargePositions.LEFT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+            BargePosition.LEFT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                         .get() == DriverStation.Alliance.Red
                 ) {
                     FlippingUtil.flipFieldPose(
@@ -510,7 +511,7 @@ object Constants {
                 } else {
                     Pose2d(8.164, 7.21, Rotation2d(Units.Degrees.of(173.457)))
                 }
-            BargePositions.MIDDLE -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+            BargePosition.MIDDLE -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                         .get() == DriverStation.Alliance.Red
                 ) {
                     FlippingUtil.flipFieldPose(
@@ -521,7 +522,7 @@ object Constants {
                 } else {
                     Pose2d(8.164, 6.1, Rotation2d(Units.Degrees.of(173.457)))
                 }
-            BargePositions.NONE -> Pose2d()
+            BargePosition.NONE -> Pose2d()
         }
     }
 
