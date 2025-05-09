@@ -179,7 +179,7 @@ class RobotContainer {
         Translation2d(xControl, yControl)
     }
 
-    private val superstructureCommands: SuperstructureCommands = SuperstructureCommands { state.push(nextState = it) }
+    private val superstructureCommands: SuperstructureCommands = SuperstructureCommands { state.push(currentState = it) }
 
     companion object {
         @JvmStatic

@@ -23,6 +23,7 @@ class State(
     var coralStatus: CoralStatus,
     var algaeStatus: AlgaeStatus,
     var nextState: Constants.SuperstructureConstants.SuperstructureState,
+    var currentState: Constants.SuperstructureConstants.SuperstructureState,
     var nextReef: PathfindingFactories.Reef,
     var nextBarge: BargePosition,
     var nextStation: PathfindingFactories.CoralStationSide,
@@ -40,6 +41,7 @@ class State(
     constructor() : this(
         CoralStatus.NONE,
         AlgaeStatus.NONE,
+        Constants.SuperstructureConstants.SuperstructureState.HOME,
         Constants.SuperstructureConstants.SuperstructureState.HOME,
         PathfindingFactories.Reef.NONE,
         BargePosition.NONE,
@@ -67,6 +69,7 @@ class State(
         coralStatus: CoralStatus = this.coralStatus,
         algaeStatus: AlgaeStatus = this.algaeStatus,
         nextState: Constants.SuperstructureConstants.SuperstructureState = this.nextState,
+        currentState: Constants.SuperstructureConstants.SuperstructureState = this.currentState,
         nextReef: PathfindingFactories.Reef = this.nextReef,
         nextBarge: BargePosition = this.nextBarge,
         nextStation: PathfindingFactories.CoralStationSide = this.nextStation,
@@ -77,6 +80,7 @@ class State(
         this.coralStatus = coralStatus
         this.algaeStatus = algaeStatus
         this.nextState = nextState
+        this.currentState = currentState
         this.nextReef = nextReef
         this.nextBarge = nextBarge
         this.nextStation = nextStation
@@ -94,6 +98,7 @@ class State(
         io.coralStatus = coralStatus
         io.algaeStatus = algaeStatus
         io.nextState = nextState
+        io.currentState = currentState
         io.nextReef = nextReef
         io.nextBarge = nextBarge
         io.nextStation = nextStation
@@ -134,6 +139,7 @@ class State(
             coralStatus: CoralStatus = CoralStatus.NONE,
             algaeStatus: AlgaeStatus = AlgaeStatus.NONE,
             nextState: Constants.SuperstructureConstants.SuperstructureState = Constants.SuperstructureConstants.SuperstructureState.HOME,
+            currentState: Constants.SuperstructureConstants.SuperstructureState = Constants.SuperstructureConstants.SuperstructureState.HOME,
             nextReef: PathfindingFactories.Reef = PathfindingFactories.Reef.NONE,
             nextBarge: BargePosition = BargePosition.NONE,
             nextStation: PathfindingFactories.CoralStationSide = PathfindingFactories.CoralStationSide.NONE,
@@ -142,7 +148,7 @@ class State(
             task: AutoTask = AutoTask.IDLE
         ): State {
             return State(
-                coralStatus, algaeStatus, nextState, nextReef, nextBarge, nextStation, nextCage, nextAlgaePosition, task
+                coralStatus, algaeStatus, nextState, currentState, nextReef, nextBarge, nextStation, nextCage, nextAlgaePosition, task
             )
         }
     }
@@ -157,18 +163,18 @@ class State(
             AutoTask.IDLE -> return "Idle ($coralStatus, $algaeStatus)"
             AutoTask.TO_CORAL_STATION -> {
                 return when (nextStation) {
-                    PathfindingFactories.CoralStationSide.LEFT -> "Pathfind to Left Coral Station (Arm @ $nextState, $coralStatus)"
-                    PathfindingFactories.CoralStationSide.RIGHT -> "Pathfind to Right Coral Station (Arm @ $nextState, $coralStatus)"
-                    PathfindingFactories.CoralStationSide.NONE -> "Pathfind to neither coral station? (Arm @ $nextState, $coralStatus)"
+                    PathfindingFactories.CoralStationSide.LEFT -> "Pathfind to Left Coral Station (Arm @ $currentState, $coralStatus)"
+                    PathfindingFactories.CoralStationSide.RIGHT -> "Pathfind to Right Coral Station (Arm @ $currentState, $coralStatus)"
+                    PathfindingFactories.CoralStationSide.NONE -> "Pathfind to neither coral station? (Arm @ $currentState, $coralStatus)"
                 }
             }
 
             AutoTask.TO_REEF -> {
-                return "Pathfind to Reef $nextReef (Arm @ $nextState, $coralStatus, $algaeStatus)"
+                return "Pathfind to Reef $nextReef (Arm @ $currentState, $coralStatus, $algaeStatus)"
             }
 
             AutoTask.TO_BARGE -> {
-                return "Pathfind to Barge $nextBarge (Arm @ $nextState, $coralStatus, $algaeStatus)"
+                return "Pathfind to Barge $nextBarge (Arm @ $currentState, $coralStatus, $algaeStatus)"
             }
 
             AutoTask.TO_CAGE -> {
@@ -194,7 +200,7 @@ class State(
     override fun toShortString(): String {
         return task.toShortString() + "|" +
                 coralStatus.toShortString() + algaeStatus.toShortString() + "|" +
-                nextState.toShortString() + "|" +
+                currentState.toShortString() + "|" +
                 nextReef.toShortString() + nextBarge.toShortString() + nextStation.toShortString() + nextCage.toShortString() + nextAlgaePosition.toShortString()
     }
 }
@@ -204,6 +210,8 @@ open class StateIO {
     var coralStatus: CoralStatus = CoralStatus.NONE
     var algaeStatus: AlgaeStatus = AlgaeStatus.NONE
     var nextState: Constants.SuperstructureConstants.SuperstructureState =
+        Constants.SuperstructureConstants.SuperstructureState.HOME
+    var currentState: Constants.SuperstructureConstants.SuperstructureState =
         Constants.SuperstructureConstants.SuperstructureState.HOME
     var nextReef: PathfindingFactories.Reef = PathfindingFactories.Reef.NONE
     var nextBarge: BargePosition = BargePosition.NONE
