@@ -1060,6 +1060,7 @@ class RobotContainer {
                         // to be in at the last possible moment
                         // in case they change something.
                         // the field is dynamic, after all
+                        runOnce({updateHmi()})).andThen(
                         defer({
                             // go to the position
                             superstructureCommands.goToPositionWithoutSafety(
