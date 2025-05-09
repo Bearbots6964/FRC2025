@@ -185,18 +185,16 @@ class Robot : LoggedRobot() {
         //Threads.setCurrentThreadPriority(true, 99)
         CommandScheduler.getInstance().run()
         robotContainer.updateHmiAlgae()
+        if (robotContainer.enableEmergencyDashboard) {
+            robotContainer.emergencyDashboardSetup()
+            robotContainer.enableEmergencyDashboard = false
+        }
         //Threads.setCurrentThreadPriority(false, 10)
     }
 
     /** This function is called once when the robot is disabled.  */
     override fun disabledInit() {
         robotContainer.stopQueue()
-        inTeleop = false
-        if (firstDisable) {
-            val time = Timer.getFPGATimestamp()
-            robotContainer.setUpDashboardCommands()
-            println("[Robot] Dashboard commands set up in ${"%.3f".format((Timer.getFPGATimestamp() - time) * 1000.0)}ms")
-        }
     }
 
     /** This function is called periodically when disabled.  */

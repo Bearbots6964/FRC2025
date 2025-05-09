@@ -14,15 +14,13 @@ package frc.robot
 
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.auto.NamedCommands
-import com.pathplanner.lib.util.FlippingUtil
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
-import edu.wpi.first.units.Units
-import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Timer
+import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -42,6 +40,7 @@ import frc.robot.subsystems.climber.*
 import frc.robot.subsystems.drive.*
 import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.elevator.ElevatorIO
+import frc.robot.subsystems.elevator.ElevatorIOSim
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX
 import frc.robot.subsystems.intake.AlgaeIntake
 import frc.robot.subsystems.intake.AlgaeIntakeIO
@@ -85,6 +84,8 @@ class RobotContainer {
     private val driveController = CommandXboxController(0)
     private val operatorController = CommandXboxController(1)
     private val hmi = CommandXboxController(2)
+    private var hmiEnabled = true
+    var enableEmergencyDashboard = false
     // </editor-fold>
 
     // <editor-fold desc="States">
@@ -127,7 +128,7 @@ class RobotContainer {
         set(value) {
             state.push(nextBarge = value)
         }
-    private var nextCage: BargePosition
+    private var nextCage: CagePosition
         get() = state.nextCage
         set(value) {
             state.push(nextCage = value)
@@ -161,7 +162,7 @@ class RobotContainer {
     // Dashboard inputs
     private lateinit var autoChooser: LoggedDashboardChooser<Command>
     private var bargeChooser: LoggedDashboardChooser<BargePosition>
-    private var cageChooser: LoggedDashboardChooser<BargePosition>
+    private var cageChooser: LoggedDashboardChooser<CagePosition>
 
     private val driveTranslationalControlSupplier: Supplier<Translation2d> = Supplier<Translation2d> {
         var xControl: Double = -driveController.leftY
@@ -179,15 +180,20 @@ class RobotContainer {
     }
 
     private val superstructureCommands: SuperstructureCommands = SuperstructureCommands { state.push(nextState = it) }
+
+    companion object {
+        @JvmStatic
+        val field: Field2d = Field2d()
+    }
     // </editor-fold>
 
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
-        println("┌  [RobotContainer] Initializing...")
+        println("┌   [RobotContainer] Initializing...")
         val initializeTime: Double = Timer.getFPGATimestamp()
         driveQueue.name = ("Auto Queue")
         var stopTime: Double = Timer.getFPGATimestamp()
-        println("╞╦ [RobotContainer] Initializing subsystems at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
+        println("╞╦  [RobotContainer] Initializing subsystems at ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
         when (Constants.currentMode) {
             Constants.Mode.REAL -> {
                 // Real robot, instantiate hardware IO implementations
@@ -261,12 +267,12 @@ class RobotContainer {
                     ) { driveSimulation!!.simulatedDriveTrainPose }, VisionIOPhotonVisionSim(
                         Constants.VisionConstants.backLeftCameraName, robotToBackLeftCamera
                     ) { driveSimulation!!.simulatedDriveTrainPose })
-                clawIntake = ClawIntake(object : ClawIntakeIO {})
-                elevator = Elevator(object : ElevatorIO {})
-                climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
+                clawIntake = ClawIntake(ClawIntakeIOSim())
+                elevator = Elevator(ElevatorIOSim())
+                climber = Climber(WinchIOSim(), ClimberPivotIOSim())
 
                 arm = Arm(
-                    ArmIOTalonFXSim(
+                    ArmIOSim(
 
                     ), elevator.elevatorLigament
                 )
@@ -334,22 +340,23 @@ class RobotContainer {
         bargeChooser.addDefaultOption("None", BargePosition.NONE)
 
         cageChooser = LoggedDashboardChooser("Cage Position")
-        cageChooser.addOption("Left", BargePosition.LEFT)
-        cageChooser.addOption("Middle", BargePosition.MIDDLE)
-        cageChooser.addOption("Right", BargePosition.RIGHT)
-        cageChooser.addDefaultOption("None", BargePosition.NONE)
+        cageChooser.addOption("Left", CagePosition.LEFT)
+        cageChooser.addOption("Middle", CagePosition.MIDDLE)
+        cageChooser.addOption("Right", CagePosition.RIGHT)
+        cageChooser.addDefaultOption("None", CagePosition.NONE)
         println(
-            "├  [RobotContainer:${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms] Barge chooser initialized at ${
+            "├  [RobotContainer:${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms] Barge/Cage chooser initialized at ${
                 "%.3f".format(
                     (Timer.getFPGATimestamp() - stopTime) * 1000.0
                 )
             }ms"
         )
+        setUpDashboardCommands()
 
         println("└  [RobotContainer] Initialized in ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
     }
 
-    private fun posToCageCommand(pos: BargePosition): Command {
+    private fun posToCageCommand(pos: CagePosition): Command {
         return PathfindingFactories.pathfindToPosition(
             drive, Constants.PathfindingConstants.getOtherPosition(pos), driveTranslationalControlSupplier
         ).deadlineFor(
@@ -449,7 +456,9 @@ class RobotContainer {
             }).andThen(
                 defer({
                     PathfindingFactories.pathfindToPosition(
-                        drive, Constants.PathfindingConstants.getOtherPosition(nextCage), driveTranslationalControlSupplier
+                        drive,
+                        Constants.PathfindingConstants.getOtherPosition(nextCage),
+                        driveTranslationalControlSupplier
                     ).deadlineFor(
                         superstructureCommands.goToPosition(
                             elevator, arm, climber, Constants.SuperstructureConstants.SuperstructureState.ALGAE_INTAKE
@@ -458,9 +467,9 @@ class RobotContainer {
                 }, setOf(drive, elevator, arm, climber))
             ).finallyDo(Runnable { state.push(task = AutoTask.IDLE) })
         )
-        ioPrint("POV DOWN ")
+        ioPrint("POV_DOWN ")
         driveController.povUp().onTrue(justScore())
-        println("POV UP - done")
+        println("POV_UP - done")
         // </editor-fold>
 
 
@@ -510,40 +519,41 @@ class RobotContainer {
         ioPrint("│╠ Setting up HMI bindings... ")
         hmi.b().onTrue(runOnce({
             nextPosition = Constants.SuperstructureConstants.SuperstructureState.L2
-        }))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         hmi.y().onTrue(runOnce({
             nextPosition = Constants.SuperstructureConstants.SuperstructureState.L3
-        }))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         hmi.x().onTrue(runOnce({
             nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
-        }))
-        hmi.a().onTrue(runOnce({ keepGoing = true })).onFalse(runOnce({ keepGoing = false }))
-        ioPrint("levels ")
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
+        hmi.a().onTrue(runOnce({ keepGoing = true }).onlyIf(::hmiEnabled))
+            .onFalse(runOnce({ keepGoing = false }).onlyIf(::hmiEnabled))
+        ioPrint("levels, ")
 
         hmi.povUp().onTrue(runOnce({
             updateHmi()
-        }).ignoringDisable(true))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         hmi.povUpRight().onTrue(runOnce({
             updateHmi()
-        }).ignoringDisable(true))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         hmi.povDownRight().onTrue(runOnce({
             updateHmi()
-        }).ignoringDisable(true))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         hmi.povDown().onTrue(runOnce({
             updateHmi()
-        }).ignoringDisable(true))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         hmi.povDownLeft().onTrue(runOnce({
             updateHmi()
-        }).ignoringDisable(true))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         hmi.povUpLeft().onTrue(runOnce({
             updateHmi()
-        }).ignoringDisable(true))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         hmi.leftBumper().onTrue(runOnce({
             updateHmi()
-        }).ignoringDisable(true))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         hmi.rightBumper().onTrue(runOnce({
             updateHmi()
-        }).ignoringDisable(true))
+        }).ignoringDisable(true).onlyIf(::hmiEnabled))
         println("positions - done")
 
         //Trigger { drive.velocity > 2.0 && elevator.currentCommand == elevator.defaultCommand }.onTrue(
@@ -558,18 +568,20 @@ class RobotContainer {
     fun updateHmiAlgae() {
         // [0, 0.05]
         // between 0 and 6
-        val joystickValue = (hmi.getRawAxis(0) / 0.05 * 6).roundToInt()
-        if (joystickValue == 0) {
-            grabAlgaeToggle = false
-        } else {
-            grabAlgaeToggle = true
-            nextAlgaePosition = when (joystickValue) {
-                1 -> PathfindingFactories.Reef.AB_ALGAE
-                2 -> PathfindingFactories.Reef.CD_ALGAE
-                3 -> PathfindingFactories.Reef.EF_ALGAE
-                4 -> PathfindingFactories.Reef.GH_ALGAE
-                5 -> PathfindingFactories.Reef.IJ_ALGAE
-                else -> PathfindingFactories.Reef.KL_ALGAE
+        if (hmiEnabled) {
+            val joystickValue = (hmi.getRawAxis(0) / 0.05 * 6).roundToInt()
+            if (joystickValue == 0) {
+                grabAlgaeToggle = false
+            } else {
+                grabAlgaeToggle = true
+                nextAlgaePosition = when (joystickValue) {
+                    1 -> PathfindingFactories.Reef.AB_ALGAE
+                    2 -> PathfindingFactories.Reef.CD_ALGAE
+                    3 -> PathfindingFactories.Reef.EF_ALGAE
+                    4 -> PathfindingFactories.Reef.GH_ALGAE
+                    5 -> PathfindingFactories.Reef.IJ_ALGAE
+                    else -> PathfindingFactories.Reef.KL_ALGAE
+                }
             }
         }
         state.updateIO()
@@ -646,7 +658,7 @@ class RobotContainer {
                     PathfindingFactories.CoralStationSide.NONE -> throw NotImplementedError()
                 }
             } But End Halfway Through"
-        ).andThen({
+        ).withTimeout(5.0).andThen({
             updateReef(initialReef)
             nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
             nextStation = stationSide
@@ -749,293 +761,121 @@ class RobotContainer {
     }
 
     fun setUpDashboardCommands() {
-
-
-//        SmartDashboard.putData(
-//
-//            driveQueue.clearAllAsCommand().withName("Clear Auto Queue").alongWith(
-//                superstructureQueue.clearAllAsCommand().withName("Clear Superstructure Queue")
-//            ).withName("\nCLEAR ALL QUEUES\n")
-//        )
+        SmartDashboard.putData("Log Drive Time", Commands.runOnce({ drive.logCycleTime = true }).ignoringDisable(true))
         SmartDashboard.putData(
             elevator.homeElevator().deadlineFor(arm.moveArmToAngleWithoutEnding(90.0)).withName("Home Elevator")
         )
-//
-//
-//
-//        SmartDashboard.putData(algaeIntake.runIntake().withName("Run Intake"))
-//        SmartDashboard.putData(algaeIntake.retractIntake().withName("Retract Intake"))
-
-
-        // add individual reef goto commands to queue
-        //for (reef in PathfindingFactories.Reef.entries) {
-        //    SmartDashboard.putData(
-        //        driveQueue.addAsCommand({
-        //            PathfindingFactories.pathfindToSpecificReef(drive, reef)
-        //                .withName("Reef " + reef.name + " (Queued)")
-        //        }).withName("Queue Reef " + reef.name)
-        //    )
-        //}
-//        for (reef in PathfindingFactories.Reef.entries) {
-//            when (reef) {
-//                PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.CD_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.GH_ALGAE, PathfindingFactories.Reef.IJ_ALGAE, PathfindingFactories.Reef.KL_ALGAE -> {
-//                    SmartDashboard.putData(
-//                        driveQueue.addButDoNotStartAsCommand({
-//                            PathfindingFactories.pathfindToReef(
-//                                drive, reef, driveTranslationalControlSupplier
-//                            )
-//                        }).andThen(
-//                            superstructureQueue.addButDoNotStartAsCommand({
-//                                SuperstructureCommands.goToPosition(
-//                                    elevator, arm, climber, when (reef) {
-//                                        PathfindingFactories.Reef.AB_ALGAE, PathfindingFactories.Reef.EF_ALGAE, PathfindingFactories.Reef.IJ_ALGAE -> Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE
-//                                        else -> Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE
-//                                    }
-//                                )
-//                            }, {
-//                                clawIntake.intakeWithoutStoppingForAlgae()
-//                            }, {
-//                                SuperstructureCommands.goToPosition(
-//                                    elevator,
-//                                    arm,
-//                                    climber,
-//                                    Constants.SuperstructureConstants.SuperstructureState.BARGE_LAUNCH
-//                                )
-//                            })
-//                        ).withName("\nQueue Reef " + reef.name + "\n").ignoringDisable(true)
-//                    )
-//                }
-//
-//                else -> SmartDashboard.putData(driveQueue.addButDoNotStartAsCommand({
-//                    PathfindingFactories.pathfindToReef(
-//                        drive, reef, driveTranslationalControlSupplier
-//                    )
-//                }).withName("\nQueue Reef " + reef.name + "\n").ignoringDisable(true))
-//
-//
-//            }
-//
-//        }
-
-        //for (reef in PathfindingFactories.Reef.entries) {
-        //    SmartDashboard.putData(
-        //        driveQueue.addAsCommand({
-        //            PathfindingFactories.finalLineupToSpecificReef(drive, reef)
-        //                .withName("Final Lineup to Reef " + reef.name + " (Queued)")
-        //        }).withName("Queue Final Lineup to Reef " + reef.name)
-        //    )
-        //}
-//        for (coralStation in PathfindingFactories.CoralStationSide.entries) {
-//            SmartDashboard.putData(
-//                driveQueue.addAsCommand({
-//                    PathfindingFactories.pathfindToSpecificCoralStation(
-//                        drive, coralStation
-//                    ).withName("Drive to " + coralStation.name + " Coral Station (Queued)")
-//                }).withName("Queue Drive to " + coralStation.name + " Coral Station")
-//            )
-//            SmartDashboard.putData(
-//                driveQueue.addButDoNotStartAsCommand({
-//                    PathfindingFactories.pathfindToCoralStation(
-//                        drive, coralStation, driveTranslationalControlSupplier
-//                    ).withName("Drive to $coralStation Coral Station (Queued, alternate)")
-//                }).ignoringDisable(true).andThen(
-//                    superstructureQueue.addButDoNotStartAsCommand({
-//                        SuperstructureCommands.preCoralPickup(elevator, arm, climber)
-//                            .withName("Superstructure Pre-Coral Pickup (queued, auto-added)")
-//                    }).withName("Queue Superstructure Pre-Coral Pickup").ignoringDisable(true)
-//                ).andThen(
-//
-//                    superstructureQueue.addButDoNotStartAsCommand({
-//                        SuperstructureCommands.pickUpCoral(elevator, arm, clawIntake, climber)
-//                            .withName("Superstructure Coral Pickup (queued, auto-added)")
-//                    }).withName("Queue Superstructure Coral Pickup").ignoringDisable(true)
-//                ).withName("\n\n$coralStation Coral Station\n\n")
-//            )
-//        }
-
-
-//        for (position in Constants.SuperstructureConstants.SuperstructureState.entries) {
-//            val commands: Command = when (position) {
-//                Constants.SuperstructureConstants.SuperstructureState.L1, Constants.SuperstructureConstants.SuperstructureState.L2, Constants.SuperstructureConstants.SuperstructureState.L3, Constants.SuperstructureConstants.SuperstructureState.L4 -> superstructureQueue.addButDoNotStartAsCommand(
-//                    {
-//                        SuperstructureCommands.goToPosition(
-//                            elevator, arm, climber, position
-//                        ).withName("Superstructure to " + position.name + " Position (Queued)")
-//                    },
-//                    {
-//                        SuperstructureCommands.scoreAtPosition(
-//                            elevator, arm, clawIntake, drive, position
-//                        ).withName("Score in $position (queued, auto-added)")
-//                    })
-//
-//                Constants.SuperstructureConstants.SuperstructureState.LOWER_REEF_ALGAE, Constants.SuperstructureConstants.SuperstructureState.UPPER_REEF_ALGAE -> superstructureQueue.addButDoNotStartAsCommand(
-//                    {
-//                        SuperstructureCommands.goToPosition(elevator, arm, climber, position)
-//                            .withName("Superstructure to $position Position (Queued)")
-//                    },
-//                    {
-//                        clawIntake.intakeWithoutStoppingForAlgae()
-//                            .withName("Intake Algae (Queued, auto-added")
-//                    },
-//                    {
-//                        SuperstructureCommands.goToPosition(
-//                            elevator,
-//                            arm,
-//                            climber,
-//                            Constants.SuperstructureConstants.SuperstructureState.BARGE_LAUNCH
-//                        ).withName("Superstructure to Barge Launch Position (Queued, auto-added)")
-//                    })
-//
-//                else -> superstructureQueue.addButDoNotStartAsCommand({
-//                    SuperstructureCommands.goToPosition(
-//                        elevator, arm, climber, position
-//                    ).withName("Superstructure to " + position.name + " Position (Queued)")
-//                })
-//            }
-//            SmartDashboard.putData(
-//                commands.withName("Queue Superstructure $position Position").ignoringDisable(true)
-//            )
-//        }
-//        SmartDashboard.putData(
-//            superstructureQueue.addButDoNotStartAsCommand(
-//                {
-//                    SuperstructureCommands.pickUpCoral(
-//                        elevator, arm, clawIntake, climber
-//                    ).withName("Pick up coral (queued)")
-//                }).withName("Queue pick up coral").ignoringDisable(true)
-//        )
-//        SmartDashboard.putData(
-//            superstructureQueue.addButDoNotStartAsCommand(
-//                {
-//                    SuperstructureCommands.score(
-//                        elevator, arm, clawIntake
-//                    ).withName("Score (queued)")
-//                }).withName("Queue score").ignoringDisable(true)
-//        )
-
-//        SmartDashboard.putData(
-//            driveQueue.addButDoNotStartAsCommand(
-//                {
-//                    PathfindingFactories.pathfindToPosition(
-//                        drive, Pose2d(
-//                            8.23, 4.84, Rotation2d(Units.Degrees.of(173.55))
-//                        ).let {
-//                            if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-//                                    .get() == DriverStation.Alliance.Red
-//                            ) FlippingUtil.flipFieldPose(it) else it
-//                        }, driveTranslationalControlSupplier
-//                    )
-//                }).withName("Pathfind to Home Cage")
-//        )
-
-//        SmartDashboard.putData(
-//            driveQueue.addButDoNotStartAsCommand(
-//                {
-//                    PathfindingFactories.pathfindToPosition(
-//                        drive, Pose2d(
-//                            6.92, 6.12, Rotation2d(Units.Degrees.of(0.0))
-//                        ).let {
-//                            if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-//                                    .get() == DriverStation.Alliance.Red
-//                            ) FlippingUtil.flipFieldPose(it) else it
-//                        }, driveTranslationalControlSupplier
-//                    )
-//                }).withName("Pathfind to Barge for Algae")
-//        )
-//        if (Constants.currentMode == Constants.Mode.SIM) SmartDashboard.putData(
-//            runOnce(
-//                { driveQueue.start() }).withName("Execute (sim-exclusive)")
-//        )
-
         SmartDashboard.putData(CommandScheduler.getInstance())
-//        SmartDashboard.putData("Auto Queue", driveQueue)
-//        SmartDashboard.putData("Other Command Queue", superstructureQueue)
-//        for (reef in PathfindingFactories.Reef.entries) {
-//            SmartDashboard.putData(
-//                runOnce({ nextReef = reef }).withName("Select Reef $reef")
-//            )
-//        }
-//        for (station in PathfindingFactories.CoralStationSide.entries) {
-//            SmartDashboard.putData(
-//                runOnce({ nextStation = station }).withName("Select Coral Station $station")
-//            )
-//        }
-//        for (pos in setOf(
-//            Constants.SuperstructureConstants.SuperstructureState.L2,
-//            Constants.SuperstructureConstants.SuperstructureState.L3,
-//            Constants.SuperstructureConstants.SuperstructureState.L4
-//        )) {
-//            SmartDashboard.putData(
-//                runOnce({ nextPosition = pos }).withName("Select Position $pos")
-//            )
-//        }
-
-//        SmartDashboard.putData(
-//            drive.followRepulsorField(Pose2d(15.7, 4.0, Rotation2d(Units.Degrees.of(180.0))))
-//                .alongWith(
-//                    SuperstructureCommands.algaeIntakeWithoutArm(elevator, arm, climber)
-//                ).andThen(
-//                    clawIntake.outtake().alongWith(
-//                        Commands.run(
-//                            { drive.stopWithX() }, drive
-//                        )
-//                    ).withDeadline(Commands.waitSeconds(5.0))
-//                ).withName("Reset (RED ONLY)")
-//        )
 
         SmartDashboard.putData(
-            "Pathfind to Right Cage", PathfindingFactories.pathfindToPosition(
-                drive,
-                if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-                        .get() == DriverStation.Alliance.Red
-                ) {
-                    FlippingUtil.flipFieldPose(
-                        Pose2d(
-                            8.164, 4.953, Rotation2d(Units.Degrees.of(173.457))
-                        )
-                    )
-                } else {
-                    Pose2d(8.164, 4.953, Rotation2d(Units.Degrees.of(173.457)))
-                },
-                driveTranslationalControlSupplier
-            ).alongWith(runOnce({ state.push(task = AutoTask.TO_CAGE) })).finallyDo(Runnable { state.push(task = AutoTask.IDLE) })
+            runOnce({
+                enableEmergencyDashboard = true
+                Elastic.selectTab("Emergency Dashboard")
+            }).ignoringDisable(true).withName("Enable Emergency Dashboard")
+        )
+    }
+
+    fun emergencyDashboardSetup() {
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.A }).withName("\nSelect Reef A\n")
+        )
+        // repeat for other reefs
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.B }).withName("\nSelect Reef B\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.C }).withName("\nSelect Reef C\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.D }).withName("\nSelect Reef D\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.E }).withName("\nSelect Reef E\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.F }).withName("\nSelect Reef F\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.G }).withName("\nSelect Reef G\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.H }).withName("\nSelect Reef H\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.I }).withName("\nSelect Reef I\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.J }).withName("\nSelect Reef J\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.K }).withName("\nSelect Reef K\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ nextReef = PathfindingFactories.Reef.L }).withName("\nSelect Reef L\n")
+        )
+
+        // algae as well
+        SmartDashboard.putData(
+            runOnce({
+                nextAlgaePosition = PathfindingFactories.Reef.AB_ALGAE; grabAlgaeToggle = true
+            }).withName("\nSelect Algae AB\n")
+        )
+        SmartDashboard.putData(
+            runOnce({
+                nextAlgaePosition = PathfindingFactories.Reef.CD_ALGAE; grabAlgaeToggle = true
+            }).withName("\nSelect Algae CD\n")
+        )
+        SmartDashboard.putData(
+            runOnce({
+                nextAlgaePosition = PathfindingFactories.Reef.EF_ALGAE; grabAlgaeToggle = true
+            }).withName("\nSelect Algae EF\n")
+        )
+        SmartDashboard.putData(
+            runOnce({
+                nextAlgaePosition = PathfindingFactories.Reef.GH_ALGAE; grabAlgaeToggle = true
+            }).withName("\nSelect Algae GH\n")
+        )
+        SmartDashboard.putData(
+            runOnce({
+                nextAlgaePosition = PathfindingFactories.Reef.IJ_ALGAE; grabAlgaeToggle = true
+            }).withName("\nSelect Algae IJ\n")
+        )
+        SmartDashboard.putData(
+            runOnce({
+                nextAlgaePosition = PathfindingFactories.Reef.KL_ALGAE; grabAlgaeToggle = true
+            }).withName("\nSelect Algae KL\n")
+        )
+        SmartDashboard.putData(
+            runOnce({ grabAlgaeToggle = false }).withName("\nDisable Algae\n")
+        )
+
+        // finally, positions
+        SmartDashboard.putData(
+            runOnce({
+                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L1
+            }).withName("\nSelect Position L1\n")
+        )
+        SmartDashboard.putData(
+            runOnce({
+                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L2
+            }).withName("\nSelect Position L2\n")
+        )
+        SmartDashboard.putData(
+            runOnce({
+                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L3
+            }).withName("\nSelect Position L3\n")
+        )
+        SmartDashboard.putData(
+            runOnce({
+                nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4
+            }).withName("\nSelect Position L4\n")
         )
 
         SmartDashboard.putData(
-            "Pathfind to Middle Cage", PathfindingFactories.pathfindToPosition(
-                drive,
-                if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-                        .get() == DriverStation.Alliance.Red
-                ) {
-                    FlippingUtil.flipFieldPose(
-                        Pose2d(
-                            8.164, 6.1, Rotation2d(Units.Degrees.of(173.457))
-                        )
-                    )
-                } else {
-                    Pose2d(8.164, 6.1, Rotation2d(Units.Degrees.of(173.457)))
-                },
-                driveTranslationalControlSupplier
-            ).alongWith(runOnce({ state.push(task = AutoTask.TO_CAGE) })).finallyDo(Runnable { state.push(task = AutoTask.IDLE) })
+            Commands.run({ keepGoing = true }).finallyDo(Runnable { keepGoing = false })
+                .withName("\nKeep Going\n")
         )
 
-        SmartDashboard.putData(
-            "Pathfind to Left Cage", PathfindingFactories.pathfindToPosition(
-                drive,
-                if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-                        .get() == DriverStation.Alliance.Red
-                ) {
-                    FlippingUtil.flipFieldPose(
-                        Pose2d(
-                            8.164, 7.21, Rotation2d(Units.Degrees.of(173.457))
-                        )
-                    )
-                } else {
-                    Pose2d(8.164, 7.21, Rotation2d(Units.Degrees.of(173.457)))
-                },
-                driveTranslationalControlSupplier
-            ).alongWith(runOnce({ state.push(task = AutoTask.TO_CAGE) })).finallyDo(Runnable { state.push(task = AutoTask.IDLE) })
-        )
     }
 
 
@@ -1148,8 +988,7 @@ class RobotContainer {
         return sequence(
             goToCoralStation(),
             // wait until the driver signals a coral on the intake (we have no way of detecting this)
-            lockWheelsAndWaitForInput(),
-            runOnce({ state.push(task = AutoTask.TO_REEF) }),
+            lockWheelsAndWaitForInput(), runOnce({ state.push(task = AutoTask.TO_REEF) }),
             // pathfind to reef; requires drive, elevator, arm, intake, climber
             parallel(
                 // this command sequence concerns the drivebase + pathfinding
@@ -1256,7 +1095,7 @@ class RobotContainer {
                     )
                 ), ::keepGoing
             )
-        ).finallyDo(Runnable { state.push(task = AutoTask.IDLE)}).withName("Full Coral Cycle")
+        ).finallyDo(Runnable { state.push(task = AutoTask.IDLE) }).withName("Full Coral Cycle")
 
     }
 
@@ -1344,8 +1183,7 @@ class RobotContainer {
             goToCoralStation(),
 
             // wait for some arbitrary amount of time defined elsewhere
-            lockWheelsAndWaitTime(),
-            runOnce({ state.push(task = AutoTask.TO_REEF) }),
+            lockWheelsAndWaitTime(), runOnce({ state.push(task = AutoTask.TO_REEF) }),
 
             // pathfind to reef; requires drive, elevator, arm, intake, climber
             parallel(
@@ -1365,9 +1203,8 @@ class RobotContainer {
 
                 // wait until the claw has the coral secured and set that state
                 waitUntil { clawIntake.grabbed }.andThen({
-                    coralStatus = CoralStatus.IN_CLAW; drive.setPathfindingSpeedPercent(
-                    Constants.PathfindingConstants.toReefSpeed
-                )
+                    coralStatus = CoralStatus.IN_CLAW
+                    drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed)
                 }),
 
                 // superstructure stuff
@@ -1418,7 +1255,8 @@ class RobotContainer {
                 Runnable { coralStatus = CoralStatus.NONE })
                 // only do this deferred command + compositions
                 // if we actually have the coral
-                .onlyIf { coralStatus == CoralStatus.IN_CLAW }).finallyDo(Runnable { state.push(task = AutoTask.IDLE) }).withName("[AUTO] Full Coral Cycle")
+                .onlyIf { coralStatus == CoralStatus.IN_CLAW }).finallyDo(Runnable { state.push(task = AutoTask.IDLE) })
+            .withName("[AUTO] Full Coral Cycle")
     }
 
     private fun algaeCycle(): Command {
@@ -1551,8 +1389,7 @@ class RobotContainer {
             drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed); state.push(
             task = AutoTask.IDLE
         )
-        })
-            .withName("Put Algae in Barge")
+        }).withName("Put Algae in Barge")
     }
 
     private fun spitOutAlgae(): Command {
@@ -1594,19 +1431,21 @@ class RobotContainer {
         .withName("Lock Wheels")
 
 
-    private fun lockWheelsAndWaitTime(): Command = run({ drive.stopWithX() }, drive).withDeadline(
-        waitSeconds(Constants.PathfindingConstants.benCompensation).andThen({ coralStatus = CoralStatus.ON_INTAKE })
-            .alongWith(runOnce({ state.push(task = AutoTask.WAITING) }))
-            .finallyDo(Runnable { state.push(task = AutoTask.IDLE) })
-            .withName("Lock Wheels")
+    private fun lockWheelsAndWaitTime(): Command = run(
+        { drive.stopWithX() },
+        drive
+    ).withDeadline(
+        waitSeconds(Constants.PathfindingConstants.benCompensation).andThen({
+            coralStatus = CoralStatus.ON_INTAKE
+        }).alongWith(runOnce({ state.push(task = AutoTask.WAITING) }))
+            .finallyDo(Runnable { state.push(task = AutoTask.IDLE) }).withName("Lock Wheels")
     )
 
     private fun finalReefLineup(): Command = defer({
         PathfindingFactories.pathfindToReef(
             drive, { nextReef }, driveTranslationalControlSupplier
         )
-    }, setOf(drive))
-        .withName("Pathfind to Reef")
+    }, setOf(drive)).withName("Pathfind to Reef")
 
     private fun pathfindToReef(): Command = defer({
         PathfindingFactories.pathfindToReefButBackALittle(
@@ -1625,13 +1464,10 @@ class RobotContainer {
             ).deadlineFor(
                 superstructureCommands.preCoralPickup(elevator, arm, climber)
             )
-        )
-            .finallyDo(Runnable {
-                arm.setGoalToCurrent(); drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed); state.push(
-                task = AutoTask.IDLE
-            )
-            })
-            .onlyIf { coralStatus == CoralStatus.NONE }.withName("Pathfind to Coral Station")
+        ).finallyDo(Runnable {
+            arm.setGoalToCurrent(); drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed)
+            state.push(task = AutoTask.IDLE)
+        }).onlyIf { coralStatus == CoralStatus.NONE }.withName("Pathfind to Coral Station")
 
     private fun updateReef(reef: PathfindingFactories.Reef) {
         nextReef = reef

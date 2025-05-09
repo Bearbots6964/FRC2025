@@ -10,7 +10,6 @@ public interface ClimberPivotIO {
     public double pivotAppliedCurrentAmps = 0.0;
     public double pivotVelocityDegreesPerSecond = 0.0;
     public double pivotPositionDegrees = 0.0;
-    public double pivotPositionNominalRotations = 0.0;
     public double targetPosition = 0.0;
 
     public boolean atTarget = false;

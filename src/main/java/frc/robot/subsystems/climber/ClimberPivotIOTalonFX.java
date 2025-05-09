@@ -68,7 +68,6 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
             pivotMotorPosition, pivotMotorVelocity, pivotMotorCurrent, pivotMotorVoltage);
     inputs.pivotConnected = pivotMotorConnectedDebouncer.calculate(pivotStatus.isOK());
     inputs.pivotPositionDegrees = pivotMotorPosition.getValue().in(Units.Degrees);
-    inputs.pivotPositionNominalRotations = pivotMotorPosition.getValue().in(Units.Rotations) / 100.0;
     inputs.pivotVelocityDegreesPerSecond = pivotMotorVelocity.getValue().in(Units.DegreesPerSecond);
     inputs.pivotAppliedVolts = pivotMotorVoltage.getValue().in(Units.Volts);
     inputs.pivotAppliedCurrentAmps = pivotMotorCurrent.getValue().in(Units.Amps);

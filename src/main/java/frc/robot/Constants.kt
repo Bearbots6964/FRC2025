@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import frc.robot.util.Polygon
 import frc.robot.util.BargePosition
+import frc.robot.util.CagePosition
+import frc.robot.util.ShortString
 
 /*
  * The Constants file provides a convenient place for teams to hold robot-wide
@@ -252,61 +254,50 @@ object Constants {
         /**
          * Enum representing the various positions the superstructure can be in.
          */
-        enum class SuperstructureState {
+        enum class SuperstructureState : ShortString {
             HOME {
-                override fun toString(): String {
-                    return "Home"
-                }
+                override fun toString(): String = "Home"
+                override fun toShortString(): String = "@_"
             },
             L1 {
-                override fun toString(): String {
-                    return "Level 1"
-                }
+                override fun toString(): String = "Level 1"
+                override fun toShortString(): String = "@L1"
             },
             L2 {
-                override fun toString(): String {
-                    return "Level 2"
-                }
+                override fun toString(): String = "Level 2"
+                override fun toShortString(): String = "@L2"
             },
             L3 {
-                override fun toString(): String {
-                    return "Level 3"
-                }
+                override fun toString(): String = "Level 3"
+                override fun toShortString(): String = "@L3"
             },
             L4 {
-                override fun toString(): String {
-                    return "Level 4"
-                }
+                override fun toString(): String = "Level 4"
+                override fun toShortString(): String = "@L4"
             },
             PRE_CORAL_PICKUP {
-                override fun toString(): String {
-                    return "Pre Coral Pickup"
-                }
+                override fun toString(): String = "Pre Coral Pickup"
+                override fun toShortString(): String = "@PCP"
             },
             CORAL_PICKUP {
-                override fun toString(): String {
-                    return "Coral Pickup"
-                }
+                override fun toString(): String = "Coral Pickup"
+                override fun toShortString(): String = "@CP"
             },
             BARGE_LAUNCH {
-                override fun toString(): String {
-                    return "Barge Algae Launch"
-                }
+                override fun toString(): String = "Barge Algae Launch"
+                override fun toShortString(): String = "@AL"
             },
             ALGAE_INTAKE {
-                override fun toString(): String {
-                    return "Front Algae Intake"
-                }
+                override fun toString(): String = "Front Algae Intake"
+                override fun toShortString(): String = "@AI"
             },
             UPPER_REEF_ALGAE {
-                override fun toString(): String {
-                    return "Upper Reef Algae"
-                }
+                override fun toString(): String = "Upper Reef Algae"
+                override fun toShortString(): String = "@UA"
             },
             LOWER_REEF_ALGAE {
-                override fun toString(): String {
-                    return "Lower Reef Algae"
-                }
+                override fun toString(): String = "Lower Reef Algae"
+                override fun toShortString(): String = "@LA"
             }
         }
     }
@@ -487,8 +478,8 @@ object Constants {
             ) FlippingUtil.flipFieldPose(it) else it
         }
 
-        fun getOtherPosition(pos: BargePosition): Pose2d = when (pos) {
-            BargePosition.RIGHT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+        fun getOtherPosition(pos: CagePosition): Pose2d = when (pos) {
+            CagePosition.RIGHT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                         .get() == DriverStation.Alliance.Red
                 ) {
                     FlippingUtil.flipFieldPose(
@@ -500,7 +491,7 @@ object Constants {
                     Pose2d(8.164, 4.953, Rotation2d(Units.Degrees.of(173.457)))
                 }
 
-            BargePosition.LEFT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+            CagePosition.LEFT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                         .get() == DriverStation.Alliance.Red
                 ) {
                     FlippingUtil.flipFieldPose(
@@ -511,7 +502,7 @@ object Constants {
                 } else {
                     Pose2d(8.164, 7.21, Rotation2d(Units.Degrees.of(173.457)))
                 }
-            BargePosition.MIDDLE -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+            CagePosition.MIDDLE -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                         .get() == DriverStation.Alliance.Red
                 ) {
                     FlippingUtil.flipFieldPose(
@@ -522,7 +513,7 @@ object Constants {
                 } else {
                     Pose2d(8.164, 6.1, Rotation2d(Units.Degrees.of(173.457)))
                 }
-            BargePosition.NONE -> Pose2d()
+            CagePosition.NONE -> Pose2d()
         }
     }
 
@@ -638,49 +629,31 @@ object Constants {
      */
     enum class Zone {
         LOWER_CORAL_STATION {
-            override fun toString(): String {
-                return "Lower Coral Station"
-            }
+            override fun toString(): String = "Lower Coral Station"
         },
         UPPER_CORAL_STATION {
-            override fun toString(): String {
-                return "Upper Coral Station"
-            }
+            override fun toString(): String = "Upper Coral Station"
         },
         REEF_AB {
-            override fun toString(): String {
-                return "Reef AB"
-            }
+            override fun toString(): String = "Reef AB"
         },
         REEF_CD {
-            override fun toString(): String {
-                return "Reef CD"
-            }
+            override fun toString(): String = "Reef CD"
         },
         REEF_EF {
-            override fun toString(): String {
-                return "Reef EF"
-            }
+            override fun toString(): String = "Reef EF"
         },
         REEF_GH {
-            override fun toString(): String {
-                return "Reef GH"
-            }
+            override fun toString(): String = "Reef GH"
         },
         REEF_IJ {
-            override fun toString(): String {
-                return "Reef IJ"
-            }
+            override fun toString(): String = "Reef IJ"
         },
         REEF_KL {
-            override fun toString(): String {
-                return "Reef KL"
-            }
+            override fun toString(): String = "Reef KL"
         },
         NONE {
-            override fun toString(): String {
-                return "None"
-            }
+            override fun toString(): String = "None"
         }
     }
 
@@ -814,9 +787,7 @@ object Constants {
 
         }
 
-        fun inReef(point: Translation2d): Boolean {
-            return reef.contains(point)
-        }
+        fun inReef(point: Translation2d): Boolean = reef.contains(point)
 
 
     }
