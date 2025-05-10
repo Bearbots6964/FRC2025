@@ -63,11 +63,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     System.out.print("│║╠ Adding to configurations... ");
     rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 108.75;
+    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 111.2;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.5;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 108.75;
+    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 111.2;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.5;
     System.out.println("done.");
 

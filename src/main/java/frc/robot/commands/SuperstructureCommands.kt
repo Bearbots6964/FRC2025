@@ -205,16 +205,16 @@ class SuperstructureCommands(val stateConsumer: Consumer<SuperstructureState>) {
     ): Command {
         return when (s) {
             SuperstructureState.L1 -> Commands.runOnce({ Robot.reportError("Cannot score at L1") })
-            SuperstructureState.L2 -> e.goToPositionDelta(-5.0).alongWith(
-                a.moveArmAngleDelta(26.0)
+            SuperstructureState.L2 -> e.goToPositionDelta(-41.98).alongWith(
+                a.moveArmAngleDelta(49.5)
             ).alongWith(
                 f.outtakeFaster()
             ).withDeadline(
                 Commands.waitSeconds(0.5).andThen(d.backUpFaster())
             ).withName("Score L2")
 
-            SuperstructureState.L3 -> e.goToPositionDelta(-5.0).alongWith(
-                a.moveArmAngleDelta(28.0)
+            SuperstructureState.L3 -> e.goToPositionDelta(-37.2).alongWith(
+                a.moveArmAngleDelta(47.5)
             ).alongWith(
                 f.outtakeFaster()
             ).withDeadline(

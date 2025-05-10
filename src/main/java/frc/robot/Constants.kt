@@ -98,15 +98,15 @@ object Constants {
             object ElevatorState {
                 const val HOME = 45.3891363535
                 const val L1 = 5.0
-                const val L2 = 39.4 - 0.5 * rotationsPerInch
-                const val L3 = 104.2 + rotationsPerInch
-                const val L4 = 68.475 + (3 * rotationsPerInch) // TODO: Find actual value
+                const val L2 = 43.25
+                const val L3 = 101.8
+                const val L4 = 72.8 // TODO: Find actual value
                 const val PRE_CORAL_PICKUP = 0.0
                 const val CORAL_PICKUP = 44.6 - (0.5 * rotationsPerInch)
-                const val BARGE_LAUNCH = 108.75
+                const val BARGE_LAUNCH = 111.2
                 const val ALGAE_INTAKE = 0.0
                 const val UPPER_REEF_ALGAE = 0.0
-                const val LOWER_REEF_ALGAE = 3.0 * rotationsPerInch
+                const val LOWER_REEF_ALGAE = 0.0
             }
 
             /**
@@ -128,15 +128,15 @@ object Constants {
             object ArmState {
                 const val HOME = 215.5
                 const val L1 = 155.0
-                const val L2 = -62.93
-                const val L3 = -67.85
-                const val L4 = 53.81
+                const val L2 = -72.0
+                const val L3 = -68.0
+                const val L4 = 55.0
                 const val PRE_CORAL_PICKUP = 100.0
                 const val CORAL_PICKUP = 218.125
                 const val BARGE_LAUNCH = 77.0
                 const val ALGAE_INTAKE = -64.77
-                const val UPPER_REEF_ALGAE = 34.5
-                const val LOWER_REEF_ALGAE = -10.0
+                const val UPPER_REEF_ALGAE = 25.0
+                const val LOWER_REEF_ALGAE = -6.8
             }
 
 
@@ -454,17 +454,17 @@ object Constants {
 
         @JvmStatic
         val leftBargePosition: Pose2d = Pose2d(
-            7.75, 7.1, Rotation2d()
+            7.65, 7.1, Rotation2d()
         )
 
         @JvmStatic
         val middleBargePosition: Pose2d = Pose2d(
-            7.75, 5.95, Rotation2d()
+            7.65, 5.95, Rotation2d()
         )
 
         @JvmStatic
         val rightBargePosition: Pose2d = Pose2d(
-            7.75, 4.65, Rotation2d()
+            7.65, 4.65, Rotation2d()
         )
 
         fun getPosition(pos: BargePosition): Pose2d = when (pos) {
@@ -484,11 +484,11 @@ object Constants {
                 ) {
                     FlippingUtil.flipFieldPose(
                         Pose2d(
-                            8.164, 4.953, Rotation2d(Units.Degrees.of(173.457))
+                            8.2, 4.77, Rotation2d(Units.Degrees.of(0.0))
                         )
                     )
                 } else {
-                    Pose2d(8.164, 4.953, Rotation2d(Units.Degrees.of(173.457)))
+                    Pose2d(8.2, 4.77, Rotation2d(Units.Degrees.of(0.0)))
                 }
 
             CagePosition.LEFT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
@@ -496,22 +496,22 @@ object Constants {
                 ) {
                     FlippingUtil.flipFieldPose(
                         Pose2d(
-                            8.164, 7.21, Rotation2d(Units.Degrees.of(173.457))
+                            8.2, 7.05, Rotation2d(Units.Degrees.of(0.0))
                         )
                     )
                 } else {
-                    Pose2d(8.164, 7.21, Rotation2d(Units.Degrees.of(173.457)))
+                    Pose2d(8.2, 7.05, Rotation2d(Units.Degrees.of(0.0)))
                 }
             CagePosition.MIDDLE -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                         .get() == DriverStation.Alliance.Red
                 ) {
                     FlippingUtil.flipFieldPose(
                         Pose2d(
-                            8.164, 6.1, Rotation2d(Units.Degrees.of(173.457))
+                            8.2, 6.04, Rotation2d(Units.Degrees.of(0.0))
                         )
                     )
                 } else {
-                    Pose2d(8.164, 6.1, Rotation2d(Units.Degrees.of(173.457)))
+                    Pose2d(8.2, 6.04, Rotation2d(Units.Degrees.of(0.0)))
                 }
             CagePosition.NONE -> Pose2d()
         }
@@ -534,7 +534,7 @@ object Constants {
          * Position of the pivot motor when the cage can catch the climber.
          */
         @JvmStatic
-        val pivotCageCatchPosition = 40.0
+        val pivotCageCatchPosition = 45.7
 
         /**
          * Position of the pivot motor when fully retracted and climbed.
