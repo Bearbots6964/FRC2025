@@ -128,8 +128,8 @@ object Constants {
             object ArmState {
                 const val HOME = 215.5
                 const val L1 = 155.0
-                const val L2 = -72.0
-                const val L3 = -68.0
+                const val L2 = -62.93
+                const val L3 = -67.85
                 const val L4 = 55.0
                 const val PRE_CORAL_PICKUP = 100.0
                 const val CORAL_PICKUP = 218.125
