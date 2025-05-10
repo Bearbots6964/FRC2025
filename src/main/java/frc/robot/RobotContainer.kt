@@ -1027,7 +1027,8 @@ class RobotContainer {
         return sequence(
             goToCoralStation(),
             // wait until the driver signals a coral on the intake (we have no way of detecting this)
-            lockWheelsAndWaitForInput(), runOnce({ state.push(task = AutoTask.TO_REEF) }),
+            lockWheelsAndWaitForInput(),
+            runOnce({ state.push(task = AutoTask.TO_REEF) }),
             // pathfind to reef; requires drive, elevator, arm, intake, climber
             parallel(
                 // this command sequence concerns the drivebase + pathfinding
@@ -1040,7 +1041,7 @@ class RobotContainer {
 
 
                     // actually go to the reef
-                    pathfindToReef().alongWith(
+                    pathfindToReef().deadlineFor(
                         // wait until the claw has the coral secured;
                         // if we move too fast,
                         // we risk throwing it off the intake,

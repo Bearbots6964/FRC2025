@@ -63,7 +63,7 @@ object PathfindingFactories {
             .andThen(drive.followRepulsorField({
                 getSpecificReefSidePose(reef.invoke()).let {
                     translateCoordinates(
-                        it, it.rotation.degrees, -Units.inchesToMeters(18.0)
+                        it, it.rotation.degrees, -Units.inchesToMeters(21.0)
                     )
                 }
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
@@ -124,7 +124,7 @@ object PathfindingFactories {
             -PathfindingConstants.finalDistanceFromCoralStationMeters
         ).let {
             translateCoordinates(
-                it, it.rotation.degrees + 90, Units.inchesToMeters(17.0)
+                it, it.rotation.degrees + 90, Units.inchesToMeters(17.0 * multip)
             )
         }
     }
