@@ -26,7 +26,7 @@ class LoggedProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
 
     private fun process(classDeclaration: KSClassDeclaration) {
         if (!classDeclaration.modifiers.contains(Modifier.OPEN))
-            throw Exception(
+            throw IllegalStateException(
                 """[Logged] Please ensure the class you are annotating (${classDeclaration.simpleName.asString()}) has the open modifier!"""
             )
 
