@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.529559327860578,
-        "y": 4.851679324410385
+        "x": 5.62728515625,
+        "y": 5.56203125
       },
       "isLocked": false,
       "linkedName": "Middle Barge"
@@ -20,8 +20,8 @@
         "y": 5.228737329210319
       },
       "prevControl": {
-        "x": 5.2545230686988225,
-        "y": 5.423143039295298
+        "x": 5.2458837890625,
+        "y": 5.7312646484375
       },
       "nextControl": null,
       "isLocked": false,

@@ -1342,28 +1342,26 @@ class RobotContainer {
                     runOnce({ drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.algaeGrabSpeed) }),
 
                     // pathfind forward so we can actually pick the algae up
-                    PathfindingFactories.pathfindToReefButBackALittleLess(
-                        drive, { nextAlgaePosition }, driveTranslationalControlSupplier
-                    ).deadlineFor(
-                        // pin this onto the end
-                        // maybe it'll save us a little time?
-                        clawIntake.intakeWithoutStoppingForAlgae()
-                    ),
-
-                    // lock the wheels
-                    run(
-                        { drive.stopWithX() }, drive
-                    ).withDeadline(
-                        // spin the intake
-                        clawIntake.intakeWithoutStoppingForAlgae().withDeadline(
-                            // wait until the motor stalls
-                            // (surefire way to tell if we have an algae) and then wait an extra half-second
-                            // FIXME: check if this value can go lower
-                            // update 8/5/25: turned down by half
-                            waitUntil(clawIntake::grabbed).andThen(waitSeconds(0.25))
-                            // set algae state
-                        ).andThen({ algaeStatus = AlgaeStatus.IN_CLAW })
-                    ),
+                    sequence(
+                        PathfindingFactories.pathfindToReefButBackALittleLess(
+                            drive, { nextAlgaePosition }, driveTranslationalControlSupplier
+                        ),
+                        run(
+                            { drive.stopWithX() }, drive
+                        )
+                    )
+                        // lock the wheels
+                        .withDeadline(
+                            // spin the intake
+                            clawIntake.intakeWithoutStoppingForAlgae().withDeadline(
+                                // wait until the motor stalls
+                                // (surefire way to tell if we have an algae) and then wait an extra half-second
+                                // FIXME: check if this value can go lower
+                                // update 8/5/25: turned down by half
+                                waitUntil(clawIntake::grabbed).andThen(waitSeconds(0.25))
+                                // set algae state
+                            ).andThen({ algaeStatus = AlgaeStatus.IN_CLAW })
+                        ),
                     // back up
                     drive.backUp()
                 ).onlyIf { algaeStatus == AlgaeStatus.NONE }, // only do this if we don't have algae
