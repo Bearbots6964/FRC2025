@@ -1497,7 +1497,7 @@ class RobotContainer {
                     )
                 }, setOf(drive)
             ).deadlineFor(
-                superstructureCommands.preCoralPickup(elevator, arm, climber)
+                superstructureCommands.preCoralPickupWithoutSafety(elevator, arm)
                     .alongWith(climber.moveClimberToIntakePosition())
             )
         ).finallyDo(Runnable {
