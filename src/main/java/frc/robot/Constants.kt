@@ -484,11 +484,11 @@ object Constants {
                 ) {
                     FlippingUtil.flipFieldPose(
                         Pose2d(
-                            8.2, 4.77, Rotation2d(Units.Degrees.of(0.0))
+                            8.2, 4.77, Rotation2d(Units.Degrees.of(180.0))
                         )
                     )
                 } else {
-                    Pose2d(8.2, 4.77, Rotation2d(Units.Degrees.of(0.0)))
+                    Pose2d(8.2, 4.77, Rotation2d(Units.Degrees.of(180.0)))
                 }
 
             CagePosition.LEFT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
@@ -496,22 +496,22 @@ object Constants {
                 ) {
                     FlippingUtil.flipFieldPose(
                         Pose2d(
-                            8.2, 7.05, Rotation2d(Units.Degrees.of(0.0))
+                            8.2, 7.05, Rotation2d(Units.Degrees.of(180.0))
                         )
                     )
                 } else {
-                    Pose2d(8.2, 7.05, Rotation2d(Units.Degrees.of(0.0)))
+                    Pose2d(8.2, 7.05, Rotation2d(Units.Degrees.of(180.0)))
                 }
             CagePosition.MIDDLE -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
                         .get() == DriverStation.Alliance.Red
                 ) {
                     FlippingUtil.flipFieldPose(
                         Pose2d(
-                            8.2, 6.04, Rotation2d(Units.Degrees.of(0.0))
+                            8.2, 6.04, Rotation2d(Units.Degrees.of(180.0))
                         )
                     )
                 } else {
-                    Pose2d(8.2, 6.04, Rotation2d(Units.Degrees.of(0.0)))
+                    Pose2d(8.2, 6.04, Rotation2d(Units.Degrees.of(180.0)))
                 }
             CagePosition.NONE -> Pose2d()
         }
