@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.0490478515625,
-        "y": 6.044287109375
+        "x": 7.019870980310891,
+        "y": 6.063505820216094
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.058581583973194,
-        "y": 6.044287109375
+        "x": 6.029404712721584,
+        "y": 6.063505820216094
       },
       "isLocked": false,
       "linkedName": "Middle Barge"
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 2.2,
+    "maxAcceleration": 2.2,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 240.0,
     "nominalVoltage": 12.0,

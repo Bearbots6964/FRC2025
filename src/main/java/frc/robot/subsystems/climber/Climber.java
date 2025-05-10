@@ -30,7 +30,7 @@ public class Climber extends SubsystemBase {
   private final ClimberPivotIO pivotIO;
   private final ClimberPivotIOInputsAutoLogged pivotInputs = new ClimberPivotIOInputsAutoLogged();
   private final Alert overcurrentAlert = new Alert(
-      "Bicep pivot is hitting current limit! You're stuck on something, is the winch engaged?",
+      "Bicep pivot is using a lot of current! You might be stuck on something, is the winch engaged?",
       AlertType.kWarning);
   private boolean climbing = false;
   private final LoggedMechanismLigament2d supportMechanism;
@@ -73,7 +73,8 @@ public class Climber extends SubsystemBase {
     pivotIO.updateInputs(pivotInputs);
     Logger.processInputs("Climber Pivot", pivotInputs);
 
-    overcurrentAlert.set(pivotInputs.pivotAppliedCurrentAmps > 35.0);
+    overcurrentAlert.set(pivotInputs.pivotAppliedCurrentAmps > 15.0);
+    overcurrentAlert.setText("Bicep pivot is using a lot of current! You might be stuck on something, is the winch engaged? (Winch " + (winchInputs.winchPositionNominalRotations) + " rotations from startup value)");
     pivot.setAngle(-pivotInputs.pivotPositionDegrees);
 
     if (DriverStation.isDisabled()) {

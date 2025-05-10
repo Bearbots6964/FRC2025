@@ -81,10 +81,10 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
     System.out.print("│║╠ Creating drive motor... ");
     driveTalon =
         new TalonFX(constants.DriveMotorId, TunerConstants.getDrivetrainConstants().CANBusName);
-    System.out.print("...turn motor... ");
+    System.out.print("turn motor... ");
     turnTalon =
         new TalonFX(constants.SteerMotorId, TunerConstants.getDrivetrainConstants().CANBusName);
-    System.out.print("...turn encoder... ");
+    System.out.print("turn encoder... ");
     cancoder =
         new CANcoder(constants.EncoderId, TunerConstants.getDrivetrainConstants().CANBusName);
     System.out.println("done.");

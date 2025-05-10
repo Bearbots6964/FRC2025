@@ -1,0 +1,66 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.007864357601165,
+        "y": 2.8402931387277466
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.1207823247506585,
+        "y": 2.61724710604654
+      },
+      "isLocked": false,
+      "linkedName": "Reef E"
+    },
+    {
+      "anchor": {
+        "x": 4.171552734375,
+        "y": 2.179
+      },
+      "prevControl": {
+        "x": 4.5184589382304505,
+        "y": 2.417136870465022
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "deposit",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.14729420731707307,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deposit"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.232195534,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 3.232195534,
+    "rotation": 99.701
+  },
+  "reversed": false,
+  "folder": "New Folder",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 119.99999999999999
+  },
+  "useDefaultConstraints": false
+}

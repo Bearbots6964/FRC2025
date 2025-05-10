@@ -1,14 +1,21 @@
 import edu.wpi.first.gradlerio.GradleRIOPlugin
 
+// Configuration for AdvantageKit
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "com.peterabeles.gversion" version "1.10.3"
     id "io.freefair.lombok" version "8.13.1"
     id "org.jetbrains.kotlin.jvm" version "2.1.20"
+    id("com.google.devtools.ksp").version("2.1.20-2.0.1")
+    //id "org.jetbrains.kotlin.kapt" version "2.1.20"
     id 'idea'
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -28,7 +35,6 @@ idea {
 project.compileKotlin.dependsOn(createVersionFile)
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
-
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
@@ -57,7 +63,6 @@ deploy {
                     jvmArgs.add("-XX:+UseSerialGC")
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
 
-                    // That's right, we're touching the JVM. Freaky
                     //jvmArgs.add("-XX:+AlwaysPreTouch")
 
                     //jvmArgs.add("-Dcom.sun.management.jmxremote=true")
@@ -89,11 +94,6 @@ wpi.java.debugJni = false
 // Set this to true to enable desktop support.
 def includeDesktopSupport = true
 
-// Configuration for AdvantageKit
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
 
 task(replayWatch, type: JavaExec) {
     mainClass = "org.littletonrobotics.junction.ReplayWatch"
@@ -123,12 +123,18 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
+    implementation "com.squareup:kotlinpoet:2.1.0"
+    implementation "com.squareup:kotlinpoet-ksp:2.1.0"
+    implementation "com.google.devtools.ksp:symbol-processing-api:2.2.0-Beta2-2.0.1"
+    //implementation "org.jetbrains.kotlin:kotlin-reflect"
+    //implementation "org.jetbrains.kotlin:kotlin-stdlib"
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '2.1.20'
+    implementation("frc.robot.util:annotation")
+    ksp("frc.robot.util:annotation")
 
 }
 compileKotlin {
@@ -175,12 +181,12 @@ tasks.withType(JavaCompile) {
 // Create version file
 project.compileJava.dependsOn(createVersionFile)
 gversion {
-    srcDir       = "src/main/java/"
+    srcDir = "src/main/java/"
     classPackage = "frc.robot"
-    className    = "BuildConstants"
-    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
-    timeZone     = "America/New_York"
-    indent       = "  "
+    className = "BuildConstants"
+    dateFormat = "yyyy-MM-dd HH:mm:ss z"
+    timeZone = "America/New_York"
+    indent = "  "
 }
 
 // Create commit with working changes on event branches
@@ -215,3 +221,6 @@ task(eventDeploy) {
     }
 }
 createVersionFile.dependsOn(eventDeploy)
+sourceSets.main {
+    java.srcDirs("src/main/java")
+}

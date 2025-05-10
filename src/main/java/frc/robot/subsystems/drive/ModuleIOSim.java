@@ -65,7 +65,7 @@ public class ModuleIOSim implements ModuleIO {
             LinearSystemId.createDCMotorSystem(
                 DRIVE_GEARBOX, constants.DriveInertia, constants.DriveMotorGearRatio),
             DRIVE_GEARBOX);
-    System.out.print("...turn model... ");
+    System.out.print("turn model... ");
     turnSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(

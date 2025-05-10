@@ -138,6 +138,9 @@ $RECYCLE.BIN/
 ### Gradle ###
 .gradle
 /build/
+/annotation/build/**/*
+/annotation/.gradle
+/annotation/.kotlin
 
 # Ignore Gradle GUI config
 gradle-app.setting
