@@ -434,9 +434,9 @@ object Constants {
         // TODO above 2 need to be 0.60 at comp
         const val toBargeSpeed = 0.50
         const val algaeGrabSpeed = 0.30
-        const val toCoralStationSpeed = 0.71 // 0.70
+        const val toCoralStationSpeed = 0.70 // 0.70
 
-        const val benCompensation = 0.4 // amount of time
+        const val benCompensation = 0.5 // amount of time
         // we wait at the coral station for Ben to get off his phone
         // and get coral onto the bot during auto.
         // jeez, Ben.
