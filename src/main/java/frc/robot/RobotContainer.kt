@@ -1243,7 +1243,7 @@ class RobotContainer {
                 ), // end drivebase sequence
 
                 // wait until the claw has the coral secured and set that state
-                waitUntil { clawIntake.grabbed }.andThen({
+                waitUntil { clawIntake.grabbed }.withTimeout(5.0).andThen({
                     coralStatus = CoralStatus.IN_CLAW
                     drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed)
                 }),
@@ -1259,7 +1259,7 @@ class RobotContainer {
                         // because this command can already only start
                         // once the driver confirms it,
                         // but this check could be useful at some point or another
-                        .onlyIf { coralStatus == CoralStatus.ON_INTAKE },
+                        .onlyIf { coralStatus == CoralStatus.ON_INTAKE }.withTimeout(5.0),
 
                     // might fix an issue we were having
                     // where the arm tries to go to some random position
@@ -1471,7 +1471,7 @@ class RobotContainer {
 
     private fun lockWheelsAndWaitTime(): Command = run(
         { drive.stopWithX() }, drive
-    ).withDeadline(
+    ).alongWith(climber.moveClimberToIntakePosition()).withDeadline(
         waitSeconds(Constants.PathfindingConstants.benCompensation).andThen({
             coralStatus = CoralStatus.ON_INTAKE
         }).alongWith(runOnce({ state.push(task = AutoTask.WAITING) }))

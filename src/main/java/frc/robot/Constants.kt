@@ -98,8 +98,8 @@ object Constants {
             object ElevatorState {
                 const val HOME = 45.3891363535
                 const val L1 = 5.0
-                const val L2 = 43.25
-                const val L3 = 101.8
+                const val L2 = 39.4 - 0.5 * rotationsPerInch
+                const val L3 = 104.2 + rotationsPerInch
                 const val L4 = 72.8 // TODO: Find actual value
                 const val PRE_CORAL_PICKUP = 0.0
                 const val CORAL_PICKUP = 44.6 - (0.5 * rotationsPerInch)
@@ -534,7 +534,7 @@ object Constants {
          * Position of the pivot motor when the cage can catch the climber.
          */
         @JvmStatic
-        val pivotCageCatchPosition = 45.7
+        val pivotCageCatchPosition = 40.0
 
         /**
          * Position of the pivot motor when fully retracted and climbed.
