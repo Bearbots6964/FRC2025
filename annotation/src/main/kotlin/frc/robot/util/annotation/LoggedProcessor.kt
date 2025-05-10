@@ -44,7 +44,7 @@ class LoggedProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
             val logName = simpleName.substring(0, 1).uppercase() + simpleName.substring(1)
 
             if (!property.isMutable)
-                throw Exception(
+                throw IllegalStateException(
                     """[Logged] Please ensure the class you are annotating (${classDeclaration.simpleName.asString()}) has only mutable properties!"""
                 )
 
