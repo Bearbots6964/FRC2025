@@ -31,7 +31,7 @@ public class VisionIOPhotonVision implements VisionIO {
 
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
-  protected final List<Integer> reefTags = List.of(6, 7, 8, 9, 10, 11, 17, 18, 29, 20, 21, 22);
+  protected final List<Integer> reefTags = List.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22);
 
   /**
    * Creates a new VisionIOPhotonVision.

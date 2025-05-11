@@ -84,6 +84,12 @@ class SuperstructureCommands(val stateConsumer: Consumer<SuperstructureState>) {
         ).withName("Superstructure to Pre Coral Pickup Position")
     }
 
+    fun preCoralPickupWithoutSafety(e: Elevator, a: Arm): Command {
+        return Commands.runOnce({ stateConsumer.accept(SuperstructureState.PRE_CORAL_PICKUP) }).andThen(
+            e.goToPosition(ElevatorState.PRE_CORAL_PICKUP)
+                .alongWith(a.moveArmToAngle(ArmConstants.ArmState.PRE_CORAL_PICKUP))
+        ).withName("Superstructure to Pre Coral Pickup Position")
+    }
     fun bargeLaunch(e: Elevator, a: Arm, c: Climber): Command {
         return ensureSuperstructureSafety(e, a, c).andThen({ stateConsumer.accept(SuperstructureState.BARGE_LAUNCH) })
             .andThen(

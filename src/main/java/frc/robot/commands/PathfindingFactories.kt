@@ -63,7 +63,7 @@ object PathfindingFactories {
             .andThen(drive.followRepulsorField({
                 getSpecificReefSidePose(reef.invoke()).let {
                     translateCoordinates(
-                        it, it.rotation.degrees, -Units.inchesToMeters(18.0)
+                        it, it.rotation.degrees, -Units.inchesToMeters(21.0)
                     )
                 }
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
@@ -76,7 +76,7 @@ object PathfindingFactories {
             .andThen(drive.followRepulsorField({
                 getSpecificReefSidePose(reef.invoke()).let {
                     translateCoordinates(
-                        it, it.rotation.degrees, -Units.inchesToMeters(22.0)
+                        it, it.rotation.degrees, -Units.inchesToMeters(27.0)
                     )
                 }
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
@@ -89,7 +89,7 @@ object PathfindingFactories {
             .andThen(drive.followRepulsorField({
                 getSpecificReefSidePose(reef.invoke()).let {
                     translateCoordinates(
-                        it, it.rotation.degrees, -Units.inchesToMeters(2.0)
+                        it, it.rotation.degrees, -Units.inchesToMeters(3.0)
                     )
                 }
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
@@ -101,13 +101,21 @@ object PathfindingFactories {
     // </editor-fold>
 
     private fun getSpecificCoralStationPose(side: CoralStationSide): Pose2d {
+        var multip = 1.0
         val alliance = DriverStation.getAlliance().getOrElse { Alliance.Red }
-        val tagPose = if (alliance == Alliance.Red) {
-            if (side == CoralStationSide.LEFT) AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[1]
-            else AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]
+        val tagPose: Pose2d
+        if (alliance == Alliance.Red) {
+            if (side == CoralStationSide.LEFT) tagPose = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[1]!!
+            else {
+                tagPose = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[2]!!
+                multip = -1.0
+            }
         } else {
-            if (side == CoralStationSide.LEFT) AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[13]
-            else AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[12]
+            if (side == CoralStationSide.LEFT) tagPose = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[13]!!
+            else {
+                tagPose = AprilTagPositions.WELDED_APRIL_TAG_POSITIONS[12]!!
+                multip = -1.0
+            }
         }
 
         return translateCoordinates(
@@ -116,7 +124,7 @@ object PathfindingFactories {
             -PathfindingConstants.finalDistanceFromCoralStationMeters
         ).let {
             translateCoordinates(
-                it, it.rotation.degrees + 90, 0.06985
+                it, it.rotation.degrees + 90, Units.inchesToMeters(17.0 * multip)
             )
         }
     }

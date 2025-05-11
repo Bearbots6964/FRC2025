@@ -1027,7 +1027,8 @@ class RobotContainer {
         return sequence(
             goToCoralStation(),
             // wait until the driver signals a coral on the intake (we have no way of detecting this)
-            lockWheelsAndWaitForInput(), runOnce({ state.push(task = AutoTask.TO_REEF) }),
+            lockWheelsAndWaitForInput(),
+            runOnce({ state.push(task = AutoTask.TO_REEF) }),
             // pathfind to reef; requires drive, elevator, arm, intake, climber
             parallel(
                 // this command sequence concerns the drivebase + pathfinding
@@ -1040,7 +1041,7 @@ class RobotContainer {
 
 
                     // actually go to the reef
-                    pathfindToReef().alongWith(
+                    pathfindToReef().deadlineFor(
                         // wait until the claw has the coral secured;
                         // if we move too fast,
                         // we risk throwing it off the intake,
@@ -1243,7 +1244,7 @@ class RobotContainer {
                 ), // end drivebase sequence
 
                 // wait until the claw has the coral secured and set that state
-                waitUntil { clawIntake.grabbed }.andThen({
+                waitUntil { clawIntake.grabbed }.withTimeout(3.0).andThen({
                     coralStatus = CoralStatus.IN_CLAW
                     drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed)
                 }),
@@ -1259,7 +1260,7 @@ class RobotContainer {
                         // because this command can already only start
                         // once the driver confirms it,
                         // but this check could be useful at some point or another
-                        .onlyIf { coralStatus == CoralStatus.ON_INTAKE },
+                        .onlyIf { coralStatus == CoralStatus.ON_INTAKE }.withTimeout(3.0),
 
                     // might fix an issue we were having
                     // where the arm tries to go to some random position
@@ -1342,28 +1343,26 @@ class RobotContainer {
                     runOnce({ drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.algaeGrabSpeed) }),
 
                     // pathfind forward so we can actually pick the algae up
-                    PathfindingFactories.pathfindToReefButBackALittleLess(
-                        drive, { nextAlgaePosition }, driveTranslationalControlSupplier
-                    ).deadlineFor(
-                        // pin this onto the end
-                        // maybe it'll save us a little time?
-                        clawIntake.intakeWithoutStoppingForAlgae()
-                    ),
-
-                    // lock the wheels
-                    run(
-                        { drive.stopWithX() }, drive
-                    ).withDeadline(
-                        // spin the intake
-                        clawIntake.intakeWithoutStoppingForAlgae().withDeadline(
-                            // wait until the motor stalls
-                            // (surefire way to tell if we have an algae) and then wait an extra half-second
-                            // FIXME: check if this value can go lower
-                            // update 8/5/25: turned down by half
-                            waitUntil(clawIntake::grabbed).andThen(waitSeconds(0.25))
-                            // set algae state
-                        ).andThen({ algaeStatus = AlgaeStatus.IN_CLAW })
-                    ),
+                    sequence(
+                        PathfindingFactories.pathfindToReefButBackALittleLess(
+                            drive, { nextAlgaePosition }, driveTranslationalControlSupplier
+                        ),
+                        run(
+                            { drive.stopWithX() }, drive
+                        )
+                    )
+                        // lock the wheels
+                        .withDeadline(
+                            // spin the intake
+                            clawIntake.intakeWithoutStoppingForAlgae().withDeadline(
+                                // wait until the motor stalls
+                                // (surefire way to tell if we have an algae) and then wait an extra half-second
+                                // FIXME: check if this value can go lower
+                                // update 8/5/25: turned down by half
+                                waitUntil(clawIntake::grabbed).andThen(waitSeconds(0.25))
+                                // set algae state
+                            ).andThen({ algaeStatus = AlgaeStatus.IN_CLAW })
+                        ),
                     // back up
                     drive.backUp()
                 ).onlyIf { algaeStatus == AlgaeStatus.NONE }, // only do this if we don't have algae
@@ -1471,7 +1470,7 @@ class RobotContainer {
 
     private fun lockWheelsAndWaitTime(): Command = run(
         { drive.stopWithX() }, drive
-    ).withDeadline(
+    ).alongWith(climber.moveClimberToIntakePosition()).withDeadline(
         waitSeconds(Constants.PathfindingConstants.benCompensation).andThen({
             coralStatus = CoralStatus.ON_INTAKE
         }).alongWith(runOnce({ state.push(task = AutoTask.WAITING) }))
@@ -1499,7 +1498,8 @@ class RobotContainer {
                     )
                 }, setOf(drive)
             ).deadlineFor(
-                superstructureCommands.preCoralPickup(elevator, arm, climber)
+                superstructureCommands.preCoralPickupWithoutSafety(elevator, arm)
+                    .alongWith(climber.moveClimberToIntakePosition())
             )
         ).finallyDo(Runnable {
             arm.setGoalToCurrent(); drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed)
