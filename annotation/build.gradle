@@ -16,12 +16,7 @@ dependencies {
     wpi.java.deps.wpilibJniRelease(wpi.platforms.desktop).forEach { nativeRelease(it) }
     wpi.java.vendor.jniRelease(wpi.platforms.desktop).forEach { nativeRelease(it) }
 
-    wpi.java.deps.wpilibJniRelease(wpi.platforms.desktop).forEach { nativeRelease(it) }
-    wpi.java.vendor.jniRelease(wpi.platforms.desktop).forEach { nativeRelease(it) }
     wpi.sim.enableRelease().forEach { simulationRelease(it) }
-
-    wpi.sim.enableRelease().forEach { simulationRelease(it) }
-
     // Misc.
     implementation("com.squareup:kotlinpoet:2.1.0")
     implementation("com.squareup:kotlinpoet-ksp:2.1.0")
