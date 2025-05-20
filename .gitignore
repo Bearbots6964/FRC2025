@@ -138,7 +138,7 @@ $RECYCLE.BIN/
 ### Gradle ###
 .gradle
 /build/
-/annotation/build/**/*
+
 /annotation/.gradle
 /annotation/.kotlin
 
@@ -197,3 +197,4 @@ src/main/java/frc/robot/BuildConstants.java
 
 # neovim lsp database
 kls_database.db
+/annotation/build/

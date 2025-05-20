@@ -429,12 +429,12 @@ object Constants {
     }
 
     object PathfindingConstants {
-        const val coralIntakeSpeed: Double = 0.60
-        const val toReefSpeed: Double = 0.70
+        const val coralIntakeSpeed: Double = 0.20
+        const val toReefSpeed: Double = 0.20
         // TODO above 2 need to be 0.60 at comp
-        const val toBargeSpeed = 0.50
-        const val algaeGrabSpeed = 0.30
-        const val toCoralStationSpeed = 0.70 // 0.70
+        const val toBargeSpeed = 0.20
+        const val algaeGrabSpeed = 0.20
+        const val toCoralStationSpeed = 0.20 // 0.70
 
         const val benCompensation = 0.5 // amount of time
         // we wait at the coral station for Ben to get off his phone
@@ -478,42 +478,30 @@ object Constants {
             ) FlippingUtil.flipFieldPose(it) else it
         }
 
-        fun getOtherPosition(pos: CagePosition): Pose2d = when (pos) {
-            CagePosition.RIGHT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-                        .get() == DriverStation.Alliance.Red
-                ) {
-                    FlippingUtil.flipFieldPose(
-                        Pose2d(
-                            8.2, 4.77, Rotation2d(Units.Degrees.of(180.0))
-                        )
-                    )
-                } else {
-                    Pose2d(8.2, 4.77, Rotation2d(Units.Degrees.of(180.0)))
-                }
+        @JvmStatic
+        private val rightCagePos: Pose2d = Pose2d(
+            8.2, 4.77, Rotation2d(Units.Degrees.of(180.0))
+        )
 
-            CagePosition.LEFT -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-                        .get() == DriverStation.Alliance.Red
-                ) {
-                    FlippingUtil.flipFieldPose(
-                        Pose2d(
-                            8.2, 7.05, Rotation2d(Units.Degrees.of(180.0))
-                        )
-                    )
-                } else {
-                    Pose2d(8.2, 7.05, Rotation2d(Units.Degrees.of(180.0)))
-                }
-            CagePosition.MIDDLE -> if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
-                        .get() == DriverStation.Alliance.Red
-                ) {
-                    FlippingUtil.flipFieldPose(
-                        Pose2d(
-                            8.2, 6.04, Rotation2d(Units.Degrees.of(180.0))
-                        )
-                    )
-                } else {
-                    Pose2d(8.2, 6.04, Rotation2d(Units.Degrees.of(180.0)))
-                }
+        @JvmStatic
+        private val leftCagePos: Pose2d = Pose2d(
+            8.2, 7.05, Rotation2d(Units.Degrees.of(180.0))
+        )
+
+        @JvmStatic
+        private val middleCagePos: Pose2d = Pose2d(
+            8.2, 6.04, Rotation2d(Units.Degrees.of(180.0))
+        )
+
+        fun getOtherPosition(pos: CagePosition): Pose2d = when (pos) {
+            CagePosition.RIGHT -> rightCagePos
+            CagePosition.MIDDLE -> middleCagePos
+            CagePosition.LEFT -> leftCagePos
             CagePosition.NONE -> Pose2d()
+        }.let {
+            if (DriverStation.getAlliance().isPresent && DriverStation.getAlliance()
+                    .get() == DriverStation.Alliance.Red
+            ) FlippingUtil.flipFieldPose(it) else it
         }
     }
 
