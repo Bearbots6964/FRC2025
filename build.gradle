@@ -121,7 +121,7 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation "com.squareup:kotlinpoet:2.2.0"
     implementation "com.squareup:kotlinpoet-ksp:2.2.0"
