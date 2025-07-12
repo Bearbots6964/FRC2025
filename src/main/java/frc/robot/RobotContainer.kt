@@ -31,6 +31,11 @@ import frc.robot.Constants.VisionConstants.robotToBackLeftCamera
 import frc.robot.Constants.VisionConstants.robotToBackRightCamera
 import frc.robot.Constants.VisionConstants.robotToFrontLeftCamera
 import frc.robot.Constants.VisionConstants.robotToFrontRightCamera
+import frc.robot.automation.AutomationHandler
+import frc.robot.automation.SubsystemData
+import frc.robot.automation.drivebase.CoralStation
+import frc.robot.automation.drivebase.UnifiedReefLocation
+import frc.robot.automation.superstructure.Positions
 import frc.robot.commands.DriveCommands
 import frc.robot.commands.PathfindingFactories
 import frc.robot.commands.SuperstructureCommands
@@ -88,28 +93,34 @@ class RobotContainer {
     var enableEmergencyDashboard = false
     // </editor-fold>
 
+
     // <editor-fold desc="States">
     private var state: State = State()
+    private var otherState = frc.robot.automation.states.State()
     private var nextReef: PathfindingFactories.Reef
         get() = state.nextReef
         set(value) {
             state.push(nextReef = value)
+            otherState.push(nextReef = UnifiedReefLocation.fromOldSpec(value))
         }
     private var nextStation: PathfindingFactories.CoralStationSide
         get() = state.nextStation
         set(value) {
             state.push(nextStation = value)
+            otherState.push(nextStation = CoralStation.fromOldSpec(value))
         }
     private var nextPosition: Constants.SuperstructureConstants.SuperstructureState =
         Constants.SuperstructureConstants.SuperstructureState.PRE_CORAL_PICKUP
         set(value) {
             field = value
             state.push(nextState = value)
+            otherState.push(nextState = Positions.fromOldSpec(value))
         }
     private var nextAlgaePosition: PathfindingFactories.Reef
         get() = state.nextAlgaePosition
         set(value) {
             state.push(nextAlgaePosition = value)
+            otherState.push(nextAlgaePosition = UnifiedReefLocation.fromOldSpec(value))
         }
     private var grabAlgaeToggle = false
     private var keepGoing = false
@@ -118,11 +129,13 @@ class RobotContainer {
         get() = state.coralStatus
         set(value) {
             state.push(coralStatus = value)
+            otherState.push(coralStatus = frc.robot.automation.states.CoralStatus.fromOldSpec(value))
         }
     private var algaeStatus: AlgaeStatus
         get() = state.algaeStatus
         set(value) {
             state.push(algaeStatus = value)
+            otherState.push(algaeStatus = frc.robot.automation.states.AlgaeStatus.fromOldSpec(value))
         }
     private var bargePosition: BargePosition
         get() = state.nextBarge
@@ -188,7 +201,7 @@ class RobotContainer {
         val field: Field2d = Field2d()
     }
     // </editor-fold>
-
+    val autoHandler: AutomationHandler
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
         println("┌   [RobotContainer] Initializing...")
@@ -356,6 +369,8 @@ class RobotContainer {
         setUpDashboardCommands()
 
         println("└  [RobotContainer] Initialized in ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
+
+        autoHandler = AutomationHandler(SubsystemData(drive, arm, climber, elevator, clawIntake, driveTranslationalControlSupplier, otherState))
     }
 
     private fun posToCageCommand(pos: CagePosition): Command {
