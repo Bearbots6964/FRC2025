@@ -1,0 +1,4 @@
+Creating new positions for the superstructure is relatively easy. There are three things one must do before being able to use a new position:
+1. Add a new `SuperstructureState` object to `frc.robot.SuperstructureStates` with the states of any parts that have targets for that position (`elevatorPosition`, `armPosition`, `climberPosition`, `clawState`)
+2. Create a new `Position` in `frc.robot.automation.superstructure.SuperstructureConstants`, making sure to override `toString()` and `toShortString()` so the name of the position appears in logs and on the dashboard
+3. Add your new mapping to the `toState()` function in the `Position` enum class

@@ -1,9 +1,8 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.math.util.Units.inchesToMeters;
-import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.SuperstructureStates.*;
 
-import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -12,11 +11,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Constants.SuperstructureConstants.ElevatorConstants;
-import frc.robot.Constants.SuperstructureConstants.SuperstructureState;
+//import frc.robot.Constants.SuperstructureConstants.SuperstructureState;
+import frc.robot.Robot;
+import frc.robot.SuperstructureStates;
+import frc.robot.automation.superstructure.Position;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -51,11 +51,7 @@ public class Elevator extends SubsystemBase {
             new LoggedMechanismLigament2d(
                 "Elevator", Units.inchesToMeters(37.0), 90.0, 6.0, new Color8Bit(Color.kGray)));
     System.out.println("done.");
-    System.out.println("│╠╝ Elevator initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
-  }
-
-  public void setRotations(double rotations) {
-    io.setPosition(rotations);
+    System.out.println("│╠╝ Elevator initialized in " + Robot.Companion.formatTimeDelta(initializeTime)+ "ms");
   }
 
   public Command stop() {
@@ -112,46 +108,29 @@ public class Elevator extends SubsystemBase {
   }
 
   /**
-   * Command to go to a specific position. Accurate within one rotation (~1.187 inches).
+   * Command to go to a specific position. Tolerance can be set in {@link frc.robot.Constants.SuperstructureConstants.ElevatorConstants#elevatorTolerance}.
    *
    * @param state The position to go to
    * @return Command to go to a specific position
    */
-  public Command goToPosition(SuperstructureState state) {
-    targetPosition =
-        switch (state) {
-          case L1 -> ElevatorConstants.ElevatorState.L1;
-          case L2 -> ElevatorConstants.ElevatorState.L2;
-          case L3 -> ElevatorConstants.ElevatorState.L3;
-          case L4 -> ElevatorConstants.ElevatorState.L4;
-          default -> ElevatorConstants.ElevatorState.HOME;
-        };
-    return run(() ->
-            setRotations(
-                switch (state) {
-                  case L1 -> ElevatorConstants.ElevatorState.L1;
-                  case L2 -> ElevatorConstants.ElevatorState.L2;
-                  case L3 -> ElevatorConstants.ElevatorState.L3;
-                  case L4 -> ElevatorConstants.ElevatorState.L4;
-                  default -> ElevatorConstants.ElevatorState.HOME;
-                }))
-        .until(
-            () ->
-                Math.abs(
-                        inputs.rightMotorPositionRotations
-                            - switch (state) {
-                              case L1 -> ElevatorConstants.ElevatorState.L1;
-                              case L2 -> ElevatorConstants.ElevatorState.L2;
-                              case L3 -> ElevatorConstants.ElevatorState.L3;
-                              case L4 -> ElevatorConstants.ElevatorState.L4;
-                              default -> ElevatorConstants.ElevatorState.HOME;
-                            })
-                    < ElevatorConstants.elevatorTolerance);
+  @SuppressWarnings("DataFlowIssue")
+  public Command goToPosition(Position state) {
+    if (state.toState().getElevatorPosition() == null) {
+      // If the state does not have an elevator position, do nothing
+      return Commands.none();
+    } else {
+      targetPosition = state.toState().getElevatorPosition();
+      return run(() -> io.setPosition(targetPosition))
+          .until(
+              () ->
+                 io.getDistanceFromGoal()
+                      < ElevatorConstants.elevatorTolerance)
+          .withName("Elevator to Position");
+    }
   }
 
   /**
-   * Command to move the elevator up or down a specific number of rotations. Accurate within one
-   * rotation (~1.187 inches).
+   * Command to move the elevator up or down a specific number of rotations. Tolerance can be set in {@link frc.robot.Constants.SuperstructureConstants.ElevatorConstants#elevatorTolerance}.
    *
    * @param delta The number of rotations to move the elevator
    * @return Command to move the elevator up or down a specific number of rotations
@@ -163,28 +142,19 @@ public class Elevator extends SubsystemBase {
   }
 
   /**
-   * Command to go to a specific position. Accurate within one rotation (~1.187 inches).
+   * Command to go to a specific position. Tolerance can be set in {@link frc.robot.Constants.SuperstructureConstants.ElevatorConstants#elevatorTolerance}.
    *
    * @param position The position to go to
    * @return Command to go to a specific position
    */
   public Command goToPosition(double position) {
     targetPosition = position;
-    return run(() -> setRotations(position))
+    return run(() -> io.setPosition(position))
         .until(
             () ->
                 Math.abs(inputs.rightMotorPositionRotations - position)
                     < ElevatorConstants.elevatorTolerance)
         .withName("Elevator to Position");
-  }
-
-  /**
-   * Command to stop the elevator.
-   *
-   * @return Command to stop the elevator
-   */
-  public Command doNothing() {
-    return run(io::stop).withName("Elevator Stop");
   }
 
   /**
@@ -200,7 +170,7 @@ public class Elevator extends SubsystemBase {
         runOnce(() -> io.setSoftLimitsEnabled(false)),
         velocityCommand(() -> -0.125).until(() -> inputs.limitSwitchPressed),
         runOnce(io::zero),
-        run(() -> setRotations(5))
+        run(() -> io.setPosition(5))
             .until(
                 () ->
                     Math.abs(inputs.rightMotorPositionRotations - 5)

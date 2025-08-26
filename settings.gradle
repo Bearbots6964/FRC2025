@@ -28,7 +28,6 @@ pluginManagement {
     }
     plugins {
         id 'org.jetbrains.kotlin.jvm' version '2.2.0'
-        id "com.google.devtools.ksp"
     }
 }
 plugins {

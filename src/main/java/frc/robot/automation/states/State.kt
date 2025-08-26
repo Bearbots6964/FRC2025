@@ -1,10 +1,9 @@
 package frc.robot.automation.states
 
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.automation.drivebase.CoralStation
 import frc.robot.automation.drivebase.UnifiedReefLocation
-import frc.robot.automation.superstructure.Positions
-import frc.robot.automation.superstructure.SuperstructureConstants
-import frc.robot.commands.PathfindingFactories
+import frc.robot.automation.superstructure.Position
 import frc.robot.util.annotation.Logged
 import org.littletonrobotics.junction.Logger
 
@@ -14,7 +13,7 @@ import org.littletonrobotics.junction.Logger
  *
  * @property coralStatus The current status of the coral (NONE, ON_INTAKE, IN_CLAW).
  * @property algaeStatus The current status of the algae (NONE, IN_CLAW).
- * @property nextState The target superstructure state.
+ * @property nextPosition The target superstructure state.
  * @property nextReef The target reef for pathfinding.
  * @property nextBarge The target barge position.
  * @property nextStation The target coral station side.
@@ -25,15 +24,20 @@ import org.littletonrobotics.junction.Logger
 class State(
     var coralStatus: CoralStatus,
     var algaeStatus: AlgaeStatus,
-    var nextState: Positions,
-    var currentState: Positions,
+    var nextPosition: Position,
+    var currentState: Position,
     var nextReef: UnifiedReefLocation,
+    var nextBarge: BargePosition,
     var nextStation: CoralStation,
+    var nextCage: CagePosition,
     var nextAlgaePosition: UnifiedReefLocation,
     var task: AutoTask
 ) : ShortString {
-
-    //var io: StateIOAutoLogged
+    // Triggers for various coral and algae states. Can simplify some logic in commands.
+    val coralOnIntake: Trigger = Trigger { coralStatus == CoralStatus.ON_INTAKE }
+    val noCoral: Trigger = Trigger { coralStatus == CoralStatus.NONE }
+    val coralInClaw: Trigger = Trigger { coralStatus == CoralStatus.IN_CLAW }
+    val algaeInClaw: Trigger = Trigger { algaeStatus == AlgaeStatus.IN_CLAW }
 
     /**
      * Constructor for the State class with default values.
@@ -42,10 +46,12 @@ class State(
     constructor() : this(
         CoralStatus.NONE,
         AlgaeStatus.NONE,
-        Positions.HOME,
-        Positions.HOME,
+        Position.HOME,
+        Position.HOME,
         UnifiedReefLocation.NONE,
+        BargePosition.NONE,
         CoralStation.LEFT,
+        CagePosition.NONE,
         UnifiedReefLocation.NONE,
         AutoTask.IDLE
     )
@@ -67,19 +73,23 @@ class State(
     fun push(
         coralStatus: CoralStatus = this.coralStatus,
         algaeStatus: AlgaeStatus = this.algaeStatus,
-        nextState: Positions = this.nextState,
-        currentState: Positions = this.currentState,
+        nextState: Position = this.nextPosition,
+        currentState: Position = this.currentState,
         nextReef: UnifiedReefLocation = this.nextReef,
+        nextBarge: BargePosition = this.nextBarge,
         nextStation: CoralStation = this.nextStation,
+        nextCage: CagePosition = this.nextCage,
         nextAlgaePosition: UnifiedReefLocation = this.nextAlgaePosition,
         task: AutoTask = this.task
     ): State {
         this.coralStatus = coralStatus
         this.algaeStatus = algaeStatus
-        this.nextState = nextState
+        this.nextPosition = nextState
         this.currentState = currentState
         this.nextReef = nextReef
+        this.nextBarge = nextBarge
         this.nextStation = nextStation
+        this.nextCage = nextCage
         this.nextAlgaePosition = nextAlgaePosition
         this.task = task
         return this
@@ -92,10 +102,12 @@ class State(
         val io = LoggedStateIO()
         io.coralStatus = coralStatus
         io.algaeStatus = algaeStatus
-        io.nextState = nextState
+        io.nextState = nextPosition
         io.currentState = currentState
         io.nextReef = nextReef
+        io.nextBarge = nextBarge
         io.nextStation = nextStation
+        io.nextCage = nextCage
         io.nextAlgaePosition = nextAlgaePosition
         io.task = task
         io.stateString = toString()
@@ -104,7 +116,7 @@ class State(
         io.shortStateString = toShortString()
         io.shortTaskString = task.toShortString()
         io.shortStatusString = coralStatus.toShortString() + algaeStatus.toShortString()
-        io.shortNextStateString = nextState.toShortString()
+        io.shortNextStateString = nextPosition.toShortString()
         io.shortReefString = nextReef.toShortString() + nextAlgaePosition.toShortString()
         io.shortBargeString = "" // No barge/cage in new signature
         io.shortCoralStationString = nextStation.toShortString()
@@ -131,10 +143,12 @@ class State(
         fun new(
             coralStatus: CoralStatus = CoralStatus.NONE,
             algaeStatus: AlgaeStatus = AlgaeStatus.NONE,
-            nextState: Positions = Positions.HOME,
-            currentState: Positions = Positions.HOME,
+            nextState: Position = Position.HOME,
+            currentState: Position = Position.HOME,
             nextReef: UnifiedReefLocation = UnifiedReefLocation.NONE,
+            nextBarge: BargePosition = BargePosition.NONE,
             nextStation: CoralStation = CoralStation.LEFT,
+            nextCage: CagePosition = CagePosition.NONE,
             nextAlgaePosition: UnifiedReefLocation = UnifiedReefLocation.NONE,
             task: AutoTask = AutoTask.IDLE
         ): State {
@@ -144,7 +158,9 @@ class State(
                 nextState,
                 currentState,
                 nextReef,
+                nextBarge,
                 nextStation,
+                nextCage,
                 nextAlgaePosition,
                 task
             )
@@ -206,10 +222,12 @@ class State(
 open class StateIO {
     var coralStatus: CoralStatus = CoralStatus.NONE
     var algaeStatus: AlgaeStatus = AlgaeStatus.NONE
-    var nextState: Positions = Positions.HOME
-    var currentState: Positions = Positions.HOME
+    var nextState: Position = Position.HOME
+    var currentState: Position = Position.HOME
     var nextReef: UnifiedReefLocation = UnifiedReefLocation.NONE
+    var nextBarge: BargePosition = BargePosition.NONE
     var nextStation: CoralStation = CoralStation.LEFT
+    var nextCage: CagePosition = CagePosition.NONE
     var nextAlgaePosition: UnifiedReefLocation = UnifiedReefLocation.NONE
     var task: AutoTask = AutoTask.IDLE
     var stateString: String = ""

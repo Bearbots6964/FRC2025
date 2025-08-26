@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.SuperstructureConstants;
+import frc.robot.Robot;
 
 public class ArmIOTalonFX implements ArmIO {
 
@@ -78,7 +79,7 @@ public class ArmIOTalonFX implements ArmIO {
     positionVoltage = new PositionVoltage(Units.Degrees.of(targetPosition)).withSlot(1);
     System.out.println("done.");
 
-    System.out.println("│╠╝ Arm I/O initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
+    System.out.println("│╠╝ Arm I/O initialized in " + Robot.Companion.formatTimeDelta(initializeTime) + "ms");
   }
 
   @Override

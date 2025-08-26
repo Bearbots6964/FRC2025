@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import org.littletonrobotics.junction.Logger;
 
@@ -67,7 +68,7 @@ public class Vision extends SubsystemBase {
             disconnectedAlerts[i] = new Alert("Vision camera " + i + " is disconnected.", AlertType.kWarning);
         }
         System.out.println("done.");
-        System.out.println("│╠ Vision initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
+        System.out.println("│╠ Vision initialized in " + Robot.Companion.formatTimeDelta(initializeTime) + "ms");
     }
 
     /**

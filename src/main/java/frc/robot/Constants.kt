@@ -17,10 +17,10 @@ import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.*
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
+import frc.robot.automation.states.BargePosition
+import frc.robot.automation.states.CagePosition
+import frc.robot.automation.states.ShortString
 import frc.robot.util.Polygon
-import frc.robot.util.BargePosition
-import frc.robot.util.CagePosition
-import frc.robot.util.ShortString
 
 /*
  * The Constants file provides a convenient place for teams to hold robot-wide
@@ -55,8 +55,8 @@ object Constants {
              */
             const val RIGHT_MOTOR_CAN_ID = 2
 
-            const val elevatorTolerance = 5.0 // rotations
             const val rotationsPerInch = 3.6378272707
+            const val elevatorTolerance = 1.35 /* inches */ * rotationsPerInch
 
 
             /**
@@ -90,23 +90,6 @@ object Constants {
                 MotionMagic.MotionMagicCruiseVelocity = 250.0
                 MotionMagic.MotionMagicAcceleration = 500.0
                 MotionMagic.MotionMagicJerk = 0.0
-            }
-
-            /**
-             * Elevator height states.
-             */
-            object ElevatorState {
-                const val HOME = 45.3891363535
-                const val L1 = 5.0
-                const val L2 = 39.4 - 0.5 * rotationsPerInch
-                const val L3 = 104.2 + rotationsPerInch
-                const val L4 = 68.475 + (3 * rotationsPerInch) // TODO: Find actual value
-                const val PRE_CORAL_PICKUP = 0.0
-                const val CORAL_PICKUP = 44.6 - (0.5 * rotationsPerInch)
-                const val BARGE_LAUNCH = 111.2
-                const val ALGAE_INTAKE = 0.0
-                const val UPPER_REEF_ALGAE = 0.0
-                const val LOWER_REEF_ALGAE = 2.0 * rotationsPerInch
             }
 
             /**

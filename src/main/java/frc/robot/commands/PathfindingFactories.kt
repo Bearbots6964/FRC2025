@@ -11,10 +11,10 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import frc.robot.AprilTagPositions
 import frc.robot.Constants.PathfindingConstants
+import frc.robot.automation.states.ShortString
 import frc.robot.commands.PathfindingFactories.Reef.*
 import frc.robot.subsystems.drive.Drive
 import frc.robot.subsystems.vision.Vision
-import frc.robot.util.ShortString
 import java.util.function.Supplier
 import kotlin.jvm.optionals.getOrElse
 import kotlin.math.cos

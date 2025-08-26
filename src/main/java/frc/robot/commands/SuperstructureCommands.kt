@@ -4,9 +4,10 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import frc.robot.Constants
 import frc.robot.Constants.SuperstructureConstants.ArmConstants
-import frc.robot.Constants.SuperstructureConstants.ElevatorConstants.ElevatorState
+import frc.robot.SuperstructureStates
 import frc.robot.Constants.SuperstructureConstants.SuperstructureState
 import frc.robot.Robot
+import frc.robot.automation.superstructure.Position
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ClawIntake
 import frc.robot.subsystems.climber.Climber
@@ -14,59 +15,84 @@ import frc.robot.subsystems.drive.Drive
 import frc.robot.subsystems.elevator.Elevator
 import java.util.function.Consumer
 
+@Deprecated(level = DeprecationLevel.WARNING, message = "Legacy code, use new automation system instead")
 class SuperstructureCommands(val stateConsumer: Consumer<SuperstructureState>) {
     fun l1(e: Elevator, a: Arm, c: Climber): Command {
-        return ensureSuperstructureSafety(e, a, c).andThen({ stateConsumer.accept(SuperstructureState.L1) }).andThen(
-            e.goToPosition(SuperstructureState.L1)
+        return ensureSuperstructureSafety(e, a, c).andThen({
+            stateConsumer.accept(
+                SuperstructureState.L1
+            )
+        }).andThen(
+            e.goToPosition(Position.L1)
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.L1))
         ).withName("Superstructure to L1")
     }
 
     fun l2(e: Elevator, a: Arm, c: Climber): Command {
-        return ensureSuperstructureSafety(e, a, c).andThen({ stateConsumer.accept(SuperstructureState.L2) }).andThen(
-            e.goToPosition(SuperstructureState.L2)
+        return ensureSuperstructureSafety(e, a, c).andThen({
+            stateConsumer.accept(
+                SuperstructureState.L2
+            )
+        }).andThen(
+            e.goToPosition(Position.L2)
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.L2))
         ).withName("Superstructure to L2")
     }
 
     fun l3(e: Elevator, a: Arm, c: Climber): Command {
-        return ensureSuperstructureSafety(e, a, c).andThen({ stateConsumer.accept(SuperstructureState.L3) }).andThen(
-            e.goToPosition(SuperstructureState.L3)
+        return ensureSuperstructureSafety(e, a, c).andThen({
+            stateConsumer.accept(
+                SuperstructureState.L3
+            )
+        }).andThen(
+            e.goToPosition(Position.L3)
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.L3))
         ).withName("Superstructure to L3")
     }
 
     fun l4(e: Elevator, a: Arm, c: Climber): Command {
-        return ensureSuperstructureSafety(e, a, c).andThen({ stateConsumer.accept(SuperstructureState.L4) }).andThen(
-            e.goToPosition(SuperstructureState.L4)
+        return ensureSuperstructureSafety(e, a, c).andThen({
+            stateConsumer.accept(
+                SuperstructureState.L4
+            )
+        }).andThen(
+            e.goToPosition(Position.L4)
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.L4))
         ).withName("Superstructure to L4")
     }
 
     fun l4WithoutSafety(e: Elevator, a: Arm): Command {
-        return e.goToPosition(SuperstructureState.L4)
+        return e.goToPosition(Position.L4)
             .alongWith(a.moveArmToAngle(ArmConstants.ArmState.L4))
             .deadlineFor(Commands.runOnce({ stateConsumer.accept(SuperstructureState.L4) }))
             .withName("Superstructure to L4")
     }
 
     fun coralStationPosition(e: Elevator, a: Arm, c: Climber): Command {
-        return ensureSuperstructureSafety(e, a, c).andThen({ stateConsumer.accept(SuperstructureState.CORAL_PICKUP) })
+        return ensureSuperstructureSafety(e, a, c).andThen({
+            stateConsumer.accept(
+                SuperstructureState.CORAL_PICKUP
+            )
+        })
             .andThen(
-                e.goToPosition(ElevatorState.CORAL_PICKUP).alongWith(c.moveClimberToCageCatchPosition())
+                e.goToPosition(Position.CORAL_PICKUP).alongWith(c.moveClimberToCageCatchPosition())
                     .alongWith(a.moveArmToAngle(ArmConstants.ArmState.CORAL_PICKUP))
             ).withName("Superstructure to Coral Station Position")
     }
 
     fun home(e: Elevator, a: Arm, c: Climber): Command {
-        return ensureSuperstructureSafety(e, a, c).andThen({ stateConsumer.accept(SuperstructureState.HOME) }).andThen(
-            e.goToPosition(ElevatorState.HOME).alongWith(c.moveClimberToCageCatchPosition())
+        return ensureSuperstructureSafety(e, a, c).andThen({
+            stateConsumer.accept(
+                SuperstructureState.HOME
+            )
+        }).andThen(
+            e.goToPosition(Position.HOME).alongWith(c.moveClimberToCageCatchPosition())
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.HOME))
         ).withName("Superstructure to Home Position")
     }
 
     fun homeWithoutSafety(e: Elevator, a: Arm, c: Climber): Command {
-        return e.goToPosition(ElevatorState.HOME).alongWith(c.moveClimberToCageCatchPosition())
+        return e.goToPosition(Position.HOME).alongWith(c.moveClimberToCageCatchPosition())
             .alongWith(a.moveArmToAngle(ArmConstants.ArmState.HOME))
             .andThen({ stateConsumer.accept(SuperstructureState.HOME) })
             .withName("Superstructure to Home Position")
@@ -78,36 +104,46 @@ class SuperstructureCommands(val stateConsumer: Consumer<SuperstructureState>) {
             a,
             c
         ).andThen({ stateConsumer.accept(SuperstructureState.PRE_CORAL_PICKUP) }).andThen(
-            e.goToPosition(ElevatorState.PRE_CORAL_PICKUP)
+            e.goToPosition(Position.PRE_CORAL_PICKUP)
                 .alongWith(c.moveClimberToIntakePosition())
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.PRE_CORAL_PICKUP))
         ).withName("Superstructure to Pre Coral Pickup Position")
     }
 
     fun preCoralPickupWithoutSafety(e: Elevator, a: Arm): Command {
-        return Commands.runOnce({ stateConsumer.accept(SuperstructureState.PRE_CORAL_PICKUP) }).andThen(
-            e.goToPosition(ElevatorState.PRE_CORAL_PICKUP)
-                .alongWith(a.moveArmToAngle(ArmConstants.ArmState.PRE_CORAL_PICKUP))
-        ).withName("Superstructure to Pre Coral Pickup Position")
-    }
-    fun bargeLaunch(e: Elevator, a: Arm, c: Climber): Command {
-        return ensureSuperstructureSafety(e, a, c).andThen({ stateConsumer.accept(SuperstructureState.BARGE_LAUNCH) })
+        return Commands.runOnce({ stateConsumer.accept(SuperstructureState.PRE_CORAL_PICKUP) })
             .andThen(
-                e.goToPosition(ElevatorState.BARGE_LAUNCH)
+                e.goToPosition(Position.PRE_CORAL_PICKUP)
+                    .alongWith(a.moveArmToAngle(ArmConstants.ArmState.PRE_CORAL_PICKUP))
+            ).withName("Superstructure to Pre Coral Pickup Position")
+    }
+
+    fun bargeLaunch(e: Elevator, a: Arm, c: Climber): Command {
+        return ensureSuperstructureSafety(e, a, c).andThen({
+            stateConsumer.accept(
+                SuperstructureState.BARGE_LAUNCH
+            )
+        })
+            .andThen(
+                e.goToPosition(Position.BARGE_LAUNCH)
                     .alongWith(a.moveArmToAngle(ArmConstants.ArmState.BARGE_LAUNCH))
             ).withName("Superstructure to Barge Algae Launch Position")
     }
 
     fun algaeIntake(e: Elevator, a: Arm, c: Climber): Command {
-        return ensureSuperstructureSafety(e, a, c).andThen({ stateConsumer.accept(SuperstructureState.ALGAE_INTAKE) })
+        return ensureSuperstructureSafety(e, a, c).andThen({
+            stateConsumer.accept(
+                SuperstructureState.ALGAE_INTAKE
+            )
+        })
             .andThen(
-                e.goToPosition(ElevatorState.ALGAE_INTAKE)
+                e.goToPosition(Position.ALGAE_INTAKE)
                     .alongWith(a.moveArmToAngle(ArmConstants.ArmState.ALGAE_INTAKE))
             ).withName("Superstructure to Algae Intake Position")
     }
 
     fun algaeIntakeWithoutSafety(e: Elevator, a: Arm, c: Climber): Command {
-        return e.goToPosition(ElevatorState.ALGAE_INTAKE)
+        return e.goToPosition(Position.ALGAE_INTAKE)
             .alongWith(a.moveArmToAngle(ArmConstants.ArmState.ALGAE_INTAKE))
             .andThen({ stateConsumer.accept(SuperstructureState.ALGAE_INTAKE) })
             .withName("Superstructure to Algae Intake Position")
@@ -115,7 +151,7 @@ class SuperstructureCommands(val stateConsumer: Consumer<SuperstructureState>) {
 
     fun upperReefAlgae(e: Elevator, a: Arm, c: Climber): Command {
         return ensureSuperstructureSafety(e, a, c).andThen(
-            e.goToPosition(ElevatorState.UPPER_REEF_ALGAE)
+            e.goToPosition(Position.UPPER_REEF_ALGAE)
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.UPPER_REEF_ALGAE))
                 .andThen({ stateConsumer.accept(SuperstructureState.UPPER_REEF_ALGAE) })
         ).withName("Superstructure to Upper Reef Algae Position")
@@ -123,7 +159,7 @@ class SuperstructureCommands(val stateConsumer: Consumer<SuperstructureState>) {
 
     fun lowerReefAlgae(e: Elevator, a: Arm, c: Climber): Command {
         return ensureSuperstructureSafety(e, a, c).andThen(
-            e.goToPosition(ElevatorState.LOWER_REEF_ALGAE)
+            e.goToPosition(Position.LOWER_REEF_ALGAE)
                 .alongWith(a.moveArmToAngle(ArmConstants.ArmState.LOWER_REEF_ALGAE))
                 .andThen({ stateConsumer.accept(SuperstructureState.LOWER_REEF_ALGAE) })
         ).withName("Superstructure to Lower Reef Algae Position")
@@ -270,7 +306,7 @@ class SuperstructureCommands(val stateConsumer: Consumer<SuperstructureState>) {
         return Commands.sequence(
             ensureSuperstructureSafety(e, a, c),
             Commands.parallel(
-                e.goToPosition(ElevatorState.CORAL_PICKUP),
+                e.goToPosition(Position.CORAL_PICKUP),
                 a.moveArmToAngle(ArmConstants.ArmState.CORAL_PICKUP).until { a.armAngle > 200.0 },
                 c.moveClimberToCageCatchPosition(),
                 Commands.runOnce({ stateConsumer.accept(SuperstructureState.CORAL_PICKUP) })

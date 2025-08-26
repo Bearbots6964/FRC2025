@@ -1,18 +1,54 @@
 package frc.robot.automation.drivebase
 
+import frc.robot.SuperstructureStates
 import frc.robot.automation.states.ShortString
-import frc.robot.commands.PathfindingFactories
+import frc.robot.automation.superstructure.Position
+import frc.robot.automation.superstructure.SuperstructureState
 
 class DrivebaseAutomationTypes {
 }
 
 interface ReefLocation
 enum class CoralPlacement : ReefLocation {
-    A, B, C, D, E, F, G, H, I, J, K, L
+    A, B, C, D, E, F, G, H, I, J, K, L;
+
+    /**
+     * Converts this `CoralPlacement` to a `UnifiedReefLocation`.
+     * This is useful for converting legacy coral placements to the unified reef locations.
+     */
+    fun toUnifiedReefLocation(): UnifiedReefLocation {
+        return when (this) {
+            A -> UnifiedReefLocation.A
+            B -> UnifiedReefLocation.B
+            C -> UnifiedReefLocation.C
+            D -> UnifiedReefLocation.D
+            E -> UnifiedReefLocation.E
+            F -> UnifiedReefLocation.F
+            G -> UnifiedReefLocation.G
+            H -> UnifiedReefLocation.H
+            I -> UnifiedReefLocation.I
+            J -> UnifiedReefLocation.J
+            K -> UnifiedReefLocation.K
+            L -> UnifiedReefLocation.L
+        }
+    }
 }
 
-val leftPositions = listOf(CoralPlacement.A, CoralPlacement.C, CoralPlacement.E, CoralPlacement.G, CoralPlacement.I, CoralPlacement.K)
+/**
+ * List of coral pipes that are on the left side of their respective face.
+ */
+val leftPositions = listOf(
+    CoralPlacement.A,
+    CoralPlacement.C,
+    CoralPlacement.E,
+    CoralPlacement.G,
+    CoralPlacement.I,
+    CoralPlacement.K
+)
 
+/**
+ * Possible algae placements on the reef.
+ */
 enum class AlgaePlacement : ReefLocation {
     AB, CD, EF, GH, IJ, KL
 }
@@ -29,16 +65,6 @@ enum class CoralStation : ShortString {
         override fun toString() = "Right"
         override fun toShortString(): String = "&R"
     };
-
-    companion object {
-        fun fromOldSpec(station: PathfindingFactories.CoralStationSide): CoralStation {
-            return when (station) {
-                PathfindingFactories.CoralStationSide.LEFT -> LEFT
-                PathfindingFactories.CoralStationSide.RIGHT -> RIGHT
-                else -> LEFT
-            }
-        }
-    }
 }
 
 /**
@@ -64,6 +90,10 @@ enum class CoralStationNudgeDirection : ShortString {
         override fun toString() = "-"
     }
 }
+
+/**
+ * Enum representing all possible reef locations for both coral and algae.
+ */
 enum class UnifiedReefLocation : ReefLocation, ShortString {
     A {
         override fun toString() = "A"
@@ -142,31 +172,26 @@ enum class UnifiedReefLocation : ReefLocation, ShortString {
         override fun toShortString() = "#_"
     };
 
-    companion object {
-        fun fromOldSpec(reef: PathfindingFactories.Reef): UnifiedReefLocation {
-            return when (reef) {
-                PathfindingFactories.Reef.A -> A
-                PathfindingFactories.Reef.B -> B
-                PathfindingFactories.Reef.C -> C
-                PathfindingFactories.Reef.D -> D
-                PathfindingFactories.Reef.E -> E
-                PathfindingFactories.Reef.F -> F
-                PathfindingFactories.Reef.G -> G
-                PathfindingFactories.Reef.H -> H
-                PathfindingFactories.Reef.I -> I
-                PathfindingFactories.Reef.J -> J
-                PathfindingFactories.Reef.K -> K
-                PathfindingFactories.Reef.L -> L
-                PathfindingFactories.Reef.AB_ALGAE -> AB
-                PathfindingFactories.Reef.CD_ALGAE -> CD
-                PathfindingFactories.Reef.EF_ALGAE -> EF
-                PathfindingFactories.Reef.GH_ALGAE -> GH
-                PathfindingFactories.Reef.IJ_ALGAE -> IJ
-                PathfindingFactories.Reef.KL_ALGAE -> KL
-                PathfindingFactories.Reef.NONE -> NONE
-            }
+    /**
+     * Converts this `UnifiedReefLocation` to a `SuperstructureState`.
+     */
+    fun toAlgaeState(): SuperstructureState {
+        return when (this) {
+            AB, EF, IJ -> SuperstructureStates.UPPER_REEF_ALGAE
+            CD, GH, KL -> SuperstructureStates.LOWER_REEF_ALGAE
+            else -> throw IllegalArgumentException("Cannot convert $this to an algae state")
         }
     }
 
+    /**
+     * Converts this `UnifiedReefLocation` to a `Position` representing where the superstructure would be for this location.
+     */
+    fun toAlgaePosition(): Position {
+        return when (this) {
+            AB, EF, IJ -> Position.UPPER_REEF_ALGAE
+            CD, GH, KL -> Position.LOWER_REEF_ALGAE
 
+            else -> throw IllegalArgumentException("Cannot convert $this to an algae position")
+        }
+    }
 }

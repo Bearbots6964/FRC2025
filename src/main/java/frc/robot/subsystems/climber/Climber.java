@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.Robot;
 import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
@@ -62,7 +63,7 @@ public class Climber extends SubsystemBase {
     System.out.println("done.");
     System.out.println(
         "│╠╝ Climber initialized in "
-            + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)
+            + Robot.Companion.formatTimeDelta(initializeTime)
             + "ms");
   }
 

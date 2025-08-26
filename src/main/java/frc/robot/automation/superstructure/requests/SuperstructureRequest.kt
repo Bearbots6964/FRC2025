@@ -4,7 +4,7 @@ import frc.robot.automation.Request
 import frc.robot.automation.superstructure.ClawState
 import frc.robot.automation.superstructure.SuperstructureState
 
-class SuperstructureRequest : Request {
+open class SuperstructureRequest : Request {
     val armPosition: Double?
     val elevatorPosition: Double?
     val climberPosition: Double?
@@ -21,7 +21,6 @@ class SuperstructureRequest : Request {
         this.climberPosition = climberPosition
         this.intakeSpeed = intakeSpeed
     }
-
     constructor(state: SuperstructureState) {
         this.armPosition = state.armPosition
         this.elevatorPosition = state.elevatorPosition
@@ -30,7 +29,7 @@ class SuperstructureRequest : Request {
             ClawState.INTAKING -> IntakeState.INTAKE
             ClawState.OUTTAKING -> IntakeState.OUTTAKE
             ClawState.NONE -> IntakeState.STOP
-            null -> throw IllegalStateException("ClawState is NULL")
+            null -> null
         }
     }
 
@@ -40,5 +39,6 @@ enum class IntakeState {
     INTAKE,
     ALGAE_INTAKE,
     OUTTAKE,
+    ALGAE_OUTTAKE,
     STOP
 }

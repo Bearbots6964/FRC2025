@@ -1,5 +1,8 @@
 package frc.robot.automation.drivebase
 
+import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Rotation2d
+
 object DrivebaseConstants {
 }
 
@@ -15,6 +18,8 @@ object CoralStationPositioning {
     // Using the WPILib coordinate system, this would be the Y axis.
     // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
     const val NUDGE_DISTANCE_FROM_CORAL_STATION = 17.0
+    // Time to wait at the Coral Station if not using human input to confirm whether Coral is on the intake.
+    const val timeToWait: Double = 0.5
 }
 
 /**
@@ -35,4 +40,21 @@ object PathfindingConstants {
     const val CORAL_INTAKE_SPEED = 0.6
     const val TO_REEF_SPEED = 0.7
     const val TO_BARGE_SPEED = 0.5
+}
+
+object BargePositioning {
+    @JvmStatic
+    val leftBargePosition: Pose2d = Pose2d(
+        7.65, 7.1, Rotation2d()
+    )
+
+    @JvmStatic
+    val middleBargePosition: Pose2d = Pose2d(
+        7.65, 5.95, Rotation2d()
+    )
+
+    @JvmStatic
+    val rightBargePosition: Pose2d = Pose2d(
+        7.65, 4.65, Rotation2d()
+    )
 }

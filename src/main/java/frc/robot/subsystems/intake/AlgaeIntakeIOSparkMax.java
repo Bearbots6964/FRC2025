@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import frc.robot.Constants;
+import frc.robot.Robot;
 
 public class AlgaeIntakeIOSparkMax implements AlgaeIntakeIO {
   protected final SparkMax armMotor;
@@ -59,7 +60,7 @@ public class AlgaeIntakeIOSparkMax implements AlgaeIntakeIO {
     targetIntakeVelocity = intakeMotor.getEncoder().getVelocity();
     System.out.println("done.");
 
-    System.out.println("│╠╝ Algae intake I/O initialized in " + String.format("%.3f", (System.currentTimeMillis() - initializeTime) * 1000.0) + "ms");
+    System.out.println("│╠╝ Algae intake I/O initialized in " + Robot.Companion.formatTimeDelta(initializeTime) + "ms");
   }
 
   @Override

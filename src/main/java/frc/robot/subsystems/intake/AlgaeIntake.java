@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import org.littletonrobotics.junction.Logger;
 
 public class AlgaeIntake extends SubsystemBase {
@@ -17,7 +18,7 @@ public class AlgaeIntake extends SubsystemBase {
     this.io = io;
     System.out.println(
         "│╠═ Algae Intake initialized in "
-            + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)
+            + Robot.Companion.formatTimeDelta(initializeTime)
             + "ms");
   }
 

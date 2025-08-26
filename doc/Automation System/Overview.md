@@ -1,0 +1,1 @@
+Automation is one of the hardest things in FRC to get done correctly. When building the `automation` package for the 

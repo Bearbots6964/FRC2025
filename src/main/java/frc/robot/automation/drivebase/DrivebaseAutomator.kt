@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.ScheduleCommand
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.automation.Automator
 import frc.robot.automation.Request
 import frc.robot.automation.SubsystemData
@@ -11,6 +12,9 @@ import frc.robot.automation.drivebase.requests.BrakeRequest
 import frc.robot.automation.drivebase.requests.CoralStationRequest
 import frc.robot.automation.drivebase.requests.DriveRequest
 import frc.robot.automation.drivebase.requests.ReefRequest
+import frc.robot.automation.drivebase.requests.DriveBackUpRequest
+import frc.robot.automation.drivebase.requests.LocationRequest
+import frc.robot.automation.drivebase.requests.Speed
 import frc.robot.subsystems.drive.Drive
 import java.util.function.Supplier
 
@@ -24,6 +28,8 @@ import java.util.function.Supplier
 class DrivebaseAutomator : Automator {
     val subsystem: Drive
     val joystick: Supplier<Translation2d>
+    val nearPathfindingGoal: Trigger = Trigger { subsystem.nearGoal }
+    val nearBarge: Trigger = Trigger { subsystem.nearerGoal }
 
     /**
      * Constructs a DrivebaseAutomator with the provided subsystem data.
@@ -47,7 +53,6 @@ class DrivebaseAutomator : Automator {
         request: DriveRequest
     ): Command {
         return when (request) {
-            is ReefRequest -> subsystem.followRepulsorField(request.pose, joystick).asProxy()
             is BrakeRequest -> ScheduleCommand(
                 Commands.runOnce(
                     { subsystem.stopWithX() },
@@ -55,8 +60,14 @@ class DrivebaseAutomator : Automator {
                 ).withName("Brake")
             )
 
-            is CoralStationRequest -> subsystem.followRepulsorField(request.pose, joystick)
+            is LocationRequest -> subsystem.followRepulsorField(request.pose, joystick)
                 .asProxy()
+
+            is DriveBackUpRequest -> when (request.speed) {
+                Speed.NORMAL -> subsystem.backUp().asProxy()
+                Speed.FAST -> subsystem.backUpFaster().asProxy()
+                Speed.FORWARD -> subsystem.goForward().asProxy()
+            }
         }
     }
 
@@ -78,29 +89,14 @@ class DrivebaseAutomator : Automator {
     }
 
     /**
-     * Creates a command to drive the robot to a specific position to score Coral on the Reef.
-     *
-     * @param placement The placement of the coral on the Reef, correlating to the position of each post.
-     */
-    fun coralPosition(placement: CoralPlacement): Command {
-        return accept(ReefRequest(placement))
-    }
-
-    /**
-     * Creates a command to drive the robot to a specific position to place algae.
-     *
-     * @param placement The placement of the algae, correlating to the position of each algae station.
-     */
-    fun algaePosition(placement: AlgaePlacement): Command {
-        return accept(ReefRequest(placement))
-    }
-
-    /**
      * Creates a command to drive the robot to a Coral Station, optionally nudging it in a specified direction.
      * @param side The side of the Coral Station to approach.
      * @param nudge The direction to nudge the robot parallel to the Coral Station, defaulting to NONE.
      */
-    fun coralStation(side: CoralStation, nudge: CoralStationNudgeDirection = CoralStationNudgeDirection.NONE): Command {
+    fun coralStation(
+        side: CoralStation,
+        nudge: CoralStationNudgeDirection = CoralStationNudgeDirection.NONE
+    ): Command {
         return accept(CoralStationRequest(side, nudge))
     }
 

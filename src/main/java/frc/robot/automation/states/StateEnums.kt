@@ -1,11 +1,5 @@
 package frc.robot.automation.states
 
-import frc.robot.util.CoralStatus as OtherCoralStatus
-import frc.robot.util.AlgaeStatus as OtherAlgaeStatus
-import frc.robot.util.BargePosition as OtherBargePosition
-import frc.robot.util.CagePosition as OtherCagePosition
-import frc.robot.util.AutoTask as OtherAutoTask
-
 enum class CoralStatus : ShortString {
     NONE {
         override fun toString(): String = "No Coral"
@@ -19,15 +13,6 @@ enum class CoralStatus : ShortString {
         override fun toString(): String = "Coral In Claw"
         override fun toShortString(): String = "~C"
     };
-    companion object {
-        fun fromOldSpec(status: OtherCoralStatus): frc.robot.automation.states.CoralStatus {
-            return when (status) {
-                OtherCoralStatus.NONE -> NONE
-                OtherCoralStatus.ON_INTAKE -> ON_INTAKE
-                OtherCoralStatus.IN_CLAW -> IN_CLAW
-            }
-        }
-    }
 }
 
 enum class AlgaeStatus : ShortString {
@@ -39,14 +24,6 @@ enum class AlgaeStatus : ShortString {
         override fun toString(): String = "Algae In Claw"
         override fun toShortString(): String = "•C"
     };
-    companion object {
-        fun fromOldSpec(status: OtherAlgaeStatus): AlgaeStatus {
-            return when (status) {
-                OtherAlgaeStatus.NONE -> NONE
-                OtherAlgaeStatus.IN_CLAW -> IN_CLAW
-            }
-        }
-    }
 }
 
 enum class BargePosition : ShortString {
@@ -64,16 +41,6 @@ enum class BargePosition : ShortString {
         override fun toShortString(): String = "^_"
         override fun toString(): String = "No Barge"
     };
-    companion object {
-        fun fromOldSpec(position: OtherBargePosition): BargePosition {
-            return when (position) {
-                OtherBargePosition.LEFT -> LEFT
-                OtherBargePosition.MIDDLE -> MIDDLE
-                OtherBargePosition.RIGHT -> RIGHT
-                OtherBargePosition.NONE -> NONE
-            }
-        }
-    }
 }
 
 enum class CagePosition : ShortString {
@@ -91,16 +58,6 @@ enum class CagePosition : ShortString {
         override fun toShortString(): String = "*_"
         override fun toString(): String = "No Cage"
     };
-    companion object {
-        fun fromOldSpec(position: OtherCagePosition): CagePosition {
-            return when (position) {
-                OtherCagePosition.LEFT -> LEFT
-                OtherCagePosition.MIDDLE -> MIDDLE
-                OtherCagePosition.RIGHT -> RIGHT
-                OtherCagePosition.NONE -> NONE
-            }
-        }
-    }
 }
 
 enum class AutoTask : ShortString {
@@ -136,20 +93,6 @@ enum class AutoTask : ShortString {
         override fun toString(): String = "Spit out algae"
         override fun toShortString(): String = ">SA"
     };
-    companion object {
-        fun fromOldSpec(task: OtherAutoTask): AutoTask {
-            return when (task) {
-                OtherAutoTask.TO_CORAL_STATION -> TO_CORAL_STATION
-                OtherAutoTask.TO_REEF -> TO_REEF
-                OtherAutoTask.TO_BARGE -> TO_BARGE
-                OtherAutoTask.TO_CAGE -> TO_CAGE
-                OtherAutoTask.TO_ALGAE -> TO_ALGAE
-                OtherAutoTask.IDLE -> IDLE
-                OtherAutoTask.WAITING -> WAITING
-                OtherAutoTask.SPIT_OUT_ALGAE -> SPIT_OUT_ALGAE
-            }
-        }
-    }
 }
 
 interface ShortString {

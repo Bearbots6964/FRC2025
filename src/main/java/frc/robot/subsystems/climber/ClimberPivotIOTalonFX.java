@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
+import frc.robot.Robot;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
@@ -58,7 +59,7 @@ public class ClimberPivotIOTalonFX implements ClimberPivotIO {
     System.out.println("done.");
 
 
-    System.out.println("│╠╝ Climber pivot I/O initialized in " + String.format("%.3f", (System.currentTimeMillis() - initializeTime) * 1000.0) + "ms (note: no logging of algae intake subsystem initialization)");
+    System.out.println("│╠╝ Climber pivot I/O initialized in " + Robot.Companion.formatTimeDelta(initializeTime) + "ms (note: no logging of algae intake subsystem initialization)");
   }
 
   @Override

@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants.SuperstructureConstants;
+import frc.robot.Robot;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -103,7 +104,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     System.out.print("│║╠ Setting target position... ");
     targetPosition = rightMotorPosition.getValue().in(Units.Rotations);
     System.out.println("done.");
-    System.out.println("│╠╝ Elevator I/O initialized in " + String.format("%.3f", (System.currentTimeMillis() - initializeTime) * 1000.0) + "ms");
+    System.out.println("│╠╝ Elevator I/O initialized in " + Robot.Companion.formatTimeDelta(initializeTime) + "ms");
   }
 
   @Override

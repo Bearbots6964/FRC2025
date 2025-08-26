@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.Robot;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -56,7 +57,7 @@ public class Module {
         new Alert("Disconnected turn encoder on module " + index + ".", AlertType.kError);
     System.out.println("done.");
 
-    System.out.println("│║╠╝ Module " + (index + 1) + " initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
+    System.out.println("│║╠╝ Module " + (index + 1) + " initialized in " + Robot.Companion.formatTimeDelta(initializeTime)+ "ms");
   }
 
   public void periodic() {

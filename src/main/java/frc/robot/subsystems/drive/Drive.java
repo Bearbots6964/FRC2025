@@ -56,6 +56,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.Constants.PhysicalProperties;
 import frc.robot.Constants.PhysicalProperties.ProgrammingBase;
 import frc.robot.Constants.Zone;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
@@ -193,7 +194,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
         });
         System.out.println("done.");
-        System.out.println("│╠╝ Drive initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
+        System.out.println("│╠╝ Drive initialized in " + Robot.Companion.formatTimeDelta(initializeTime) + "ms");
 
         PathPlannerLogging.setLogActivePathCallback(RobotContainer.getField().getObject("PathPlanner Path")::setPoses);
         PathPlannerLogging.setLogTargetPoseCallback(RobotContainer.getField().getObject("Target")::setPose);

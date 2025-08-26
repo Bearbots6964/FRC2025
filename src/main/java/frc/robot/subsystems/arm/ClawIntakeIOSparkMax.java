@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.filter.Debouncer;
 import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.Constants.SuperstructureConstants.ClawIntakeConstants;
+import frc.robot.Robot;
 
 public class ClawIntakeIOSparkMax implements ClawIntakeIO {
   protected SparkMax intakeMotor;
@@ -41,7 +42,7 @@ public class ClawIntakeIOSparkMax implements ClawIntakeIO {
     System.out.println("done.");
 
 
-    System.out.println("│╠╝ Claw intake I/O initialized in " + String.format("%.3f", (System.currentTimeMillis() - initializeTime) * 1000.0) + "ms (note: no logging of algae intake subsystem initialization)");
+    System.out.println("│╠╝ Claw intake I/O initialized in " + Robot.Companion.formatTimeDelta(initializeTime) + "ms (note: no logging of algae intake subsystem initialization)");
   }
 
   @Override

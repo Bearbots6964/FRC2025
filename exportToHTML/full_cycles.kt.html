@@ -1,0 +1,102 @@
+<html>
+<head>
+<title>full_cycles.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #a9b1d6;}
+.s1 { color: #9d7cd8; font-style: italic;}
+.s2 { color: #7dcfff;}
+.s3 { color: #9abdf5;}
+.s4 { color: #5d6791;}
+.s5 { color: #7aacb7;}
+.s6 { color: #89ddff;}
+.s7 { color: #fd914e;}
+.s8 { color: #9dcc65;}
+.ls0 { height: 1px; border-width: 0; color: #c0caf5; background-color:#c0caf5}
+</style>
+</head>
+<body bgcolor="#1a1b26">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+full_cycles.kt</font>
+</center></td></tr></table>
+<pre>
+<hr class="ls0">    <span class="s0">private </span><span class="s1">fun </span><span class="s0">algaeCycle</span><span class="s2">()</span><span class="s0">: Command </span><span class="s3">{</span>
+
+        <span class="s1">return </span><span class="s0">runOnce</span><span class="s2">(</span><span class="s3">{</span>
+            <span class="s4">// check if we have anything selected for barge positions.</span>
+            <span class="s4">// if not, default to none</span>
+            <span class="s0">bargePosition </span><span class="s5">= </span><span class="s0">bargeChooser</span><span class="s6">.</span><span class="s0">get</span><span class="s2">() </span><span class="s0">?: BargePosition</span><span class="s6">.</span><span class="s0">NONE</span>
+            <span class="s0">state</span><span class="s6">.</span><span class="s0">push</span><span class="s2">(</span><span class="s0">task </span><span class="s5">= </span><span class="s0">AutoTask</span><span class="s6">.</span><span class="s0">TO_ALGAE</span><span class="s2">)</span>
+        <span class="s3">}</span><span class="s2">)</span><span class="s6">.</span><span class="s0">andThen</span><span class="s2">(</span>
+            <span class="s0">sequence</span><span class="s2">(</span>
+                <span class="s0">sequence</span><span class="s2">(</span>
+                    <span class="s0">sequence</span><span class="s2">(</span>
+                        <span class="s0">defer</span><span class="s2">(</span>
+                            <span class="s3">{</span>
+                                <span class="s4">// pathfind to where we need to be,</span>
+                                <span class="s4">// just 20 inches back so we have room to swing the arm around</span>
+                                <span class="s0">PathfindingFactories</span><span class="s6">.</span><span class="s0">pathfindToReefButBackALittleMore</span><span class="s2">(</span>
+                                    <span class="s0">drive</span><span class="s6">, </span><span class="s3">{ </span><span class="s0">nextAlgaePosition </span><span class="s3">}</span><span class="s6">, </span><span class="s0">driveTranslationalControlSupplier</span>
+                                <span class="s2">)</span>
+                            <span class="s3">}</span><span class="s6">, </span><span class="s0">setOf</span><span class="s2">(</span><span class="s0">drive</span><span class="s2">)</span>
+                        <span class="s2">)</span><span class="s6">,</span>
+                        <span class="s4">// wait until we're near the target reef,</span>
+                        <span class="s4">// then put the superstructure in whatever position we need to be in to grab algae</span>
+
+                        <span class="s0">defer</span><span class="s2">(</span>
+                            <span class="s3">{</span>
+                                <span class="s0">superstructureCommands</span><span class="s6">.</span><span class="s0">goToPosition</span><span class="s2">(</span>
+                                    <span class="s0">elevator</span><span class="s6">, </span><span class="s0">arm</span><span class="s6">, </span><span class="s0">climber</span><span class="s6">, </span><span class="s1">when </span><span class="s2">(</span><span class="s0">nextAlgaePosition</span><span class="s2">) </span><span class="s3">{</span>
+                                        <span class="s0">PathfindingFactories</span><span class="s6">.</span><span class="s0">Reef</span><span class="s6">.</span><span class="s0">AB_ALGAE</span><span class="s6">, </span><span class="s0">PathfindingFactories</span><span class="s6">.</span><span class="s0">Reef</span><span class="s6">.</span><span class="s0">EF_ALGAE</span><span class="s6">, </span><span class="s0">PathfindingFactories</span><span class="s6">.</span><span class="s0">Reef</span><span class="s6">.</span><span class="s0">IJ_ALGAE </span><span class="s2">-&gt; </span><span class="s0">Constants</span><span class="s6">.</span><span class="s0">SuperstructureConstants</span><span class="s6">.</span><span class="s0">SuperstructureState</span><span class="s6">.</span><span class="s0">UPPER_REEF_ALGAE</span>
+                                        <span class="s1">else </span><span class="s2">-&gt; </span><span class="s0">Constants</span><span class="s6">.</span><span class="s0">SuperstructureConstants</span><span class="s6">.</span><span class="s0">SuperstructureState</span><span class="s6">.</span><span class="s0">LOWER_REEF_ALGAE</span>
+                                    <span class="s3">}</span>
+                                <span class="s2">)</span>
+                            <span class="s3">}</span><span class="s6">, </span><span class="s0">setOf</span><span class="s2">(</span><span class="s0">arm</span><span class="s6">, </span><span class="s0">elevator</span><span class="s6">, </span><span class="s0">climber</span><span class="s2">)</span>
+                        <span class="s2">)</span><span class="s6">.</span><span class="s0">deadlineFor</span><span class="s2">(</span>
+                            <span class="s0">run</span><span class="s2">(</span><span class="s3">{ </span><span class="s0">drive</span><span class="s6">.</span><span class="s0">stopWithX</span><span class="s2">() </span><span class="s3">}</span><span class="s6">, </span><span class="s0">drive</span><span class="s2">)</span>
+                        <span class="s2">)</span>
+                    <span class="s2">)</span><span class="s6">,</span>
+
+                    <span class="s4">// set the pathfinding speed</span>
+                    <span class="s4">// to be slower so we're not slamming into the reef at top speed</span>
+                    <span class="s0">runOnce</span><span class="s2">(</span><span class="s3">{ </span><span class="s0">drive</span><span class="s6">.</span><span class="s0">setPathfindingSpeedPercent</span><span class="s2">(</span><span class="s0">Constants</span><span class="s6">.</span><span class="s0">PathfindingConstants</span><span class="s6">.</span><span class="s0">algaeGrabSpeed</span><span class="s2">) </span><span class="s3">}</span><span class="s2">)</span><span class="s6">,</span>
+
+                    <span class="s4">// pathfind forward so we can actually pick the algae up</span>
+                    <span class="s0">sequence</span><span class="s2">(</span>
+                        <span class="s0">PathfindingFactories</span><span class="s6">.</span><span class="s0">pathfindToReefButBackALittleLess</span><span class="s2">(</span>
+                            <span class="s0">drive</span><span class="s6">, </span><span class="s3">{ </span><span class="s0">nextAlgaePosition </span><span class="s3">}</span><span class="s6">, </span><span class="s0">driveTranslationalControlSupplier</span>
+                        <span class="s2">)</span><span class="s6">,</span>
+                        <span class="s0">run</span><span class="s2">(</span>
+                            <span class="s3">{ </span><span class="s0">drive</span><span class="s6">.</span><span class="s0">stopWithX</span><span class="s2">() </span><span class="s3">}</span><span class="s6">, </span><span class="s0">drive</span>
+                        <span class="s2">)</span>
+                    <span class="s2">)</span>
+                        <span class="s4">// lock the wheels</span>
+                        <span class="s6">.</span><span class="s0">withDeadline</span><span class="s2">(</span>
+                            <span class="s4">// spin the intake</span>
+                            <span class="s0">clawIntake</span><span class="s6">.</span><span class="s0">intakeWithoutStoppingForAlgae</span><span class="s2">()</span><span class="s6">.</span><span class="s0">withDeadline</span><span class="s2">(</span>
+                                <span class="s4">// wait until the motor stalls</span>
+                                <span class="s4">// (surefire way to tell if we have an algae) and then wait an extra half-second</span>
+                                <span class="s4">// FIXME: check if this value can go lower</span>
+                                <span class="s4">// update 8/5/25: turned down by half</span>
+                                <span class="s0">waitUntil</span><span class="s2">(</span><span class="s0">clawIntake::grabbed</span><span class="s2">)</span><span class="s6">.</span><span class="s0">andThen</span><span class="s2">(</span><span class="s0">waitSeconds</span><span class="s2">(</span><span class="s7">0.25</span><span class="s2">))</span>
+                                <span class="s4">// set algae state</span>
+                            <span class="s2">)</span><span class="s6">.</span><span class="s0">andThen</span><span class="s2">(</span><span class="s3">{ </span><span class="s0">algaeStatus </span><span class="s5">= </span><span class="s0">AlgaeStatus</span><span class="s6">.</span><span class="s0">IN_CLAW </span><span class="s3">}</span><span class="s2">)</span>
+                        <span class="s2">)</span><span class="s6">,</span>
+                    <span class="s4">// back up</span>
+                    <span class="s0">drive</span><span class="s6">.</span><span class="s0">backUp</span><span class="s2">()</span>
+                <span class="s2">)</span><span class="s6">.</span><span class="s0">onlyIf </span><span class="s3">{ </span><span class="s0">algaeStatus </span><span class="s5">== </span><span class="s0">AlgaeStatus</span><span class="s6">.</span><span class="s0">NONE </span><span class="s3">}</span><span class="s6">, </span><span class="s4">// only do this if we don't have algae</span>
+                <span class="s4">// decide what to do based on the barge position selection</span>
+                <span class="s0">select</span><span class="s2">(</span>
+                    <span class="s0">mapOf</span><span class="s2">(</span>
+                        <span class="s0">BargePosition</span><span class="s6">.</span><span class="s0">NONE to spitOutAlgae</span><span class="s2">()</span><span class="s6">,</span>
+                        <span class="s0">BargePosition</span><span class="s6">.</span><span class="s0">LEFT to putAlgaeInBarge</span><span class="s2">()</span><span class="s6">,</span>
+                        <span class="s0">BargePosition</span><span class="s6">.</span><span class="s0">MIDDLE to putAlgaeInBarge</span><span class="s2">()</span><span class="s6">,</span>
+                        <span class="s0">BargePosition</span><span class="s6">.</span><span class="s0">RIGHT to putAlgaeInBarge</span><span class="s2">()</span>
+                    <span class="s2">)</span>
+                <span class="s2">) </span><span class="s3">{ </span><span class="s0">bargePosition </span><span class="s3">}</span><span class="s6">.</span><span class="s0">onlyIf </span><span class="s3">{ </span><span class="s0">algaeStatus </span><span class="s5">== </span><span class="s0">AlgaeStatus</span><span class="s6">.</span><span class="s0">IN_CLAW </span><span class="s3">} </span><span class="s4">// use the barge position as the key</span>
+            <span class="s2">))</span><span class="s6">.</span><span class="s0">finallyDo</span><span class="s2">(</span><span class="s0">Runnable </span><span class="s3">{ </span><span class="s0">state</span><span class="s6">.</span><span class="s0">push</span><span class="s2">(</span><span class="s0">task </span><span class="s5">= </span><span class="s0">AutoTask</span><span class="s6">.</span><span class="s0">IDLE</span><span class="s2">) </span><span class="s3">}</span><span class="s2">)</span>
+    <span class="s3">}</span></pre>
+</body>
+</html>

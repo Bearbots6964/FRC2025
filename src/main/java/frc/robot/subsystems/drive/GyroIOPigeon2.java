@@ -23,6 +23,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Robot;
 import frc.robot.generated.TunerConstants;
 import java.util.Queue;
 
@@ -56,7 +57,7 @@ public class GyroIOPigeon2 implements GyroIO {
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon.getYaw());
     System.out.println("done.");
-    System.out.println("│╠╝ Pigeon initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0)+ "ms");
+    System.out.println("│╠╝ Pigeon initialized in " + Robot.Companion.formatTimeDelta(initializeTime)+ "ms");
   }
 
   @Override

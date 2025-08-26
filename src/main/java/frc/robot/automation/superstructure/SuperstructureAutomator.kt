@@ -2,28 +2,67 @@ package frc.robot.automation.superstructure
 
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.button.Trigger
+import frc.robot.SuperstructureStates
 import frc.robot.automation.Automator
 import frc.robot.automation.Request
 import frc.robot.automation.SubsystemData
-import frc.robot.automation.superstructure.SuperstructureConstants.CLIMBER_POSITION_RETRACTED
 import frc.robot.automation.superstructure.requests.IntakeState
+import frc.robot.automation.superstructure.requests.SuperstructureFixPivotRequest
+import frc.robot.automation.superstructure.requests.SuperstructurePickUpCoralRequest
 import frc.robot.automation.superstructure.requests.SuperstructureRequest
+import frc.robot.automation.superstructure.requests.SuperstructureStateRequest
+import frc.robot.automation.superstructure.requests.SuperstructureScoreRequest
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.arm.ClawIntake
 import frc.robot.subsystems.climber.Climber
 import frc.robot.subsystems.elevator.Elevator
 
-class SuperstructureAutomator : Automator {
-    val arm: Arm
-    val climber: Climber
-    val elevator: Elevator
-    val intake: ClawIntake
+class SuperstructureAutomator(
+    val data: SubsystemData
+) : Automator {
+    val arm: Arm = data.arm
+    val climber: Climber = data.climber
+    val elevator: Elevator = data.elevator
+    val intake: ClawIntake = data.intake
     override var running: Boolean = false
-    val grabbed
-        get() = intake.grabbed
+    val grabbed: Trigger = intake.grabbedTrigger
+
 
     override fun accept(request: Request): Command {
+        // if the request is not a superstructure request, we don't handle it
         if (request !is SuperstructureRequest) return Commands.none()
+        // if the request is a superstructure request and deals with the climber-arm conflict, we handle it, but in a ~special way~
+        if (request is SuperstructureFixPivotRequest) {
+            // if we are scoring on L4, we can get rid of the middleman
+            // and put the bot in L4 position while stopping the climber from pivoting
+            return if (request.scoreOnL4) Commands.parallel(
+                Commands.runOnce({ running = true }),
+                fixPivotAndScoreL4()
+            ).finallyDo(Runnable { running = false })
+            // otherwise, just get the superstructure to a safe place
+            else Commands.parallel(Commands.runOnce({
+                running = true
+            }), fixPivot()).finallyDo(Runnable { running = false })
+        }
+        // if the request is a superstructure score request, we handle it. nothing special here
+        if (request is SuperstructureScoreRequest) return Commands.parallel(Commands.runOnce({
+            running = true
+        }), scoreAt(request.position)).finallyDo(Runnable { running = false })
+
+        // if the request is a superstructure pick up coral request... you know the drill
+        if (request is SuperstructurePickUpCoralRequest) {
+            return Commands.parallel(
+                Commands.runOnce({ running = true }),
+                pickUpCoral()
+            ).finallyDo(Runnable { running = false })
+        }
+
+        // convert state requests to superstructure requests
+        if (request is SuperstructureStateRequest) {
+            return accept(SuperstructureRequest(request.position.toState()))
+        }
+
         val list: MutableList<Command> = mutableListOf()
         if (request.climberPosition != null) {
             list.add(moveClimber(request.climberPosition))
@@ -37,17 +76,11 @@ class SuperstructureAutomator : Automator {
         if (request.intakeSpeed != null) {
             list.add(spinIntake(request.intakeSpeed))
         }
-        return Commands.sequence(
+        return Commands.parallel(
             Commands.runOnce({ running = true }), *list.toTypedArray()
         ).finallyDo(Runnable { running = false })
     }
 
-    constructor(data: SubsystemData) {
-        arm = data.arm
-        climber = data.climber
-        elevator = data.elevator
-        intake = data.intake
-    }
 
     fun moveArm(to: Double): Command = arm.moveArmToAngle(to).asProxy()
 
@@ -60,116 +93,19 @@ class SuperstructureAutomator : Automator {
             IntakeState.INTAKE -> intake.intake().asProxy()
             IntakeState.ALGAE_INTAKE -> intake.intakeWithoutStoppingForAlgae().asProxy()
             IntakeState.OUTTAKE -> intake.outtake().asProxy()
+            IntakeState.ALGAE_OUTTAKE -> intake.outtakeMaxSpeed().asProxy()
             IntakeState.STOP -> intake.stop().asProxy()
         }
     }
 
-    fun goToL1(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.L1.armPosition,
-                elevatorPosition = SuperstructureConstants.L1.elevatorPosition,
-            )
-        )
-    }
-
-    fun goToL2(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.L2.armPosition,
-                elevatorPosition = SuperstructureConstants.L2.elevatorPosition,
-            )
-        )
-    }
-
-    fun goToL3(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.L3.armPosition,
-                elevatorPosition = SuperstructureConstants.L3.elevatorPosition,
-            )
-        )
-    }
-
-    fun goToL4(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.L4.armPosition,
-                elevatorPosition = SuperstructureConstants.L4.elevatorPosition,
-            )
-        )
-    }
-
-    fun goToHome(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.HOME.armPosition,
-                elevatorPosition = SuperstructureConstants.HOME.elevatorPosition,
-            )
-        )
-    }
-
-    fun goToPreCoralPickup(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.PRE_CORAL_PICKUP.armPosition,
-                elevatorPosition = SuperstructureConstants.PRE_CORAL_PICKUP.elevatorPosition,
-                climberPosition = SuperstructureConstants.CLIMBER_POSITION_RETRACTED,
-            )
-        )
-    }
-
-    fun goToCoralPickup(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.CORAL_PICKUP.armPosition,
-                elevatorPosition = SuperstructureConstants.CORAL_PICKUP.elevatorPosition,
-            )
-        )
-    }
-
-    fun goToBargeLaunch(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.BARGE_LAUNCH.armPosition,
-                elevatorPosition = SuperstructureConstants.BARGE_LAUNCH.elevatorPosition,
-            )
-        )
-    }
-
-    fun goToAlgaeIntake(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.ALGAE_INTAKE.armPosition,
-                elevatorPosition = SuperstructureConstants.ALGAE_INTAKE.elevatorPosition,
-            )
-        )
-    }
-
-    fun goToUpperReefAlgae(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.UPPER_REEF_ALGAE.armPosition,
-                elevatorPosition = SuperstructureConstants.UPPER_REEF_ALGAE.elevatorPosition,
-            )
-        )
-    }
-
-    fun goToLowerReefAlgae(): Command {
-        return accept(
-            SuperstructureRequest(
-                armPosition = SuperstructureConstants.LOWER_REEF_ALGAE.armPosition,
-                elevatorPosition = SuperstructureConstants.LOWER_REEF_ALGAE.elevatorPosition,
-            )
-        )
-    }
 
     fun pickUpCoral(): Command {
         return accept(
-            SuperstructureRequest( // pre-positioning
-                armPosition = SuperstructureConstants.CORAL_PICKUP.armPosition,
-                elevatorPosition = SuperstructureConstants.CORAL_PICKUP.elevatorPosition,
-                climberPosition = SuperstructureConstants.CLIMBER_POSITION_EXTENDED,
+            SuperstructureRequest(
+                // pre-positioning
+                armPosition = SuperstructureStates.CORAL_PICKUP.armPosition,
+                elevatorPosition = SuperstructureStates.CORAL_PICKUP.elevatorPosition,
+                climberPosition = SuperstructureStates.CLIMBER_POSITION_EXTENDED,
             )
         ).andThen(
             accept(
@@ -179,18 +115,36 @@ class SuperstructureAutomator : Automator {
             ).deadlineFor(
                 accept(
                     SuperstructureRequest( // move climber inwards until secured
-                        climberPosition = SuperstructureConstants.CLIMBER_POSITION_INTAKE
+                        climberPosition = SuperstructureStates.CLIMBER_POSITION_INTAKE
                     )
                 )
             )
         )
     }
-    fun scoreAt(position: Positions): Command {
+
+    fun scoreAt(position: Position): Command {
         when (position) {
-            Positions.L2 -> return accept(SuperstructureRequest(SuperstructureConstants.L2_SCORE))
-            Positions.L3 -> return accept(SuperstructureRequest(SuperstructureConstants.L3_SCORE))
-            Positions.L4 -> return accept(SuperstructureRequest(SuperstructureConstants.L4_SCORE))
+            Position.L2 -> return accept(SuperstructureRequest(SuperstructureStates.L2_SCORE))
+            Position.L3 -> return accept(SuperstructureRequest(SuperstructureStates.L3_SCORE))
+            Position.L4 -> return accept(SuperstructureRequest(SuperstructureStates.L4_SCORE))
             else -> throw IllegalArgumentException("Invalid position for scoring: $position")
         }
+    }
+
+    fun fixPivot(): Command {
+        return accept(
+            SuperstructureRequest(SuperstructureStates.FIX_PIVOT)
+            // this is one of the rare cases where we don't want to move the climber
+            // by way of directly proxying the command to the climber subsystem
+            // like, seriously, it'll snap in half if it moves up even just an inch
+        ).deadlineFor(climber.moveClimberOpenLoop({ 0.0 }, { 0.0 }).asProxy())
+    }
+
+    fun fixPivotAndScoreL4(): Command {
+        return accept(SuperstructureStateRequest(Position.L4)).deadlineFor(
+            climber.moveClimberOpenLoop(
+                { 0.0 },
+                { 0.0 }).asProxy()
+        )
     }
 }

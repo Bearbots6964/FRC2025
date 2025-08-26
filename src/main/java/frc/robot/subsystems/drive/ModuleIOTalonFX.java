@@ -29,6 +29,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.generated.TunerConstants;
 
 public abstract class ModuleIOTalonFX implements ModuleIO {
@@ -186,7 +187,7 @@ public abstract class ModuleIOTalonFX implements ModuleIO {
     ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
     System.out.println("done.");
 
-    System.out.println("│║╠ Module I/O initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
+    System.out.println("│║╠ Module I/O initialized in " + Robot.Companion.formatTimeDelta(initializeTime) + "ms");
   }
 
   @Override

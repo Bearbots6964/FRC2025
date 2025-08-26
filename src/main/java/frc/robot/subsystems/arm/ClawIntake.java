@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.Constants.SuperstructureConstants.ClawIntakeConstants;
 import lombok.Getter;
@@ -15,6 +16,8 @@ public class ClawIntake extends SubsystemBase {
   private final ClawIntakeIOInputsAutoLogged inputs = new ClawIntakeIOInputsAutoLogged();
   @Getter public boolean manuallySetToGrabbed = false;
   @Getter public boolean grabbed = false;
+  public final Trigger grabbedTrigger =
+      new Trigger(() -> inputs.thingGripped || manuallySetToGrabbed);
   double timer = 0.0;
 
   public ClawIntake(ClawIntakeIO io) {

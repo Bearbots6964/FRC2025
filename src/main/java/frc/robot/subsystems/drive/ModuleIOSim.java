@@ -24,6 +24,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Robot;
 
 /**
  * Physics sim implementation of module IO. The sim models are configured using a set of module
@@ -77,7 +78,7 @@ public class ModuleIOSim implements ModuleIO {
     System.out.print("│║╠ Enabling turn controller wrapping... ");
     turnController.enableContinuousInput(-Math.PI, Math.PI);
     System.out.println("done.");
-    System.out.println("│╠╝ Module sim initialized in " + String.format("%.3f", (Timer.getFPGATimestamp() - initializeTime) * 1000.0) + "ms");
+    System.out.println("│╠╝ Module sim initialized in " + Robot.Companion.formatTimeDelta(initializeTime) + "ms");
   }
 
   @Override

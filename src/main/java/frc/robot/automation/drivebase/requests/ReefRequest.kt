@@ -41,10 +41,11 @@ class ReefRequest(val location: ReefLocation, val reefDistance: ReefDistance = R
 /**
  * Enum class representing the distance from the reef.
  * This is used to determine how far the robot should be from the reef wall when placing coral.
- * @property distance The distance in meters.
+ * @property distance The distance in inches.
  */
 enum class ReefDistance(val distance: Double) {
     CLOSE(0.0),
+    ALGAE(3.0),
     MEDIUM(21.0),
     FAR(27.0)
 }
