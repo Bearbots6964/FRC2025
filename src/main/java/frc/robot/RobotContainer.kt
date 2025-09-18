@@ -1316,7 +1316,7 @@ class RobotContainer {
                             {
                                 // pathfind to where we need to be,
                                 // just 20 inches back so we have room to swing the arm around
-                                PathfindingFactories.pathfindToReefButBackALittleMore(
+                                PathfindingFactories.pathfindToReefPreAlgae(
                                     drive, { nextAlgaePosition }, driveTranslationalControlSupplier
                                 )
                             }, setOf(drive)
@@ -1344,7 +1344,7 @@ class RobotContainer {
 
                     // pathfind forward so we can actually pick the algae up
                     sequence(
-                        PathfindingFactories.pathfindToReefButBackALittleLess(
+                        PathfindingFactories.pathfindToReefFinalAlgae(
                             drive, { nextAlgaePosition }, driveTranslationalControlSupplier
                         ),
                         run(
@@ -1484,7 +1484,7 @@ class RobotContainer {
     }, setOf(drive)).withName("Pathfind to Reef")
 
     private fun pathfindToReef(): Command = defer({
-        PathfindingFactories.pathfindToReefButBackALittle(
+        PathfindingFactories.pathfindToReefPreCoral(
             drive, { nextReef }, driveTranslationalControlSupplier
         )
     }, setOf(drive))

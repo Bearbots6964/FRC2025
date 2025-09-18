@@ -44,7 +44,7 @@ object PathfindingFactories {
         ).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
-    fun pathfindToReefButBackALittle(
+    fun pathfindToReefPreCoral(
         drive: Drive, reef: Reef, nudge: Supplier<Translation2d>
     ): Command {
         val targetPose = getSpecificReefSidePose(reef)
@@ -56,7 +56,7 @@ object PathfindingFactories {
             .andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
-    fun pathfindToReefButBackALittle(
+    fun pathfindToReefPreCoral(
         drive: Drive, reef: () -> Reef, nudge: Supplier<Translation2d>
     ): Command {
         return Commands.runOnce({ Vision.backCamerasEnabled = false })
@@ -69,7 +69,7 @@ object PathfindingFactories {
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
-    fun pathfindToReefButBackALittleMore(
+    fun pathfindToReefPreAlgae(
         drive: Drive, reef: () -> Reef, nudge: Supplier<Translation2d>
     ): Command {
         return Commands.runOnce({ Vision.backCamerasEnabled = false })
@@ -82,7 +82,7 @@ object PathfindingFactories {
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
-    fun pathfindToReefButBackALittleLess(
+    fun pathfindToReefFinalAlgae(
         drive: Drive, reef: () -> Reef, nudge: Supplier<Translation2d>
     ): Command {
         return Commands.runOnce({ Vision.backCamerasEnabled = false })
