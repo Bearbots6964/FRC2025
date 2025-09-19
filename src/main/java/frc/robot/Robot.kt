@@ -141,6 +141,8 @@ class Robot : LoggedRobot() {
         DriverStation.silenceJoystickConnectionWarning(true)
 
         println("Robot initialization took ${"%.3f".format((Timer.getFPGATimestamp() - initializeTime) * 1000.0)}ms")
+
+
     }
 
     companion object {

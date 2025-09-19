@@ -74,7 +74,6 @@ class RobotContainer {
     private var vision: Vision
     private var arm: Arm
     private var elevator: Elevator
-    private var algaeIntake: AlgaeIntake
     private var clawIntake: ClawIntake
     private var climber: Climber
     // </editor-fold>
@@ -233,11 +232,6 @@ class RobotContainer {
                         Constants.SuperstructureConstants.ArmConstants.talonConfig
                     ), elevator.elevatorLigament
                 )
-                algaeIntake = AlgaeIntake(
-                    AlgaeIntakeIOSparkMax(
-                        Constants.AlgaeIntakeConstants.armConfig, Constants.AlgaeIntakeConstants.intakeConfig
-                    )
-                )
                 climber = Climber(
                     WinchIOTalonFX(Constants.ClimberConstants.winchMotorConfig),
                     ClimberPivotIOTalonFX(Constants.ClimberConstants.pivotMotorConfig)
@@ -278,7 +272,6 @@ class RobotContainer {
 
                     ), elevator.elevatorLigament
                 )
-                algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
             }
 
             else -> {
@@ -294,7 +287,6 @@ class RobotContainer {
                 elevator = Elevator(object : ElevatorIO {})
                 arm = Arm(object : ArmIO {}, elevator.elevatorLigament)
                 clawIntake = ClawIntake(object : ClawIntakeIO {})
-                algaeIntake = AlgaeIntake(object : AlgaeIntakeIO {})
                 climber = Climber(object : WinchIO {}, object : ClimberPivotIO {})
             }
         }
@@ -486,9 +478,7 @@ class RobotContainer {
 
         ioPrint("│╠ Setting up operator controller bindings... ")
         // Operator controller bindings
-        operatorController.a().whileTrue(algaeIntake.runIntake())
         ioPrint("A ")
-        operatorController.b().onTrue(algaeIntake.retractIntake())
         ioPrint("B ")
         operatorController.x().onTrue(
             climber.climb()
