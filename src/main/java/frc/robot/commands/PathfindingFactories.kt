@@ -2,6 +2,7 @@ package frc.robot.commands
 
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.util.Units
@@ -69,6 +70,19 @@ object PathfindingFactories {
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
 
+
+    fun pathfindToCoralStationDemo(
+        drive: Drive, reef: () -> Reef, nudge: Supplier<Translation2d>
+    ): Command {
+        return drive.followRepulsorField({
+            getSpecificReefSidePose(Reef.A).let {
+                translateCoordinates(
+                    it, it.rotation.degrees, -Units.inchesToMeters(7.0 * 12.0)
+                )
+            }
+        }, nudge)
+    }
+
     fun pathfindToReefPreAlgae(
         drive: Drive, reef: () -> Reef, nudge: Supplier<Translation2d>
     ): Command {
@@ -94,6 +108,7 @@ object PathfindingFactories {
                 }
             }, nudge)).andThen(Commands.runOnce({ Vision.backCamerasEnabled = true }))
     }
+
     fun pathfindToPosition(
         drive: Drive, targetPose: Pose2d, nudge: Supplier<Translation2d>
     ): Command = drive.followRepulsorField(targetPose, nudge)

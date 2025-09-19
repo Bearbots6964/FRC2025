@@ -435,6 +435,8 @@ class RobotContainer {
                 { -driveController.rightX * 0.25 })
         )
         ioPrint("LT ")
+        driveController.rightTrigger().onTrue(runDemoCycles().repeatedly())
+        ioPrint("RT ")
 //        driveController.pov(90).onTrue(driveQueue.addButDoNotStartAsCommand({
 //            PathfindingFactories.pathfindToCoralStation(
 //                drive,
@@ -1141,6 +1143,144 @@ class RobotContainer {
 
     }
 
+    private fun runDemoCycles(): Command {
+        return sequence(
+            runOnce({ nextReef = PathfindingFactories.Reef.A; nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4 }),
+            runOneDemoCycle(),
+            runOnce({ nextReef = PathfindingFactories.Reef.B; nextPosition = Constants.SuperstructureConstants.SuperstructureState.L4 }),
+            runOneDemoCycle(),
+            runOnce({ nextReef = PathfindingFactories.Reef.A; nextPosition = Constants.SuperstructureConstants.SuperstructureState.L3 }),
+            runOneDemoCycle(),
+            runOnce({ nextReef = PathfindingFactories.Reef.B; nextPosition = Constants.SuperstructureConstants.SuperstructureState.L3 }),
+            runOneDemoCycle(),
+            runOnce({ nextReef = PathfindingFactories.Reef.A; nextPosition = Constants.SuperstructureConstants.SuperstructureState.L2 }),
+            runOneDemoCycle(),
+            runOnce({ nextReef = PathfindingFactories.Reef.B; nextPosition = Constants.SuperstructureConstants.SuperstructureState.L2 }),
+            runOneDemoCycle(),
+        )
+    }
+
+
+    private fun runOneDemoCycle(): Command {
+        var inPosition = false
+        // go to coral station; requires drive, arm, elevator, and climber
+        return sequence(
+            goToDemoCoralStation(),
+            // wait until the driver signals a coral on the intake (we have no way of detecting this)
+            lockWheelsAndWaitForInput(),
+            runOnce({ state.push(task = AutoTask.TO_REEF) }),
+            // pathfind to reef; requires drive, elevator, arm, intake, climber
+            parallel(
+                // this command sequence concerns the drivebase + pathfinding
+                sequence(
+                    // pathfinding speed; doesn't require anything
+                    runOnce({
+                        drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.coralIntakeSpeed)
+                        inPosition = false
+                    }),
+
+
+                    // actually go to the reef
+                    pathfindToReef().deadlineFor(
+                        // wait until the claw has the coral secured;
+                        // if we move too fast,
+                        // we risk throwing it off the intake,
+                        // but we still want to be able to move quickly
+                        waitUntil { coralStatus == CoralStatus.IN_CLAW }.andThen({
+                            // set pathfinding speed to the normal speed
+                            drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed)
+                        })
+                    ),
+
+                    // at this point we're in the reef protected zone
+                    // which should provide reprieve
+                    // if the opposing alliance is playing defense
+                    // and knocks us out of alignment.
+                    // more importantly, we're stopped and waiting
+
+                    // wait until the superstructure is in the position
+                    // we want it to be in for scoring
+                    waitUntil { inPosition }
+                        // while we wait, lock the wheels
+                        // this might actually help
+                        // mitigate some of the "getting knocked out of alignment"
+                        // issues we could face in a real match
+                        .deadlineFor(run({ drive.stopWithX() }, drive)).andThen(
+                            // close that last bit of distance
+                            finalReefLineup()
+                        ).withName("Pathfind to Reef (final)")
+                ), // end drivebase sequence
+
+                // wait until the claw has the coral secured and set that state
+                waitUntil { clawIntake.grabbed }.andThen({ coralStatus = CoralStatus.IN_CLAW }),
+
+                // superstructure stuff
+                sequence(
+                    // pick up the coral from the intake
+                    superstructureCommands.pickUpCoral(
+                        elevator, arm, clawIntake, climber
+                    )
+                        // i couldn't imagine a situation
+                        // in which the coral wouldn't be on the intake,
+                        // because this command can already only start
+                        // once the driver confirms it,
+                        // but this check could be useful at some point or another
+                        .onlyIf { coralStatus == CoralStatus.ON_INTAKE },
+
+                    // might fix an issue we were having
+                    // where the arm tries to go to some random position
+                    runOnce({ arm.setGoalToCurrent() }),
+
+                    // wait until we're near where we need to be
+                    waitUntil(drive::nearGoal).andThen(
+                        // defer this command construction until it's called.
+                        // that way,
+                        // we're checking what position
+                        // the drivers want the superstructure
+                        // to be in at the last possible moment
+                        // in case they change something.
+                        // the field is dynamic, after all
+                        runOnce({ updateHmi() })
+                    ).andThen(
+                        defer({
+                            // go to the position
+                            superstructureCommands.goToPositionWithoutSafety(
+                                elevator, arm, climber, nextPosition
+                            )
+                        }, setOf(elevator, arm, climber))
+                    ),
+                    // once we're in position,
+                    // set the state so the drivebase can continue its final lineup
+                    runOnce({ inPosition = true })
+                )
+            ), // end pathfinding to reef and lining up and all that jazz
+
+
+            // deferred command, for the same reasons as the other one
+            defer({
+                // score the coral
+                superstructureCommands.scoreAtPositionFaster(
+                    elevator, arm, clawIntake, drive, nextPosition
+                )
+            }, setOf(elevator, arm, clawIntake, drive)).finallyDo(
+                // set state of the coral
+                Runnable { coralStatus = CoralStatus.NONE })
+                // only do this deferred command + compositions
+                // if we actually have the coral
+                .onlyIf { coralStatus == CoralStatus.IN_CLAW }).andThen(
+            select(
+                mapOf(
+                    Pair(
+                        true, runOnce({ runOneFullCoralCycle().schedule() })
+                    ), Pair(
+                        false, none()
+                    )
+                ), ::keepGoing
+            )
+        ).finallyDo(Runnable { state.push(task = AutoTask.IDLE) }).withName("Full Demo Coral Cycle")
+
+    }
+
     private fun justScore(): Command {
         var inPosition = false
         return parallel(
@@ -1506,6 +1646,22 @@ class RobotContainer {
             state.push(task = AutoTask.IDLE)
         }).onlyIf { coralStatus == CoralStatus.NONE }.withName("Pathfind to Coral Station")
 
+    private fun goToDemoCoralStation(): Command =
+        runOnce({ drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toCoralStationSpeed); state.push(task = AutoTask.TO_CORAL_STATION) }).andThen(
+            defer(
+                {
+                    PathfindingFactories.pathfindToCoralStationDemo(
+                        drive, { PathfindingFactories.Reef.A }, driveTranslationalControlSupplier
+                    )
+                }, setOf(drive)
+            ).deadlineFor(
+                superstructureCommands.preCoralPickupWithoutSafety(elevator, arm)
+                    .alongWith(climber.moveClimberToIntakePosition())
+            )
+        ).finallyDo(Runnable {
+            arm.setGoalToCurrent(); drive.setPathfindingSpeedPercent(Constants.PathfindingConstants.toReefSpeed)
+            state.push(task = AutoTask.IDLE)
+        }).onlyIf { coralStatus == CoralStatus.NONE }.withName("Pathfind to Demo Coral Station")
     private fun updateReef(reef: PathfindingFactories.Reef) {
         nextReef = reef
     }
